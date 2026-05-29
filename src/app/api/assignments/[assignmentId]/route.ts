@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sendAssignmentCompletedNotification } from "@/lib/email"
@@ -54,7 +55,7 @@ export async function PATCH(
       )
     }
 
-    const updated = await prisma.$transaction(async (tx) => {
+    const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const updatedAssignment = await tx.taskerAssignment.update({
         where: { id: assignmentId },
         data: { status },
