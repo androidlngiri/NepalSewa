@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
-import { Search, Wrench, Zap, PaintBucket, Home, Truck, Code, GraduationCap, Scissors, Brush } from "lucide-react"
+import { Search, Wrench, Zap, PaintBucket, Home, Truck, Code, GraduationCap, Scissors } from "lucide-react"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,16 +18,14 @@ export const metadata: Metadata = {
 }
 
 const allServices = [
-  { icon: Wrench, title: "Plumbing", count: "24 taskers", color: "from-blue-500 to-cyan-600", popular: true },
-  { icon: Zap, title: "Electrical", count: "18 taskers", color: "from-amber-500 to-orange-600", popular: true },
-  { icon: PaintBucket, title: "Painting", count: "15 taskers", color: "from-rose-500 to-pink-600" },
-  { icon: Home, title: "Cleaning", count: "20 taskers", color: "from-emerald-500 to-green-600", popular: true },
-  { icon: Truck, title: "Moving & Delivery", count: "12 taskers", color: "from-violet-500 to-purple-600" },
-  { icon: Code, title: "Tech Support", count: "10 taskers", color: "from-indigo-500 to-blue-600" },
-  { icon: GraduationCap, title: "Tutoring", count: "22 taskers", color: "from-teal-500 to-emerald-600" },
-  { icon: Scissors, title: "Salon & Spa", count: "16 taskers", color: "from-pink-500 to-rose-600", popular: true },
-  { icon: Wrench, title: "Medical Home Care", count: "8 taskers", color: "from-red-500 to-rose-600" },
-  { icon: Brush, title: "Carpentry", count: "11 taskers", color: "from-amber-600 to-yellow-600" },
+  { icon: Wrench, title: "Plumbing", slug: "plumbing", count: "24 taskers", color: "from-blue-500 to-cyan-600", popular: true },
+  { icon: Zap, title: "Electrical", slug: "electrical", count: "18 taskers", color: "from-amber-500 to-orange-600", popular: true },
+  { icon: PaintBucket, title: "Painting", slug: "painting", count: "15 taskers", color: "from-rose-500 to-pink-600" },
+  { icon: Home, title: "Cleaning", slug: "cleaning", count: "20 taskers", color: "from-emerald-500 to-green-600", popular: true },
+  { icon: Truck, title: "Moving & Delivery", slug: "moving-delivery", count: "12 taskers", color: "from-violet-500 to-purple-600" },
+  { icon: Code, title: "Tech Support", slug: "tech-support", count: "10 taskers", color: "from-indigo-500 to-blue-600" },
+  { icon: GraduationCap, title: "Tutoring", slug: "tutoring", count: "22 taskers", color: "from-teal-500 to-emerald-600" },
+  { icon: Scissors, title: "Salon & Spa", slug: "salon-spa", count: "16 taskers", color: "from-pink-500 to-rose-600", popular: true },
 ]
 
 export default function ServicesPage() {
@@ -57,7 +55,7 @@ export default function ServicesPage() {
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {allServices.map((service, i) => (
-                <Link key={i} href={`/services/${service.title.toLowerCase().replace(/\s+/g, "-")}`}>
+                <Link key={i} href={`/services/${service.slug}`}>
                   <Card className="group h-full border-2 border-transparent bg-white transition-all hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
                     <CardContent className="p-6">
                       <div className="mb-4 flex items-center justify-between">

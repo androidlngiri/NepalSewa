@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef, Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Loader2, Send, ArrowLeft, ImagePlus, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,8 +31,10 @@ const WARD_OPTIONS = Array.from({ length: 19 }, (_, i) => ({
   label: `Ward ${i + 1}`,
 }))
 
-export default function NewRequestPage() {
+function NewRequestForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const preselectedServiceId = searchParams.get("service")
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [loadingCat, setLoadingCat] = useState(true)
@@ -56,15 +58,24 @@ export default function NewRequestPage() {
   useEffect(() => {
     fetch("/api/services")
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: Category[]) => {
         setCategories(data)
+        if (preselectedServiceId) {
+          for (const cat of data) {
+            const found = cat.services.find((s) => s.id === preselectedServiceId)
+            if (found) {
+              setForm((prev) => ({ ...prev, categoryId: cat.id, serviceId: found.id }))
+              break
+            }
+          }
+        }
         setLoadingCat(false)
       })
       .catch(() => {
         toast.error("Failed to load services")
         setLoadingCat(false)
       })
-  }, [])
+  }, [preselectedServiceId])
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -370,5 +381,17 @@ export default function NewRequestPage() {
         </Card>
       </div>
     </DashboardLayout>
+  )
+}
+
+export default function NewRequestPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+      </div>
+    }>
+      <NewRequestForm />
+    </Suspense>
   )
 }

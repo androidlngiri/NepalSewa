@@ -24,6 +24,7 @@ const services = [
   {
     icon: Wrench,
     title: "Plumbing",
+    slug: "plumbing",
     description: "Pipe repair, faucet installation, water tank cleaning",
     color: "from-blue-500 to-cyan-600",
     bgColor: "bg-blue-50",
@@ -33,6 +34,7 @@ const services = [
   {
     icon: Zap,
     title: "Electrical",
+    slug: "electrical",
     description: "Wiring, switchboard repair, fan installation",
     color: "from-amber-500 to-orange-600",
     bgColor: "bg-amber-50",
@@ -42,6 +44,7 @@ const services = [
   {
     icon: PaintBucket,
     title: "Painting",
+    slug: "painting",
     description: "Interior/exterior painting, texture finishes",
     color: "from-rose-500 to-pink-600",
     bgColor: "bg-rose-50",
@@ -51,6 +54,7 @@ const services = [
   {
     icon: Home,
     title: "Cleaning",
+    slug: "cleaning",
     description: "Deep cleaning, office cleaning, carpet wash",
     color: "from-emerald-500 to-green-600",
     bgColor: "bg-emerald-50",
@@ -60,6 +64,7 @@ const services = [
   {
     icon: Truck,
     title: "Moving & Delivery",
+    slug: "moving-delivery",
     description: "House shifting, parcel delivery, cargo transport",
     color: "from-violet-500 to-purple-600",
     bgColor: "bg-violet-50",
@@ -69,6 +74,7 @@ const services = [
   {
     icon: Code,
     title: "Tech Support",
+    slug: "tech-support",
     description: "Computer repair, web design, IT solutions",
     color: "from-indigo-500 to-blue-600",
     bgColor: "bg-indigo-50",
@@ -78,6 +84,7 @@ const services = [
   {
     icon: GraduationCap,
     title: "Tutoring",
+    slug: "tutoring",
     description: "Home tutoring, exam prep, skill classes",
     color: "from-teal-500 to-emerald-600",
     bgColor: "bg-teal-50",
@@ -87,6 +94,7 @@ const services = [
   {
     icon: Scissors,
     title: "Salon & Spa",
+    slug: "salon-spa",
     description: "Haircut, massage, beauty services at home",
     color: "from-pink-500 to-rose-600",
     bgColor: "bg-pink-50",
@@ -117,7 +125,7 @@ export function ServicesSection() {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {services.map((service, i) => (
-            <Link key={i} href={`/services/${service.title.toLowerCase()}`}>
+            <Link key={i} href={`/services/${service.slug}`}>
               <Card className="group relative h-full overflow-hidden border-2 border-transparent bg-white transition-all hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-center justify-between">
