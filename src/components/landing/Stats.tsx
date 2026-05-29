@@ -19,7 +19,9 @@ export function Stats() {
   useEffect(() => {
     fetch("/api/stats/public")
       .then((r) => r.json())
-      .then(setStats)
+      .then((data) => {
+        if (data && typeof data.users === "number") setStats(data)
+      })
       .catch(() => {})
   }, [])
 

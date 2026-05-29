@@ -5,25 +5,20 @@ export const dynamic = "force-dynamic"
 
 export async function GET() {
   try {
-    const [
-      totalUsers,
-      totalTaskers,
-      completedJobs,
-      totalRequests,
-      reviews,
-    ] = await Promise.all([
-      prisma.user.count({ where: { role: "USER" } }),
-      prisma.user.count({ where: { role: "TASKER", isActive: true } }),
-      prisma.request.count({ where: { status: "COMPLETED" } }),
-      prisma.request.count(),
-      prisma.review.aggregate({ _avg: { rating: true } }),
-    ])
+    const [totalUsers, totalTaskers, completedJobs, totalRequests, reviews] =
+      await Promise.all([
+        prisma.user.count({ where: { role: "USER" } }),
+        prisma.user.count({ where: { role: "TASKER", isActive: true } }),
+        prisma.request.count({ where: { status: "COMPLETED" } }),
+        prisma.request.count(),
+        prisma.review.aggregate({ _avg: { rating: true } }),
+      ])
 
     return NextResponse.json({
-      users: totalUsers,
-      taskers: totalTaskers,
-      completedJobs,
-      totalRequests,
+      users: totalUsers ?? 0,
+      taskers: totalTaskers ?? 0,
+      completedJobs: completedJobs ?? 0,
+      totalRequests: totalRequests ?? 0,
       satisfactionRate: reviews._avg.rating
         ? Math.round(reviews._avg.rating * 20)
         : null,
@@ -31,8 +26,8 @@ export async function GET() {
   } catch (error) {
     console.error("Stats error:", error)
     return NextResponse.json(
-      { error: "Failed to fetch stats" },
-      { status: 500 }
+      { users: 0, taskers: 0, completedJobs: 0, totalRequests: 0, satisfactionRate: null },
+      { status: 200 }
     )
   }
 }
