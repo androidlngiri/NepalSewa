@@ -25,7 +25,7 @@ export function CardSkeleton() {
 export function ListSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <div className="space-y-3">
-      {Array.from({ length: rows }).map((_, i) => (
+      {Array.from({ length: rows }).map((_: unknown, i) => (
         <div key={i} className="rounded-xl border p-4 space-y-2">
           <Skeleton className="h-5 w-3/4" />
           <Skeleton className="h-4 w-1/2" />
@@ -43,14 +43,14 @@ export function DashboardSkeleton() {
         <Skeleton className="h-4 w-64" />
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 4 }).map((_: unknown, i) => (
           <CardSkeleton key={i} />
         ))}
       </div>
       <div className="rounded-2xl border bg-white p-6">
         <Skeleton className="h-5 w-32 mb-4" />
         <div className="space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 3 }).map((_: unknown, i) => (
             <Skeleton key={i} className="h-16 w-full" />
           ))}
         </div>

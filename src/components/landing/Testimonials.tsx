@@ -80,7 +80,7 @@ export function Testimonials() {
                 &ldquo;{testimonial.content}&rdquo;
               </p>
               <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, j) => (
+                {Array.from({ length: 5 }).map((_: unknown, j: number) => (
                   <Star
                     key={j}
                     className={`h-4 w-4 ${

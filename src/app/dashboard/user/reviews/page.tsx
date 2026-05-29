@@ -78,7 +78,7 @@ export default function UserReviewsPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-0.5 mb-2">
-                        {Array.from({ length: 5 }).map((_, j) => (
+                        {Array.from({ length: 5 }).map((_: unknown, j: number) => (
                           <Star
                             key={j}
                             className={`h-3.5 w-3.5 ${
