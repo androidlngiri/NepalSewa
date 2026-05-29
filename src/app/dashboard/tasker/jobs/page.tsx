@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, Briefcase, MapPin, IndianRupee, MessageSquare, Send } from "lucide-react"
+import { Loader2, ArrowLeft, Briefcase, MapPin, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"

@@ -8,8 +8,6 @@ import {
   DollarSign,
   TrendingUp,
   Loader2,
-  ArrowUp,
-  ArrowDown,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
@@ -214,7 +212,7 @@ export default function AdminDashboardPage() {
                     className="flex items-center justify-between rounded-lg border p-4"
                   >
                     <div>
-                      <p className="font-medium text-sm">{tx.user.name}</p>
+                      <p className="font-medium text-sm">{tx.user?.name || "Unknown"}</p>
                       <p className="text-xs text-muted-foreground">
                         {tx.description || tx.type} • {formatDate(tx.createdAt)}
                       </p>

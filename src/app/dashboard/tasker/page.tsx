@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   DollarSign,
   Star,
-  TrendingUp,
   Loader2,
   Clock,
   ArrowRight,

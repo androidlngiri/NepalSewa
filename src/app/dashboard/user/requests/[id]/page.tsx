@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User,
-  CheckCircle2, XCircle, Wallet,
+  CheckCircle2, Wallet,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EsewaPayButton } from "@/components/payments/eSewaPayButton"

@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL("/dashboard/user?payment=failed", req.url))
     }
 
-    const { status, total_amount, transaction_uuid, product_code, signature, signed_field_names } = decoded
+    const { status, total_amount, transaction_uuid, product_code, signature } = decoded
 
     if (!signature || !total_amount || !transaction_uuid || !product_code) {
       return NextResponse.redirect(new URL("/dashboard/user?payment=failed", req.url))

@@ -1,4 +1,3 @@
-import Link from "next/link"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
 import type { Metadata } from "next"
@@ -16,7 +15,7 @@ export default function PrivacyPage() {
         <div className="container mx-auto max-w-3xl px-4 sm:px-6">
           <h1 className="text-3xl font-bold mb-8">Privacy Policy</h1>
 
-          <div className="prose prose-sm max-w-none space-y-6">
+          <div className="space-y-6">
             <p>Last updated: January 2025</p>
 
             <h2 className="text-xl font-semibold mt-8">1. Information We Collect</h2>

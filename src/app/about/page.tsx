@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Wrench, Target, Eye, Heart, Shield, Users } from "lucide-react"
+import { Wrench, Target, Heart, Shield, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
