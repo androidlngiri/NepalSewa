@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import type { Transaction } from "@prisma/client"
 
 export async function GET() {
   try {
@@ -98,7 +99,7 @@ export async function GET() {
         completedJobs,
         earnedTotal: earnings._sum.amount || 0,
         rating: avgRating,
-        recentEarnings: recentEarnings.map((t) => ({
+        recentEarnings: recentEarnings.map((t: Transaction) => ({
           date: t.createdAt.toISOString(),
           amount: t.amount,
         })),
