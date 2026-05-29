@@ -1,13 +1,17 @@
 import { createClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+function requireEnv(name: string): string {
+  const val = process.env[name]
+  if (!val) throw new Error(`Missing environment variable: ${name}`)
+  return val
+}
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export function getSupabase() {
+  return createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"))
+}
 
 export function getAdminClient() {
-  return createClient(supabaseUrl, supabaseServiceKey, {
+  return createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false },
   })
 }
