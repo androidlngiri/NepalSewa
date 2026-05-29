@@ -10,7 +10,7 @@ const footerLinks = {
     { href: "/services/cleaning", label: "Cleaning" },
     { href: "/services/painting", label: "Painting" },
     { href: "/services/tutoring", label: "Tutoring" },
-    { href: "/services/salon", label: "Salon & Spa" },
+    { href: "/services/salon-spa", label: "Salon & Spa" },
   ],
   company: [
     { href: "/about", label: "About Us" },

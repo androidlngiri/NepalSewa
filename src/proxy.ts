@@ -3,16 +3,21 @@ import { NextResponse } from "next/server"
 
 const publicPaths = [
   "/",
-  "/auth/signin",
-  "/auth/signup",
-  "/auth/error",
-  "/auth/forgot",
+  "/auth",
   "/about",
+  "/how-it-works",
   "/pricing",
   "/contact",
   "/services",
   "/terms",
   "/privacy",
+  "/faq",
+  "/blog",
+  "/safety",
+  "/become-tasker",
+  "/tasker-guide",
+  "/earnings",
+  "/success-stories",
 ]
 
 const rolePaths: Record<string, string> = {
@@ -37,7 +42,7 @@ export default auth((req) => {
   const session = req.auth
 
   if (!session?.user) {
-    const signInUrl = new URL("/auth/signin", req.url)
+    const signInUrl = new URL("/auth/signin", req.nextUrl.origin)
     signInUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(signInUrl)
   }
