@@ -1,0 +1,38 @@
+import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+
+export const dynamic = "force-dynamic"
+
+export async function GET() {
+  try {
+    const [
+      totalUsers,
+      totalTaskers,
+      completedJobs,
+      totalRequests,
+      reviews,
+    ] = await Promise.all([
+      prisma.user.count({ where: { role: "USER" } }),
+      prisma.user.count({ where: { role: "TASKER", isActive: true } }),
+      prisma.request.count({ where: { status: "COMPLETED" } }),
+      prisma.request.count(),
+      prisma.review.aggregate({ _avg: { rating: true } }),
+    ])
+
+    return NextResponse.json({
+      users: totalUsers,
+      taskers: totalTaskers,
+      completedJobs,
+      totalRequests,
+      satisfactionRate: reviews._avg.rating
+        ? Math.round(reviews._avg.rating * 20)
+        : null,
+    })
+  } catch (error) {
+    console.error("Stats error:", error)
+    return NextResponse.json(
+      { error: "Failed to fetch stats" },
+      { status: 500 }
+    )
+  }
+}

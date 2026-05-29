@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  TASKER
+  ADMIN
+}
+
+enum RequestStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  FAILED
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  phone          String?   @unique
+  phoneVerified  Boolean   @default(false)
+  image          String?
+  passwordHash   String?
+  role           UserRole  @default(USER)
+  isActive       Boolean   @default(true)
+  wardNo         Int?
+  address        String?
+  bio            String?
+  rating         Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  requests       Request[]        @relation("UserRequests")
+  taskerRequests TaskerAssignment[] @relation("TaskerRequests")
+  bids           Bid[]
+  reviewsGiven   Review[]         @relation("Reviewer")
+  reviewsReceived Review[]        @relation("Reviewee")
+  transactions   Transaction[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  icon        String?
+  image       String?
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  services    Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id          String     @id @default(cuid())
+  categoryId  String
+  name        String
+  slug        String
+  description String?
+  price       Float?
+  priceUnit   String?    @default("per hour")
+  image       String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  category    Category   @relation(fields: [categoryId], references: [id])
+  requests    Request[]
+
+  @@unique([categoryId, slug])
+  @@map("services")
+}
+
+model Request {
+  id            String         @id @default(cuid())
+  userId        String
+  serviceId     String
+  title         String
+  description   String         @db.Text
+  location      String?
+  wardNo        Int?
+  status        RequestStatus  @default(OPEN)
+  budget        Float?
+  urgency       String?        @default("normal")
+  scheduledDate DateTime?
+  images        String[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User           @relation("UserRequests", fields: [userId], references: [id])
+  service       Service        @relation(fields: [serviceId], references: [id])
+  bids          Bid[]
+  taskerAssignments TaskerAssignment[]
+
+  @@map("requests")
+}
+
+model TaskerAssignment {
+  id        String        @id @default(cuid())
+  taskerId  String
+  requestId String
+  status    RequestStatus @default(IN_PROGRESS)
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  tasker    User          @relation("TaskerRequests", fields: [taskerId], references: [id])
+  request   Request       @relation(fields: [requestId], references: [id])
+
+  @@unique([taskerId, requestId])
+  @@map("tasker_assignments")
+}
+
+model Bid {
+  id          String     @id @default(cuid())
+  requestId   String
+  taskerId    String
+  amount      Float
+  message     String?    @db.Text
+  status      BidStatus  @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  request     Request    @relation(fields: [requestId], references: [id])
+  tasker      User       @relation(fields: [taskerId], references: [id])
+
+  @@unique([requestId, taskerId])
+  @@map("bids")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  reviewerId  String
+  revieweeId  String
+  requestId   String?
+  rating      Int
+  comment     String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewee    User     @relation("Reviewee", fields: [revieweeId], references: [id])
+
+  @@map("reviews")
+}
+
+model Transaction {
+  id              String        @id @default(cuid())
+  userId          String
+  amount          Float
+  type            String        @default("payment")
+  status          PaymentStatus @default(PENDING)
+  reference       String?
+  transactionUuid String?
+  productCode     String?
+  requestId       String?
+  description     String?
+  createdAt       DateTime      @default(now())
+
+  user            User          @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}
