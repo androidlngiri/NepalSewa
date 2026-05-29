@@ -4,6 +4,7 @@ import "./globals.css"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { Providers } from "@/components/providers"
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -127,7 +128,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <TooltipProvider>
-          <ErrorBoundary>{children}</ErrorBoundary>
+          <Providers>
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </Providers>
         </TooltipProvider>
         <Toaster richColors position="top-center" />
       </body>
