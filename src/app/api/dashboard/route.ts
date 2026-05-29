@@ -84,7 +84,7 @@ export async function GET() {
 
       const avgRating =
         reviews.length > 0
-          ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
+          ? reviews.reduce((acc: number, r) => acc + r.rating, 0) / reviews.length
           : 0
 
       const recentEarnings = await prisma.transaction.findMany({
