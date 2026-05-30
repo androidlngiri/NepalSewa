@@ -1,10 +1,11 @@
 "use client"
 
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
-import { Loader2, ArrowLeft, ClipboardList } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Loader2, ArrowLeft, ClipboardList, AlertCircle, RefreshCw } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
@@ -21,6 +22,8 @@ interface RequestItem {
   taskerAssignments: { id: string; status: string }[]
 }
 
+const statuses = ["ALL", "OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as const
+
 const statusColors: Record<string, string> = {
   OPEN: "bg-blue-50 text-blue-700 border-blue-200",
   IN_PROGRESS: "bg-amber-50 text-amber-700 border-amber-200",
@@ -28,21 +31,49 @@ const statusColors: Record<string, string> = {
   CANCELLED: "bg-red-50 text-red-700 border-red-200",
 }
 
+const tabStyles: Record<string, string> = {
+  ALL: "bg-gray-100 text-gray-700",
+  OPEN: "bg-blue-50 text-blue-700",
+  IN_PROGRESS: "bg-amber-50 text-amber-700",
+  COMPLETED: "bg-emerald-50 text-emerald-700",
+  CANCELLED: "bg-red-50 text-red-700",
+}
+
 function AdminRequestsContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [requests, setRequests] = useState<RequestItem[]>([])
   const [loading, setLoading] = useState(true)
-  const statusFilter = searchParams.get("status")
+  const [error, setError] = useState("")
+  const statusFilter = searchParams.get("status") || ""
 
-  useEffect(() => {
-    const params = new URLSearchParams({ role: "admin" })
-    if (statusFilter) params.set("status", statusFilter)
-    fetch(`/api/requests?${params}`)
-      .then((r) => r.json())
-      .then(setRequests)
-      .catch(() => {})
-      .finally(() => setLoading(false))
+  const fetchRequests = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const params = new URLSearchParams({ role: "admin" })
+      if (statusFilter) params.set("status", statusFilter)
+      const res = await fetch(`/api/requests?${params}`)
+      if (!res.ok) throw new Error("Failed to load")
+      const data = await res.json()
+      setRequests(data)
+    } catch {
+      setError("Failed to load requests")
+    } finally {
+      setLoading(false)
+    }
   }, [statusFilter])
+
+  useEffect(() => { fetchRequests() }, [fetchRequests])
+
+  function setStatus(s: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (s && s !== "ALL") params.set("status", s)
+    else params.delete("status")
+    router.replace(`/dashboard/admin/requests?${params}`)
+  }
+
+  const activeStatus = statusFilter || "ALL"
 
   return (
     <DashboardLayout role="admin">
@@ -55,19 +86,46 @@ function AdminRequestsContent() {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {statusFilter ? `${statusFilter.replace("_", " ")} Requests` : "All Requests"}
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Requests</h1>
           <p className="text-muted-foreground">
-            {statusFilter
-              ? `Showing requests with status: ${statusFilter.replace("_", " ")}`
+            {activeStatus !== "ALL"
+              ? `Showing ${activeStatus.replace("_", " ").toLowerCase()} requests`
               : "Browse all platform requests."}
           </p>
         </div>
 
+        <div className="flex items-center gap-2 flex-wrap">
+          {statuses.map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                activeStatus === s
+                  ? `${tabStyles[s]} ring-2 ring-offset-1 ring-emerald-500/50`
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {s === "ALL" ? "All" : s.replace("_", " ")}
+            </button>
+          ))}
+          <Button variant="ghost" size="icon" className="ml-auto" onClick={fetchRequests} aria-label="Refresh">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
+
         <Card>
           <CardContent className="p-0">
-            {loading ? (
+            {error ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
+                <h3 className="text-lg font-medium mb-1">Failed to load requests</h3>
+                <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                <Button variant="outline" onClick={fetchRequests} className="gap-2">
+                  <RefreshCw className="h-4 w-4" />
+                  Retry
+                </Button>
+              </div>
+            ) : loading && requests.length === 0 ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
               </div>
@@ -76,8 +134,8 @@ function AdminRequestsContent() {
                 <ClipboardList className="h-12 w-12 text-muted-foreground/40 mb-4" />
                 <h3 className="text-lg font-medium mb-1">No requests found</h3>
                 <p className="text-sm text-muted-foreground">
-                  {statusFilter
-                    ? `No requests with status "${statusFilter.replace("_", " ")}".`
+                  {activeStatus !== "ALL"
+                    ? `No requests with status "${activeStatus.replace("_", " ")}".`
                     : "No requests have been posted yet."}
                 </p>
               </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import {
   Users,
@@ -9,8 +9,13 @@ import {
   DollarSign,
   TrendingUp,
   Loader2,
+  AlertCircle,
+  RefreshCw,
+  ArrowRight,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatPrice, formatDate } from "@/lib/utils"
 
@@ -33,29 +38,55 @@ interface AdminData {
   usersByRole: { role: string; _count: number }[]
 }
 
+const txStatusColors: Record<string, string> = {
+  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
+  FAILED: "bg-red-50 text-red-700 border-red-200",
+  REFUNDED: "bg-blue-50 text-blue-700 border-blue-200",
+}
+
 export default function AdminDashboardPage() {
   const [data, setData] = useState<AdminData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/dashboard")
-        if (res.ok) setData(await res.json())
-      } catch (e) {
-        // console.error(e)
-      } finally {
-        setLoading(false)
-      }
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("/api/dashboard")
+      if (!res.ok) throw new Error("Request failed")
+      setData(await res.json())
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load dashboard")
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => { load() }, [load])
 
   if (loading) {
     return (
       <DashboardLayout role="admin">
         <div className="flex h-96 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout role="admin">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <AlertCircle className="h-16 w-16 text-red-400 mb-4" />
+          <h2 className="text-xl font-bold mb-2">Dashboard Error</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-md">{error}</p>
+          <Button variant="outline" onClick={load} className="gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </Button>
         </div>
       </DashboardLayout>
     )
@@ -107,11 +138,14 @@ export default function AdminDashboardPage() {
   return (
     <DashboardLayout role="admin">
       <div className="space-y-8">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
-            Platform overview and analytics.
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Platform overview and analytics.</p>
+          </div>
+          <Button variant="outline" size="icon" onClick={load} aria-label="Refresh">
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -221,8 +255,14 @@ export default function AdminDashboardPage() {
         </div>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
+            <Link href="/dashboard/admin/transactions">
+              <Button variant="ghost" size="sm" className="text-emerald-600">
+                View All
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             {data?.recentTransactions && data.recentTransactions.length > 0 ? (
@@ -239,13 +279,11 @@ export default function AdminDashboardPage() {
                         {tx.description || tx.type} • {formatDate(tx.createdAt)}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium text-emerald-600">
-                        +{formatPrice(tx.amount)}
-                      </p>
-                      <p className="text-xs text-muted-foreground capitalize">
+                    <div className="flex items-center gap-3">
+                      <p className="font-medium text-emerald-600">+{formatPrice(tx.amount)}</p>
+                      <Badge variant="outline" className={txStatusColors[tx.status] || ""}>
                         {tx.status.toLowerCase()}
-                      </p>
+                      </Badge>
                     </div>
                   </Link>
                 ))}

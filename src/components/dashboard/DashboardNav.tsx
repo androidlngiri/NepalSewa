@@ -68,7 +68,7 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
   const NavLinks = () => (
     <>
       {items.map((item) => {
-        const isActive = pathname === item.href
+        const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
         return (
           <Link
             key={item.href}
