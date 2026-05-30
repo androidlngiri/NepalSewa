@@ -21,12 +21,37 @@ const contactInfo = [
 export default function ContactPage() {
   const [isLoading, setIsLoading] = useState(false)
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setIsLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    toast.success("Message sent! We'll get back to you soon.")
-    setIsLoading(false)
+
+    const formData = new FormData(e.currentTarget)
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          message: formData.get("message"),
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast.error(data.error || "Failed to send message")
+        return
+      }
+
+      toast.success("Message sent! We'll get back to you soon.")
+      e.currentTarget.reset()
+    } catch {
+      toast.error("Failed to send message")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
