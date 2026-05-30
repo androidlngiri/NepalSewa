@@ -10,6 +10,7 @@ import { useSession, signOut } from "next-auth/react"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -66,7 +67,9 @@ export function Navbar() {
                 <span className="max-w-[120px] truncate">{user.name || user.email}</span>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{user.email}</DropdownMenuLabel>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push(dashboardHref)}>Dashboard</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>Sign Out</DropdownMenuItem>
