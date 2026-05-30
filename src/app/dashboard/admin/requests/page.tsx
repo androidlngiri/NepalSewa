@@ -144,7 +144,7 @@ function AdminRequestsContent() {
                 {requests.map((req) => (
                   <Link
                     key={req.id}
-                    href={`/dashboard/user/requests/${req.id}`}
+                    href={`/dashboard/admin/requests/${req.id}`}
                     className="flex items-center justify-between p-4 transition-colors hover:bg-muted/50 sm:px-6"
                   >
                     <div className="min-w-0 flex-1">
