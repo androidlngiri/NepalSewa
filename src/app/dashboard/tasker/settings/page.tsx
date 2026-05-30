@@ -115,7 +115,7 @@ export default function TaskerSettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label>Your Ward (Butwal)</Label>
-                <Select value={form.wardNo} onValueChange={(v, _details) => { if (v != null) setForm({ ...form, wardNo: v }) }}>
+                <Select value={form.wardNo} onValueChange={(v, _details) => { if (v != null) setForm({ ...form, wardNo: v }) }} itemToStringLabel={(value) => { const n = Number(value); return isNaN(n) ? "" : `Ward ${n}` }}>
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select ward" />
                   </SelectTrigger>

@@ -187,6 +187,10 @@ function NewRequestForm() {
                     if (v) setForm({ ...form, categoryId: v, serviceId: "" })
                   }}
                   disabled={loadingCat}
+                  itemToStringLabel={(value) => {
+                    const cat = categories.find((c) => c.id === value)
+                    return cat?.name || ""
+                  }}
                 >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder={loadingCat ? "Loading..." : "Select category"} />
@@ -209,6 +213,10 @@ function NewRequestForm() {
                     if (v) setForm({ ...form, serviceId: v })
                   }}
                   disabled={!form.categoryId}
+                  itemToStringLabel={(value) => {
+                    const svc = selectedCategory?.services.find((s) => s.id === value)
+                    return svc?.name || ""
+                  }}
                 >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select service" />
@@ -255,6 +263,10 @@ function NewRequestForm() {
                     onValueChange={(v, _details) => {
                       if (v) setForm({ ...form, wardNo: v })
                     }}
+                    itemToStringLabel={(value) => {
+                      const ward = WARD_OPTIONS.find((w) => w.value === value)
+                      return ward?.label || ""
+                    }}
                   >
                     <SelectTrigger className="h-11">
                       <SelectValue placeholder="Select ward" />
@@ -289,6 +301,10 @@ function NewRequestForm() {
                     value={form.urgency}
                     onValueChange={(v, _details) => {
                       if (v) setForm({ ...form, urgency: v })
+                    }}
+                    itemToStringLabel={(value) => {
+                      const opt = URGENCY_OPTIONS.find((u) => u.value === value)
+                      return opt?.label || ""
                     }}
                   >
                     <SelectTrigger className="h-11">

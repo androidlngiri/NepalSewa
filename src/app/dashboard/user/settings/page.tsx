@@ -148,6 +148,10 @@ export default function UserSettingsPage() {
                 <Select
                   value={form.wardNo}
                   onValueChange={(v) => { if (v != null) setForm({ ...form, wardNo: v }) }}
+                  itemToStringLabel={(value) => {
+                    const n = Number(value)
+                    return isNaN(n) ? "" : `Ward ${n}`
+                  }}
                 >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select ward" />
