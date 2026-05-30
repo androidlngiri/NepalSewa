@@ -46,6 +46,7 @@ const navItems = {
   admin: [
     { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/dashboard/admin/users", label: "Users", icon: User },
+    { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
     { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
     { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
     { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },

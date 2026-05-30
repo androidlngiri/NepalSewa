@@ -74,6 +74,7 @@ export default function TaskerDashboardPage() {
     {
       title: "Active Bids",
       value: data?.activeBids || 0,
+      href: "/dashboard/tasker/my-bids",
       icon: Clock,
       color: "text-blue-600",
       bg: "bg-blue-50",
@@ -81,6 +82,7 @@ export default function TaskerDashboardPage() {
     {
       title: "Completed Jobs",
       value: data?.completedJobs || 0,
+      href: "/dashboard/tasker/jobs",
       icon: CheckCircle2,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -88,6 +90,7 @@ export default function TaskerDashboardPage() {
     {
       title: "Total Earned",
       value: formatPrice(data?.earnedTotal || 0),
+      href: "/dashboard/tasker/earnings",
       icon: DollarSign,
       color: "text-amber-600",
       bg: "bg-amber-50",
@@ -95,6 +98,7 @@ export default function TaskerDashboardPage() {
     {
       title: "Rating",
       value: data?.rating ? data.rating.toFixed(1) : "New",
+      href: "#",
       icon: Star,
       color: "text-purple-600",
       bg: "bg-purple-50",
@@ -113,19 +117,21 @@ export default function TaskerDashboardPage() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => (
-            <Card key={card.title} className="border-2 border-transparent hover:border-emerald-100 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {card.title}
-                </CardTitle>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
-                  <card.icon className={`h-5 w-5 ${card.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-              </CardContent>
-            </Card>
+            <Link key={card.title} href={card.href}>
+              <Card className="border-2 border-transparent hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {card.title}
+                  </CardTitle>
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
+                    <card.icon className={`h-5 w-5 ${card.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{card.value}</div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
@@ -188,9 +194,10 @@ export default function TaskerDashboardPage() {
             <CardContent>
               <div className="space-y-2">
                 {data.recentEarnings.slice(0, 5).map((earning) => (
-                  <div
+                  <Link
                     key={`${earning.date}-${earning.amount}`}
-                    className="flex items-center justify-between rounded-lg border p-3"
+                    href="/dashboard/tasker/earnings"
+                    className="flex items-center justify-between rounded-lg border p-3 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors"
                   >
                     <span className="text-sm text-muted-foreground">
                       {formatDate(earning.date)}
@@ -198,7 +205,7 @@ export default function TaskerDashboardPage() {
                     <span className="font-medium text-emerald-600">
                       +{formatPrice(earning.amount)}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </CardContent>

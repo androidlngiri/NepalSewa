@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import {
   Users,
   UserCheck,
@@ -64,6 +65,7 @@ export default function AdminDashboardPage() {
     {
       title: "Total Users",
       value: data?.totalUsers || 0,
+      href: "/dashboard/admin/users",
       icon: Users,
       color: "text-blue-600",
       bg: "bg-blue-50",
@@ -71,6 +73,7 @@ export default function AdminDashboardPage() {
     {
       title: "Total Taskers",
       value: data?.totalTaskers || 0,
+      href: "/dashboard/admin/users",
       icon: UserCheck,
       color: "text-emerald-600",
       bg: "bg-emerald-50",
@@ -78,6 +81,7 @@ export default function AdminDashboardPage() {
     {
       title: "Total Requests",
       value: data?.totalRequests || 0,
+      href: "/dashboard/admin/requests",
       icon: ClipboardList,
       color: "text-amber-600",
       bg: "bg-amber-50",
@@ -85,6 +89,7 @@ export default function AdminDashboardPage() {
     {
       title: "Revenue",
       value: formatPrice(data?.revenue || 0),
+      href: "/dashboard/admin/transactions",
       icon: DollarSign,
       color: "text-purple-600",
       bg: "bg-purple-50",
@@ -111,19 +116,21 @@ export default function AdminDashboardPage() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {statsCards.map((card) => (
-            <Card key={card.title} className="border-2 border-transparent hover:border-emerald-100 transition-colors">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {card.title}
-                </CardTitle>
-                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
-                  <card.icon className={`h-5 w-5 ${card.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-              </CardContent>
-            </Card>
+            <Link key={card.title} href={card.href}>
+              <Card className="border-2 border-transparent hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {card.title}
+                  </CardTitle>
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
+                    <card.icon className={`h-5 w-5 ${card.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{card.value}</div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
@@ -137,7 +144,11 @@ export default function AdminDashboardPage() {
                 {!requestStatuses.length ? (
                   <p className="text-sm text-muted-foreground">No request data available</p>
                 ) : requestStatuses.map((item) => (
-                  <div key={item.status} className="flex items-center justify-between">
+                  <Link
+                    key={item.status}
+                    href={`/dashboard/admin/requests?status=${item.status}`}
+                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                  >
                     <span className="text-sm text-muted-foreground">
                       {statusLabels[item.status] || item.status}
                     </span>
@@ -161,7 +172,7 @@ export default function AdminDashboardPage() {
                         {item._count}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </CardContent>
@@ -176,7 +187,11 @@ export default function AdminDashboardPage() {
                 {!data?.usersByRole?.length ? (
                   <p className="text-sm text-muted-foreground">No user data available</p>
                 ) : data.usersByRole.map((item) => (
-                  <div key={item.role} className="flex items-center justify-between">
+                  <Link
+                    key={item.role}
+                    href="/dashboard/admin/users"
+                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                  >
                     <span className="text-sm text-muted-foreground capitalize">
                       {item.role.toLowerCase()}
                     </span>
@@ -198,7 +213,7 @@ export default function AdminDashboardPage() {
                         {item._count}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </CardContent>
@@ -213,9 +228,10 @@ export default function AdminDashboardPage() {
             {data?.recentTransactions && data.recentTransactions.length > 0 ? (
               <div className="space-y-3">
                 {data.recentTransactions.map((tx) => (
-                  <div
+                  <Link
                     key={tx.id}
-                    className="flex items-center justify-between rounded-lg border p-4"
+                    href="/dashboard/admin/transactions"
+                    className="flex items-center justify-between rounded-lg border p-4 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors"
                   >
                     <div>
                       <p className="font-medium text-sm">{tx.user?.name || "Unknown"}</p>
@@ -231,7 +247,7 @@ export default function AdminDashboardPage() {
                         {tx.status.toLowerCase()}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (

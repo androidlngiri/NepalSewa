@@ -23,7 +23,10 @@ export async function GET(req: Request) {
 
     const where: any = {}
 
-    if (role === "tasker") {
+    const isAdmin = session.user.role === "ADMIN"
+    if (role === "admin" || isAdmin) {
+      // admins see all requests (optional status filter still applies)
+    } else if (role === "tasker") {
       where.taskerAssignments = { some: { taskerId: session.user.id } }
     } else {
       where.userId = session.user.id
