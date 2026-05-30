@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (session.user.role !== "TASKER") {
+    if (session.user.role !== "TASKER" && !session.user.isTasker) {
       return NextResponse.json(
         { error: "Only taskers can place bids" },
         { status: 403 }

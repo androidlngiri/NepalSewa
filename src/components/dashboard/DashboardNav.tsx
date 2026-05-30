@@ -11,11 +11,11 @@ import {
   Settings,
   LogOut,
   User,
-  Bell,
-  HelpCircle,
   Wrench,
   Menu,
   X,
+  Briefcase,
+  IndianRupee,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -26,37 +26,37 @@ interface DashboardNavProps {
   role: "user" | "tasker" | "admin"
   userName: string
   userImage?: string | null
+  isTasker?: boolean
 }
 
-const navItems = {
-  user: [
-    { href: "/dashboard/user", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/user/requests", label: "My Requests", icon: ClipboardList },
-    { href: "/dashboard/user/bids", label: "Bids Received", icon: MessageSquare },
-    { href: "/dashboard/user/reviews", label: "Reviews", icon: Star },
-    { href: "/dashboard/user/settings", label: "Settings", icon: Settings },
-  ],
-  tasker: [
-    { href: "/dashboard/tasker", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/dashboard/tasker/jobs", label: "Available Jobs", icon: ClipboardList },
-    { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
-    { href: "/dashboard/tasker/earnings", label: "Earnings", icon: Star },
-    { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
-  ],
-  admin: [
-    { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
-    { href: "/dashboard/admin/users", label: "Users", icon: User },
-    { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
-    { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
-    { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
-    { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
-  ],
-}
+const userNav = [
+  { href: "/dashboard/user", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/user/requests", label: "My Requests", icon: ClipboardList },
+  { href: "/dashboard/user/bids", label: "Bids Received", icon: MessageSquare },
+  { href: "/dashboard/user/reviews", label: "Reviews", icon: Star },
+  { href: "/dashboard/user/settings", label: "Settings", icon: Settings },
+]
 
-export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
+const taskerNav = [
+  { href: "/dashboard/tasker", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/tasker/jobs", label: "Available Jobs", icon: ClipboardList },
+  { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
+  { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
+  { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
+]
+
+const adminNav = [
+  { href: "/dashboard/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard/admin/users", label: "Users", icon: User },
+  { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
+  { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
+  { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
+  { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
+]
+
+export function DashboardNav({ role, userName, userImage, isTasker }: DashboardNavProps) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const items = navItems[role]
 
   const initials = userName
     ?.split(" ")
@@ -65,29 +65,26 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
     .toUpperCase()
     .slice(0, 2) || "U"
 
-  const NavLinks = () => (
-    <>
-      {items.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
-              isActive
-                ? "bg-emerald-50 text-emerald-700 shadow-sm"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
-            )}
-          >
-            <item.icon className="h-5 w-5 flex-shrink-0" />
-            {item.label}
-          </Link>
-        )
-      })}
-    </>
-  )
+  function NavItem({ href, label, icon: Icon }: { href: string; label: string; icon: any }) {
+    const isActive = pathname === href || pathname.startsWith(href + "/")
+    return (
+      <Link
+        href={href}
+        onClick={() => setMobileOpen(false)}
+        className={cn(
+          "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
+          isActive
+            ? "bg-emerald-50 text-emerald-700 shadow-sm"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        )}
+      >
+        <Icon className="h-5 w-5 flex-shrink-0" />
+        {label}
+      </Link>
+    )
+  }
+
+  const roleBadge = isTasker ? "User + Tasker" : role
 
   return (
     <>
@@ -139,8 +136,34 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          <NavLinks />
+        <nav className="flex-1 overflow-y-auto p-4">
+          {role === "admin" ? (
+            <div className="space-y-1">
+              {adminNav.map((item) => <NavItem key={item.href} {...item} />)}
+            </div>
+          ) : isTasker ? (
+            <div className="space-y-1">
+              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <User className="inline h-3 w-3 mr-1" />
+                Customer
+              </p>
+              {userNav.map((item) => <NavItem key={item.href} {...item} />)}
+              <div className="my-3 border-t" />
+              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <Briefcase className="inline h-3 w-3 mr-1" />
+                Tasker
+              </p>
+              {taskerNav.map((item) => <NavItem key={item.href} {...item} />)}
+            </div>
+          ) : role === "user" ? (
+            <div className="space-y-1">
+              {userNav.map((item) => <NavItem key={item.href} {...item} />)}
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {taskerNav.map((item) => <NavItem key={item.href} {...item} />)}
+            </div>
+          )}
         </nav>
 
         {/* User section */}
@@ -157,7 +180,7 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{userName}</p>
-              <p className="text-xs text-muted-foreground capitalize">{role}</p>
+              <p className="text-xs text-muted-foreground capitalize">{roleBadge}</p>
             </div>
             <Button
               variant="ghost"

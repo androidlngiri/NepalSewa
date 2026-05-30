@@ -22,19 +22,11 @@ export async function POST(req: Request) {
     const email = body.email ? sanitize(body.email) : null
     const phone = body.phone ? sanitize(body.phone) : null
     const password = body.password
-    const role = body.role
+    const isTasker = body.isTasker === true
 
     if (!email && !phone) {
       return NextResponse.json(
         { error: "Email or phone is required" },
-        { status: 400 }
-      )
-    }
-
-    const allowedRoles = ["USER", "TASKER"]
-    if (role && !allowedRoles.includes(role)) {
-      return NextResponse.json(
-        { error: "Invalid role specified" },
         { status: 400 }
       )
     }
@@ -84,7 +76,8 @@ export async function POST(req: Request) {
         email: email || null,
         phone: phone || null,
         passwordHash,
-        role: role || "USER",
+        role: "USER",
+        isTasker,
       },
       select: {
         id: true,
@@ -92,6 +85,7 @@ export async function POST(req: Request) {
         email: true,
         phone: true,
         role: true,
+        isTasker: true,
       },
     })
 

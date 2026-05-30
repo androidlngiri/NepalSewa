@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, Save } from "lucide-react"
+import { Loader2, ArrowLeft, Save, Briefcase, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
+import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -19,6 +20,7 @@ export default function UserSettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [isTasker, setIsTasker] = useState(false)
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -33,6 +35,7 @@ export default function UserSettingsPage() {
         const res = await fetch("/api/users")
         if (res.ok) {
           const user = await res.json()
+          setIsTasker(user.isTasker || false)
           setForm({
             name: user.name || "",
             phone: user.phone || "",
@@ -57,7 +60,7 @@ export default function UserSettingsPage() {
       const res = await fetch("/api/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, isTasker }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -196,6 +199,81 @@ export default function UserSettingsPage() {
             </form>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tasker Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5 text-emerald-600" />
+                  <p className="font-medium">Offer services as a tasker</p>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {isTasker
+                    ? "You can now post requests AND bid on jobs. Your sidebar shows both sections."
+                    : "Enable this to start bidding on jobs and earning money in your community."}
+                </p>
+              </div>
+              <Switch checked={isTasker} onCheckedChange={setIsTasker} />
+            </div>
+            {isTasker && (
+              <div className="mt-4 flex gap-3">
+                <Link href="/dashboard/tasker">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Briefcase className="h-4 w-4" />
+                    Tasker Dashboard
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </Link>
+                <Link href="/dashboard/user">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    User Dashboard
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button
+            onClick={async () => {
+              setLoading(true)
+              try {
+                const res = await fetch("/api/users", {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ...form, isTasker }),
+                })
+                if (!res.ok) {
+                  const data = await res.json()
+                  toast.error(data.error || "Failed to update")
+                  return
+                }
+                toast.success("Settings saved!")
+                await update()
+                router.refresh()
+              } catch {
+                toast.error("Something went wrong")
+              } finally {
+                setLoading(false)
+              }
+            }}
+            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-11"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            Save All Changes
+          </Button>
+        </div>
       </div>
     </DashboardLayout>
   )

@@ -42,6 +42,7 @@ model User {
   image          String?
   passwordHash   String?
   role           UserRole  @default(USER)
+  isTasker       Boolean   @default(false)
   isActive       Boolean   @default(true)
   wardNo         Int?
   address        String?

@@ -34,6 +34,7 @@ interface UserItem {
   email: string | null
   phone: string | null
   role: string
+  isTasker: boolean
   isActive: boolean
   wardNo: number | null
   rating: number | null
@@ -177,6 +178,7 @@ export default function AdminUsersPage() {
                       <th className="text-left font-medium text-muted-foreground px-4 py-3">User</th>
                       <th className="text-left font-medium text-muted-foreground px-4 py-3 hidden sm:table-cell">Contact</th>
                       <th className="text-left font-medium text-muted-foreground px-4 py-3">Role</th>
+                      <th className="text-center font-medium text-muted-foreground px-4 py-3 hidden sm:table-cell">Tasker</th>
                       <th className="text-center font-medium text-muted-foreground px-4 py-3 hidden md:table-cell">Activity</th>
                       <th className="text-center font-medium text-muted-foreground px-4 py-3">Status</th>
                       <th className="text-right font-medium text-muted-foreground px-4 py-3">Action</th>
@@ -201,6 +203,15 @@ export default function AdminUsersPage() {
                           <Badge variant="outline" className={roleColors[user.role] || ""}>
                             {user.role}
                           </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-center hidden sm:table-cell">
+                          {user.isTasker ? (
+                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                              Yes
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-xs">—</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-center hidden md:table-cell">
                           <p className="text-xs text-muted-foreground">

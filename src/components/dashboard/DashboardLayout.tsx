@@ -32,8 +32,12 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     redirect(`/auth/signin?callbackUrl=/dashboard/${role}`)
   }
 
-  if (session.user.role !== role.toUpperCase()) {
-    redirect(`/dashboard/${(session.user.role as string)?.toLowerCase() || "user"}`)
+  if (role !== "admin" && session.user.role !== role.toUpperCase()) {
+    if (role === "tasker" && session.user.isTasker) {
+    } else if (role === "user" && session.user.isTasker) {
+    } else {
+      redirect(`/dashboard/${(session.user.role as string)?.toLowerCase() || "user"}`)
+    }
   }
 
   return (
@@ -43,6 +47,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           role={role}
           userName={session.user.name || "User"}
           userImage={session.user.image}
+          isTasker={session.user.isTasker}
         />
       </Suspense>
       <main className="flex-1 overflow-y-auto bg-gray-50/50">

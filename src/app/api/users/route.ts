@@ -18,6 +18,7 @@ export async function GET() {
         phone: true,
         image: true,
         role: true,
+        isTasker: true,
         wardNo: true,
         address: true,
         bio: true,
@@ -47,7 +48,7 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json()
-    const { name, phone, wardNo, address, bio } = body
+    const { name, phone, wardNo, address, bio, isTasker } = body
 
     function sanitize(str: string | undefined): string | undefined {
       return str ? str.replace(/[<>&"']/g, "").trim() : undefined
@@ -61,6 +62,7 @@ export async function PATCH(req: Request) {
         ...(wardNo !== undefined && { wardNo: wardNo ? parseInt(wardNo) : null }),
         ...(address !== undefined && { address }),
         ...(bio !== undefined && { bio: sanitize(bio) }),
+        ...(isTasker !== undefined && { isTasker }),
       },
       select: {
         id: true,
@@ -68,6 +70,7 @@ export async function PATCH(req: Request) {
         email: true,
         phone: true,
         role: true,
+        isTasker: true,
         wardNo: true,
         address: true,
         bio: true,

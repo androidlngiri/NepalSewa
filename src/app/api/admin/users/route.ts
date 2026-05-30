@@ -37,6 +37,7 @@ export async function GET(req: Request) {
           email: true,
           phone: true,
           role: true,
+          isTasker: true,
           isActive: true,
           wardNo: true,
           rating: true,
