@@ -99,6 +99,7 @@ export function Navbar() {
           size="icon"
           className="md:hidden"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={isOpen}
           aria-controls="mobile-menu"
         >

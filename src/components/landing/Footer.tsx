@@ -60,6 +60,7 @@ export function Footer() {
                 <Link
                   key={social.label}
                   href={social.href}
+                  aria-label={social.label}
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200"
                 >
                   <Globe className="h-4 w-4" />

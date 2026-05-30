@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { DashboardNav } from "./DashboardNav"
@@ -37,11 +38,13 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
 
   return (
     <div className="flex min-h-screen">
-      <DashboardNav
-        role={role}
-        userName={session.user.name || "User"}
-        userImage={session.user.image}
-      />
+      <Suspense fallback={null}>
+        <DashboardNav
+          role={role}
+          userName={session.user.name || "User"}
+          userImage={session.user.image}
+        />
+      </Suspense>
       <main className="flex-1 overflow-y-auto bg-gray-50/50">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <DashboardErrorBoundary>

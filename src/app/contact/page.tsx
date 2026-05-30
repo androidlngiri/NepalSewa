@@ -26,16 +26,27 @@ export default function ContactPage() {
     setIsLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    const name = (formData.get("name") as string)?.trim()
+    const email = (formData.get("email") as string)?.trim()
+    const message = (formData.get("message") as string)?.trim()
+
+    if (!name || !email || !message) {
+      toast.error("Please fill in all required fields")
+      setIsLoading(false)
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address")
+      setIsLoading(false)
+      return
+    }
 
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          message: formData.get("message"),
-        }),
+        body: JSON.stringify({ name, email, message }),
       })
 
       const data = await res.json()

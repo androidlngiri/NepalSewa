@@ -134,7 +134,9 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {requestStatuses.map((item) => (
+                {!requestStatuses.length ? (
+                  <p className="text-sm text-muted-foreground">No request data available</p>
+                ) : requestStatuses.map((item) => (
                   <div key={item.status} className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">
                       {statusLabels[item.status] || item.status}
@@ -146,7 +148,9 @@ export default function AdminDashboardPage() {
                           style={{
                             width: `${Math.min(
                               (item._count /
-                                Math.max(...requestStatuses.map((s) => s._count))) *
+                                (requestStatuses.length > 0
+                                  ? Math.max(...requestStatuses.map((s) => s._count))
+                                  : 1)) *
                                 100,
                               100
                             )}%`,
@@ -169,7 +173,9 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {data?.usersByRole.map((item) => (
+                {!data?.usersByRole?.length ? (
+                  <p className="text-sm text-muted-foreground">No user data available</p>
+                ) : data.usersByRole.map((item) => (
                   <div key={item.role} className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground capitalize">
                       {item.role.toLowerCase()}

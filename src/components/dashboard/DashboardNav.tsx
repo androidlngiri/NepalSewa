@@ -96,6 +96,7 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
           variant="ghost"
           size="icon"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close sidebar" : "Open sidebar"}
         >
           {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
@@ -162,6 +163,7 @@ export function DashboardNav({ role, userName, userImage }: DashboardNavProps) {
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-red-500"
               onClick={() => signOut({ callbackUrl: "/" })}
+              aria-label="Sign out"
             >
               <LogOut className="h-4 w-4" />
             </Button>

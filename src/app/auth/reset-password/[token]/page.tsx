@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { Wrench, Lock, Loader2, CheckCircle2 } from "lucide-react"
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const { token } = useParams() as { token: string }
   const router = useRouter()
   const [password, setPassword] = useState("")
@@ -141,5 +141,13 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-emerald-50 to-white p-4"><div className="h-96 flex items-center justify-center">Loading...</div></div>}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

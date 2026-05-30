@@ -71,10 +71,11 @@ export default function UserRequestDetailPage() {
         ])
         if (reqRes.ok) {
           const requests = await reqRes.json()
-          const found: RequestDetail | null = requests.find((r: any) => r.id === params.id) || null
+          const list: RequestDetail[] = Array.isArray(requests) ? requests : []
+          const found: RequestDetail | null = list.find((r: any) => r.id === params.id) || null
           if (found && txRes.ok) {
             const transactions = await txRes.json()
-            found.transactions = transactions.filter((t: any) => t.requestId === params.id)
+            found.transactions = (Array.isArray(transactions) ? transactions : []).filter((t: any) => t.requestId === params.id)
           }
           setRequest(found)
         }
@@ -297,7 +298,7 @@ export default function UserRequestDetailPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium">{bid.tasker.name}</p>
+                            <p className="font-medium">{bid.tasker?.name || "Unknown Tasker"}</p>
                             {bid.tasker.rating && (
                               <span className="text-sm text-amber-500">
                                 ★ {bid.tasker.rating.toFixed(1)}

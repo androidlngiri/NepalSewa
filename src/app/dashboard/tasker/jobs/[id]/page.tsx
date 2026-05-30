@@ -49,10 +49,11 @@ export default function TaskerJobDetailPage() {
         ])
         if (reqRes.ok) {
           const jobs = await reqRes.json()
-          const found = jobs.find((j: any) => j.id === params.id)
+          const list = Array.isArray(jobs) ? jobs : []
+          const found = list.find((j: any) => j.id === params.id)
           if (found && bidRes.ok) {
             const myBids = await bidRes.json()
-            found.myBid = myBids.find((b: any) => b.requestId === params.id)
+            found.myBid = (Array.isArray(myBids) ? myBids : []).find((b: any) => b.requestId === params.id)
           }
           setJob(found || null)
         }
@@ -180,7 +181,7 @@ export default function TaskerJobDetailPage() {
               <div className="flex items-center gap-2">
                 <User className="h-8 w-8 rounded-full bg-emerald-100 p-1.5 text-emerald-600" />
                 <div>
-                  <p className="text-sm font-medium">{job.user.name}</p>
+                  <p className="text-sm font-medium">{job.user?.name || "Unknown User"}</p>
                   {job.user.wardNo && (
                     <p className="text-xs text-muted-foreground">
                       Ward {job.user.wardNo}

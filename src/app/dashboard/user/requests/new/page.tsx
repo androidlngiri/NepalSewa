@@ -128,6 +128,10 @@ function NewRequestForm() {
       toast.error("Please fill in all required fields")
       return
     }
+    if (form.budget && (isNaN(Number(form.budget)) || Number(form.budget) <= 0)) {
+      toast.error("Budget must be a positive number")
+      return
+    }
     setIsLoading(true)
 
     try {
@@ -348,10 +352,11 @@ function NewRequestForm() {
                   />
                   {images.map((url) => (
                     <div key={url} className="relative h-20 w-20 rounded-xl overflow-hidden border">
-                      <img src={url} alt="Upload" className="h-full w-full object-cover" />
+                      <img src={url} alt="Uploaded task photo" className="h-full w-full object-cover" />
                       <button
                         type="button"
                         onClick={() => removeImage(url)}
+                        aria-label="Remove image"
                         className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
                       >
                         <X className="h-3 w-3" />
