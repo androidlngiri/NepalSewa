@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { Loader2, ArrowLeft, DollarSign, TrendingUp, AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
+import { Loader2, ArrowLeft, DollarSign, TrendingUp, AlertCircle, RefreshCw, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatPrice, formatDate } from "@/lib/utils"
+
+const LIMIT = 20
 
 interface Transaction {
   id: string
@@ -30,21 +32,26 @@ export default function AdminTransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT))
 
   const fetchTransactions = useCallback(async () => {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch("/api/payments?all=true")
+      const res = await fetch(`/api/payments?all=true&page=${page}&limit=${LIMIT}`)
       if (!res.ok) throw new Error("Failed to load")
       const data = await res.json()
-      setTransactions(data || [])
+      setTransactions(data.transactions || [])
+      setTotal(data.total || 0)
     } catch {
       setError("Failed to load transactions")
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [page])
 
   useEffect(() => { fetchTransactions() }, [fetchTransactions])
 
@@ -97,41 +104,73 @@ export default function AdminTransactionsPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardContent className="p-0">
-              <div className="divide-y">
-                {transactions.map((tx) => (
-                  <Link
-                    key={tx.id}
-                    href={`/dashboard/admin/transactions?id=${tx.id}`}
-                    className="flex items-center justify-between p-4 sm:px-6 transition-colors hover:bg-muted/50 group"
+          <>
+            <Card>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {transactions.map((tx) => (
+                    <Link
+                      key={tx.id}
+                      href={`/dashboard/admin/requests/${tx.id}`}
+                      className="flex items-center justify-between p-4 sm:px-6 transition-colors hover:bg-muted/50 group"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-sm truncate">
+                            {tx.user?.name || "Unknown"}
+                          </p>
+                          <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {tx.description || tx.type} • {formatDate(tx.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                        <div className="text-right">
+                          <p className="font-medium text-emerald-600">
+                            +{formatPrice(tx.amount)}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className={statusColors[tx.status] || ""}>
+                          {tx.status?.toLowerCase()}
+                        </Badge>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm text-muted-foreground">
+                  Page {page} of {totalPages} ({total} total)
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1 || loading}
+                    className="gap-1"
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-sm truncate">
-                          {tx.user?.name || "Unknown"}
-                        </p>
-                        <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {tx.description || tx.type} • {formatDate(tx.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                      <div className="text-right">
-                        <p className="font-medium text-emerald-600">
-                          +{formatPrice(tx.amount)}
-                        </p>
-                      </div>
-                      <Badge variant="outline" className={statusColors[tx.status] || ""}>
-                        {tx.status?.toLowerCase()}
-                      </Badge>
-                    </div>
-                  </Link>
-                ))}
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages || loading}
+                    className="gap-1"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>

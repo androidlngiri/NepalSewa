@@ -3,12 +3,14 @@
 import { Suspense, useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, ClipboardList, AlertCircle, RefreshCw } from "lucide-react"
+import { Loader2, ArrowLeft, ClipboardList, AlertCircle, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
+
+const LIMIT = 20
 
 interface RequestItem {
   id: string
@@ -45,24 +47,34 @@ function AdminRequestsContent() {
   const [requests, setRequests] = useState<RequestItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+
   const statusFilter = searchParams.get("status") || ""
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT))
 
   const fetchRequests = useCallback(async () => {
     setLoading(true)
     setError("")
     try {
-      const params = new URLSearchParams({ role: "admin" })
+      const params = new URLSearchParams({ role: "admin", page: String(page), limit: String(LIMIT) })
       if (statusFilter) params.set("status", statusFilter)
       const res = await fetch(`/api/requests?${params}`)
       if (!res.ok) throw new Error("Failed to load")
       const data = await res.json()
-      setRequests(data)
+      if (data.requests) {
+        setRequests(data.requests)
+        setTotal(data.total || 0)
+      } else {
+        setRequests(data)
+        setTotal(data.length)
+      }
     } catch {
       setError("Failed to load requests")
     } finally {
       setLoading(false)
     }
-  }, [statusFilter])
+  }, [statusFilter, page])
 
   useEffect(() => { fetchRequests() }, [fetchRequests])
 
@@ -71,6 +83,7 @@ function AdminRequestsContent() {
     if (s && s !== "ALL") params.set("status", s)
     else params.delete("status")
     router.replace(`/dashboard/admin/requests?${params}`)
+    setPage(1)
   }
 
   const activeStatus = statusFilter || "ALL"
@@ -170,6 +183,36 @@ function AdminRequestsContent() {
             )}
           </CardContent>
         </Card>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              Page {page} of {totalPages} ({total} total)
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || loading}
+                className="gap-1"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || loading}
+                className="gap-1"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )

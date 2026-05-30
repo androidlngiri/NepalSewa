@@ -11,6 +11,8 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const allParam = searchParams.get("all")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "50")
 
     const where: any = {}
     if (session.user.role === "ADMIN" && allParam === "true") {
@@ -18,16 +20,20 @@ export async function GET(req: Request) {
       where.userId = session.user.id
     }
 
-    const transactions = await prisma.transaction.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      take: allParam === "true" ? 100 : 50,
-      include: {
-        user: { select: { id: true, name: true, email: true } },
-      },
-    })
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+        },
+      }),
+      prisma.transaction.count({ where }),
+    ])
 
-    return NextResponse.json(transactions)
+    return NextResponse.json({ transactions, total, page, limit })
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 })
   }
