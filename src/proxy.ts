@@ -36,19 +36,17 @@ function addSecurityHeaders(response: NextResponse) {
 
 export default auth((req) => {
   const { pathname } = req.nextUrl
+
+  if (pathname.startsWith("/api/")) return addSecurityHeaders(NextResponse.next())
+  if (pathname.startsWith("/_next") || pathname.startsWith("/favicon") || pathname.startsWith("/images"))
+    return addSecurityHeaders(NextResponse.next())
+
   const isPublic = publicPaths.some(
     (p) => pathname === p || pathname.startsWith(p + "/")
   )
-  const isApi = pathname.startsWith("/api/")
-  const isStatic =
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon") ||
-    pathname.startsWith("/images")
-
-  if (isPublic || isApi || isStatic) return addSecurityHeaders(NextResponse.next())
+  if (isPublic) return addSecurityHeaders(NextResponse.next())
 
   const session = req.auth
-
   if (!session?.user) {
     const signInUrl = new URL("/auth/signin", req.nextUrl.origin)
     signInUrl.searchParams.set("callbackUrl", pathname)
@@ -56,17 +54,15 @@ export default auth((req) => {
   }
 
   const role = session.user.role as string
-
   if (pathname.startsWith("/dashboard")) {
     const expectedPath = rolePaths[role]
-    if (expectedPath && !pathname.startsWith(expectedPath)) {
+    if (expectedPath && !pathname.startsWith(expectedPath))
       return addSecurityHeaders(NextResponse.redirect(new URL(expectedPath, req.url)))
-    }
   }
 
   return addSecurityHeaders(NextResponse.next())
 })
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)"],
 }
