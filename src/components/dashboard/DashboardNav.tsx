@@ -42,6 +42,7 @@ const taskerNav = [
   { href: "/dashboard/tasker/jobs", label: "Available Jobs", icon: ClipboardList },
   { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
+  { href: "/dashboard/tasker/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
 ]
 

@@ -55,6 +55,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No amount found" }, { status: 400 })
     }
 
+    const taskerAssignment = await prisma.taskerAssignment.findFirst({
+      where: { requestId: request.id, tasker: { isActive: true } },
+      orderBy: { createdAt: "desc" },
+      include: { tasker: { select: { id: true, tier: true, proExpiresAt: true } } },
+    })
+
+    let commission: number | null = null
+    let commissionRate: number | null = null
+    if (taskerAssignment) {
+      commissionRate =
+        taskerAssignment.tasker.tier === "PRO" &&
+        taskerAssignment.tasker.proExpiresAt &&
+        new Date(taskerAssignment.tasker.proExpiresAt) > new Date()
+          ? 0.03
+          : 0.05
+      commission = Math.round(amount * commissionRate * 100) / 100
+    }
+
     await prisma.transaction.create({
       data: {
         userId: session.user.id,
@@ -63,6 +81,9 @@ export async function POST(req: Request) {
         status: "COMPLETED",
         requestId: request.id,
         description: `Cash payment for request: ${request.title}`,
+        commission,
+        commissionRate,
+        taskerId: taskerAssignment?.tasker.id || null,
       },
     })
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
-import { sendAssignmentCompletedNotification } from "@/lib/email"
+import { sendCompletionAwaitingNotification, sendJobConfirmedNotification } from "@/lib/email"
 
 export async function PATCH(
   req: Request,
@@ -17,23 +17,29 @@ export async function PATCH(
     const body = await req.json()
     const { status } = body
 
-    if (!status || !["IN_PROGRESS", "COMPLETED", "CANCELLED"].includes(status)) {
+    const validStatuses = ["IN_PROGRESS", "AWAITING_CONFIRMATION", "COMPLETED", "CANCELLED"]
+    if (!status || !validStatuses.includes(status)) {
       return NextResponse.json(
-        { error: "Invalid status. Must be IN_PROGRESS, COMPLETED, or CANCELLED" },
+        { error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` },
         { status: 400 }
       )
     }
 
     const assignment = await prisma.taskerAssignment.findUnique({
       where: { id: assignmentId },
-      include: { request: { include: { user: { select: { isActive: true } } } }, tasker: { select: { isActive: true } } },
+      include: {
+        request: {
+          include: {
+            user: { select: { id: true, name: true, email: true, isActive: true } },
+            service: { select: { name: true } },
+          },
+        },
+        tasker: { select: { id: true, name: true, email: true, isActive: true, tier: true, proExpiresAt: true } },
+      },
     })
 
     if (!assignment) {
-      return NextResponse.json(
-        { error: "Assignment not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Assignment not found" }, { status: 404 })
     }
 
     const isTasker = assignment.taskerId === session.user.id
@@ -41,22 +47,17 @@ export async function PATCH(
     const isAdmin = session.user.role === "ADMIN"
 
     if (!isTasker && !isCustomer && !isAdmin) {
-      return NextResponse.json(
-        { error: "Not authorized to update this assignment" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "Not authorized to update this assignment" }, { status: 403 })
     }
 
     if (!assignment.request.user.isActive || !assignment.tasker.isActive) {
-      return NextResponse.json(
-        { error: "Cannot update assignment for inactive user" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot update assignment for inactive user" }, { status: 400 })
     }
 
     const validTransitions: Record<string, string[]> = {
       OPEN: ["IN_PROGRESS", "CANCELLED"],
-      IN_PROGRESS: ["COMPLETED", "CANCELLED"],
+      IN_PROGRESS: ["AWAITING_CONFIRMATION", "CANCELLED"],
+      AWAITING_CONFIRMATION: ["COMPLETED", "CANCELLED"],
       COMPLETED: [],
       CANCELLED: [],
     }
@@ -69,38 +70,112 @@ export async function PATCH(
       )
     }
 
-    const updated = await prisma.$transaction(async (tx: any) => {
-      const updatedAssignment = await tx.taskerAssignment.update({
-        where: { id: assignmentId },
-        data: { status },
-      })
-
-      await tx.request.update({
-        where: { id: assignment.requestId },
-        data: { status },
-      })
-
-      return updatedAssignment
-    })
-
-    if (status === "COMPLETED") {
-      const fullAssignment = await prisma.taskerAssignment.findUnique({
-        where: { id: assignmentId },
-        include: {
-          request: { include: { user: { select: { email: true, name: true } } } },
-        },
-      })
-      if (fullAssignment?.request.user.email) {
-        sendAssignmentCompletedNotification({
-          to: fullAssignment.request.user.email,
-          userName: fullAssignment.request.user.name || "User",
-          requestTitle: fullAssignment.request.title,
-        }).catch(() => {})
-      }
+    if (status === "AWAITING_CONFIRMATION" && !isTasker) {
+      return NextResponse.json(
+        { error: "Only the assigned tasker can mark as complete" },
+        { status: 403 }
+      )
     }
 
-    return NextResponse.json(updated)
+    if (status === "COMPLETED" && !isCustomer && !isAdmin) {
+      return NextResponse.json(
+        { error: "Only the customer can confirm completion" },
+        { status: 403 }
+      )
+    }
+
+    if (status === "AWAITING_CONFIRMATION") {
+      await prisma.taskerAssignment.update({
+        where: { id: assignmentId },
+        data: { status: "AWAITING_CONFIRMATION" },
+      })
+
+      if (assignment.request.user.email) {
+        sendCompletionAwaitingNotification({
+          to: assignment.request.user.email,
+          userName: assignment.request.user.name || "User",
+          requestTitle: assignment.request.title,
+          requestId: assignment.request.id,
+        }).catch(() => {})
+      }
+
+      return NextResponse.json({ status: "AWAITING_CONFIRMATION" })
+    }
+
+    if (status === "COMPLETED") {
+      const updated = await prisma.$transaction(async (tx: any) => {
+        const updatedAssignment = await tx.taskerAssignment.update({
+          where: { id: assignmentId },
+          data: { status: "COMPLETED" },
+        })
+
+        await tx.request.update({
+          where: { id: assignment.requestId },
+          data: { status: "COMPLETED" },
+        })
+
+        const existingTx = await tx.transaction.findFirst({
+          where: { requestId: assignment.requestId, status: "COMPLETED" },
+        })
+
+        if (!existingTx) {
+          const acceptedBid = await tx.bid.findFirst({
+            where: { requestId: assignment.requestId, status: "ACCEPTED" },
+            orderBy: { createdAt: "desc" },
+          })
+          const amount = acceptedBid?.amount ?? assignment.request.budget
+          if (amount) {
+            const commissionRate = 
+              assignment.tasker.tier === "PRO" && 
+              assignment.tasker.proExpiresAt && 
+              new Date(assignment.tasker.proExpiresAt) > new Date()
+                ? 0.03
+                : 0.05
+            const commission = Math.round(amount * commissionRate * 100) / 100
+
+            await tx.transaction.create({
+              data: {
+                userId: assignment.request.user.id,
+                amount,
+                type: "cash",
+                status: "COMPLETED",
+                requestId: assignment.request.id,
+                description: `Cash payment confirmed for request: ${assignment.request.title}`,
+                commission,
+                commissionRate,
+                taskerId: assignment.tasker.id,
+              },
+            })
+          }
+        }
+
+        return updatedAssignment
+      })
+
+      if (assignment.request.user.email) {
+        const { sendAssignmentCompletedNotification } = await import("@/lib/email")
+        sendAssignmentCompletedNotification({
+          to: assignment.request.user.email,
+          userName: assignment.request.user.name || "User",
+          requestTitle: assignment.request.title,
+          requestId: assignment.request.id,
+        }).catch(() => {})
+      }
+
+      if (assignment.tasker.email) {
+        sendJobConfirmedNotification({
+          to: assignment.tasker.email,
+          taskerName: assignment.tasker.name || "Tasker",
+          requestTitle: assignment.request.title,
+        }).catch(() => {})
+      }
+
+      return NextResponse.json(updated)
+    }
+
+    return NextResponse.json({ error: "Invalid transition" }, { status: 400 })
   } catch (error) {
+    console.error("Assignment PATCH error:", error)
     return NextResponse.json(
       { error: "Failed to update assignment" },
       { status: 500 }
@@ -140,10 +215,7 @@ export async function GET(
     })
 
     if (!assignment) {
-      return NextResponse.json(
-        { error: "Assignment not found" },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Assignment not found" }, { status: 404 })
     }
 
     const isTasker = assignment.taskerId === session.user.id

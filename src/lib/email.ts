@@ -102,12 +102,40 @@ export async function sendPaymentConfirmation(params: {
   })
 }
 
+export async function sendCompletionAwaitingNotification(params: {
+  to: string
+  userName: string
+  requestTitle: string
+  requestId: string
+}) {
+  const { to, userName, requestTitle, requestId } = params
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `"${requestTitle}" — tasker marked as done`,
+    html: wrapHtml(`
+      <p style="font-size:16px;margin:0 0 16px">Hi ${userName},</p>
+      <p style="font-size:14px;color:#374151;margin:0 0 16px">
+        The tasker has marked <strong>"${requestTitle}"</strong> as complete.
+        Please review the work and confirm completion.
+      </p>
+      <a href="${appUrl}/dashboard/user/requests/${requestId}"
+         style="display:inline-block;background:#059669;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px">
+        Confirm Completion
+      </a>
+    `),
+  })
+}
+
 export async function sendAssignmentCompletedNotification(params: {
   to: string
   userName: string
   requestTitle: string
+  requestId: string
 }) {
-  const { to, userName, requestTitle } = params
+  const { to, userName, requestTitle, requestId } = params
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
   return resend.emails.send({
@@ -120,10 +148,34 @@ export async function sendAssignmentCompletedNotification(params: {
         Your request <strong>"${requestTitle}"</strong> has been marked as completed.
         Please leave a review for the tasker.
       </p>
-      <a href="${appUrl}/dashboard/user/reviews"
+      <a href="${appUrl}/dashboard/user/requests/${requestId}"
          style="display:inline-block;background:#059673;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px">
         Leave a Review
       </a>
+    `),
+  })
+}
+
+export async function sendJobConfirmedNotification(params: {
+  to: string
+  taskerName: string
+  requestTitle: string
+}) {
+  const { to, taskerName, requestTitle } = params
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `Job confirmed — "${requestTitle}"`,
+    html: wrapHtml(`
+      <p style="font-size:16px;margin:0 0 16px">Hi ${taskerName},</p>
+      <p style="font-size:14px;color:#374151;margin:0 0 16px">
+        The customer has confirmed that <strong>"${requestTitle}"</strong> is complete.
+        Your payment will be processed shortly.
+      </p>
+      <p style="font-size:14px;color:#374151;margin:0">
+        Thank you for using NepalSewa!
+      </p>
     `),
   })
 }

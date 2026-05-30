@@ -70,7 +70,7 @@ export default function AdminTransactionsPage() {
             <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
             <p className="text-muted-foreground">All platform transactions.</p>
           </div>
-          <Button variant="outline" size="icon" onClick={fetchTransactions} aria-label="Refresh">
+          <Button variant="outline" className="h-11 w-11" onClick={fetchTransactions} aria-label="Refresh">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -121,7 +121,7 @@ export default function AdminTransactionsPage() {
                           </p>
                           <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground truncate">
                           {tx.description || tx.type} • {formatDate(tx.createdAt)}
                         </p>
                       </div>
@@ -142,14 +142,13 @@ export default function AdminTransactionsPage() {
             </Card>
 
             {totalPages > 1 && (
-              <div className="flex items-center justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
                 <p className="text-sm text-muted-foreground">
                   Page {page} of {totalPages} ({total} total)
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page <= 1 || loading}
                     className="gap-1"
@@ -159,7 +158,6 @@ export default function AdminTransactionsPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page >= totalPages || loading}
                     className="gap-1"

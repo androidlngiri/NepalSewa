@@ -70,6 +70,15 @@ export async function GET(req: Request) {
               },
             },
           },
+          reviews: {
+            select: {
+              id: true,
+              rating: true,
+              comment: true,
+              reviewerId: true,
+              revieweeId: true,
+            },
+          },
           taskerAssignments: {
             select: {
               id: true,

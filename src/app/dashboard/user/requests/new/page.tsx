@@ -345,7 +345,7 @@ function NewRequestForm() {
 
               <div className="space-y-2">
                 <Label>Photos (optional)</Label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <Button
                     type="button"
                     variant="outline"

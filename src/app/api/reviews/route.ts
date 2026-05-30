@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         where: { id: requestId },
         include: {
           taskerAssignments: {
-            where: { status: { in: ["IN_PROGRESS", "COMPLETED"] } },
+            where: { status: { in: ["IN_PROGRESS", "AWAITING_CONFIRMATION", "COMPLETED"] } },
             select: { taskerId: true },
           },
         },

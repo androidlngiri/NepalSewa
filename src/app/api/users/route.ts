@@ -19,6 +19,8 @@ export async function GET() {
         image: true,
         role: true,
         isTasker: true,
+        tier: true,
+        proExpiresAt: true,
         wardNo: true,
         address: true,
         bio: true,

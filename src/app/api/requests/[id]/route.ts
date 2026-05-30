@@ -38,6 +38,9 @@ export async function GET(
             },
           },
         },
+        reviews: {
+          select: { id: true, rating: true, comment: true, reviewerId: true, revieweeId: true },
+        },
         transactions: {
           select: { id: true, amount: true, status: true, type: true, reference: true },
         },

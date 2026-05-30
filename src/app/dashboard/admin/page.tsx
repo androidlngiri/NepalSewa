@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
             <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
             <p className="text-muted-foreground">Platform overview and analytics.</p>
           </div>
-          <Button variant="outline" size="icon" onClick={load} aria-label="Refresh">
+          <Button variant="outline" className="h-11 w-11" onClick={load} aria-label="Refresh">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
@@ -183,11 +183,11 @@ export default function AdminDashboardPage() {
                     href={`/dashboard/admin/requests?status=${item.status}`}
                     className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
                   >
-                    <span className="text-sm text-muted-foreground">
-                      {statusLabels[item.status] || item.status}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-32 rounded-full bg-muted overflow-hidden sm:w-48">
+                      <span className="text-sm text-muted-foreground">
+                        {statusLabels[item.status] || item.status}
+                      </span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-2 w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                           style={{
@@ -226,11 +226,11 @@ export default function AdminDashboardPage() {
                     href="/dashboard/admin/users"
                     className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
                   >
-                    <span className="text-sm text-muted-foreground capitalize">
-                      {item.role.toLowerCase()}
-                    </span>
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-32 rounded-full bg-muted overflow-hidden sm:w-48">
+                      <span className="text-sm text-muted-foreground capitalize">
+                        {item.role.toLowerCase()}
+                      </span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-2 w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                           style={{
@@ -258,7 +258,7 @@ export default function AdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Recent Transactions</CardTitle>
             <Link href="/dashboard/admin/transactions">
-              <Button variant="ghost" size="sm" className="text-emerald-600">
+              <Button variant="ghost" className="text-emerald-600">
                 View All
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Button>

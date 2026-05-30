@@ -15,6 +15,7 @@ enum UserRole {
 enum RequestStatus {
   OPEN
   IN_PROGRESS
+  AWAITING_CONFIRMATION
   COMPLETED
   CANCELLED
 }
@@ -32,6 +33,11 @@ enum PaymentStatus {
   FAILED
 }
 
+enum TaskerTier {
+  STANDARD
+  PRO
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String?
@@ -42,8 +48,10 @@ model User {
   image          String?
   passwordHash   String?
   role           UserRole  @default(USER)
-  isTasker       Boolean   @default(false)
-  isActive       Boolean   @default(true)
+  isTasker       Boolean     @default(false)
+  isActive       Boolean     @default(true)
+  tier           TaskerTier  @default(STANDARD)
+  proExpiresAt   DateTime?
   wardNo         Int?
   address        String?
   bio            String?
@@ -58,7 +66,10 @@ model User {
   bids           Bid[]
   reviewsGiven   Review[]         @relation("Reviewer")
   reviewsReceived Review[]        @relation("Reviewee")
+  sentMessages   Message[]        @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
   transactions   Transaction[]
+  taskerPayouts  Transaction[]  @relation("TaskerPayouts")
 
   @@map("users")
 }
@@ -160,6 +171,7 @@ model Request {
   bids          Bid[]
   taskerAssignments TaskerAssignment[]
   reviews       Review[]
+  messages      Message[]
   transactions  Transaction[]
 
   @@index([userId])
@@ -226,6 +238,26 @@ model Review {
   @@map("reviews")
 }
 
+model Message {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  requestId   String
+  content     String   @db.Text
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiver    User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  request     Request  @relation(fields: [requestId], references: [id])
+
+  @@index([requestId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([requestId, createdAt])
+  @@map("messages")
+}
+
 model Transaction {
   id              String        @id @default(cuid())
   userId          String
@@ -237,12 +269,17 @@ model Transaction {
   productCode     String?
   requestId       String?
   description     String?
+  commission      Float?
+  commissionRate  Float?
+  taskerId        String?
   createdAt       DateTime      @default(now())
 
   user            User          @relation(fields: [userId], references: [id])
+  tasker          User?         @relation("TaskerPayouts", fields: [taskerId], references: [id])
   request         Request?      @relation(fields: [requestId], references: [id])
 
   @@index([userId])
+  @@index([taskerId])
   @@index([transactionUuid])
   @@map("transactions")
 }

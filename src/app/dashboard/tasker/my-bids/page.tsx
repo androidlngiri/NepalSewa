@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Loader2, ArrowLeft, MessageSquare } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Loader2, ArrowLeft, MessageSquare, CheckCircle2, Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface MyBid {
   id: string
@@ -21,12 +24,15 @@ interface MyBid {
     budget: number | null
     service: { name: string }
     user: { name: string; wardNo: number | null }
+    taskerAssignments: { id: string; status: string }[]
   }
 }
 
 export default function MyBidsPage() {
+  const router = useRouter()
   const [bids, setBids] = useState<MyBid[]>([])
   const [loading, setLoading] = useState(true)
+  const [markingId, setMarkingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/bids")
@@ -47,6 +53,28 @@ export default function MyBidsPage() {
         {status}
       </Badge>
     )
+  }
+
+  async function handleMarkComplete(assignmentId: string) {
+    setMarkingId(assignmentId)
+    try {
+      const res = await fetch(`/api/assignments/${assignmentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "AWAITING_CONFIRMATION" }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "Failed to mark as complete")
+        return
+      }
+      toast.success("Marked as complete! Waiting for customer confirmation.")
+      router.refresh()
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setMarkingId(null)
+    }
   }
 
   return (
@@ -87,35 +115,65 @@ export default function MyBidsPage() {
           </Card>
         ) : (
           <div className="space-y-3">
-            {bids.map((bid) => (
-              <Card key={bid.id}>
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium">{bid.request.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {bid.request.service.name} • {bid.request.user.name}
-                        {bid.request.user.wardNo ? ` • Ward ${bid.request.user.wardNo}` : ""}
-                      </p>
-                      {bid.message && (
-                        <p className="text-sm bg-muted rounded-lg p-3 mt-2">
-                          {bid.message}
+            {bids.map((bid) => {
+              const assignment = bid.request.taskerAssignments?.[0]
+              return (
+                <Card key={bid.id}>
+                  <CardContent className="p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium">{bid.request.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {bid.request.service.name} • {bid.request.user.name}
+                          {bid.request.user.wardNo ? ` • Ward ${bid.request.user.wardNo}` : ""}
                         </p>
-                      )}
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formatDate(bid.createdAt)}
-                      </p>
+                        {bid.message && (
+                          <p className="text-sm bg-muted rounded-lg p-3 mt-2">
+                            {bid.message}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {formatDate(bid.createdAt)}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="text-lg font-bold text-emerald-600">
+                          {formatPrice(bid.amount)}
+                        </span>
+                        {badgeForStatus(bid.status)}
+                        {bid.status === "ACCEPTED" && assignment?.status === "IN_PROGRESS" && (
+                          <Button
+                            variant="outline"
+                            className="mt-2 border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => handleMarkComplete(assignment.id)}
+                            disabled={markingId === assignment.id}
+                          >
+                            {markingId === assignment.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                            ) : (
+                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                            )}
+                            Mark Complete
+                          </Button>
+                        )}
+                        {bid.status === "ACCEPTED" && assignment?.status === "AWAITING_CONFIRMATION" && (
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 mt-2">
+                            <Clock className="h-3 w-3 mr-1" />
+                            Waiting for confirmation
+                          </Badge>
+                        )}
+                        {bid.status === "ACCEPTED" && assignment?.status === "COMPLETED" && (
+                          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 mt-2">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Completed
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <span className="text-lg font-bold text-emerald-600">
-                        {formatPrice(bid.amount)}
-                      </span>
-                      {badgeForStatus(bid.status)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         )}
       </div>

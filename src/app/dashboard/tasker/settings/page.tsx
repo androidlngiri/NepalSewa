@@ -3,14 +3,16 @@
 import { useState, useEffect, FormEvent } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, Save } from "lucide-react"
+import { Loader2, ArrowLeft, Save, Crown, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
+import { formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -19,6 +21,9 @@ export default function TaskerSettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
+  const [upgrading, setUpgrading] = useState(false)
+  const [tier, setTier] = useState<string>("STANDARD")
+  const [proExpiresAt, setProExpiresAt] = useState<string | null>(null)
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -40,6 +45,8 @@ export default function TaskerSettingsPage() {
             address: user.address || "",
             bio: user.bio || "",
           })
+          setTier(user.tier || "STANDARD")
+          setProExpiresAt(user.proExpiresAt || null)
         }
       } catch {
         toast.error("Failed to load profile")
@@ -71,6 +78,27 @@ export default function TaskerSettingsPage() {
       toast.error("Something went wrong")
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleUpgradePro() {
+    setUpgrading(true)
+    try {
+      const res = await fetch("/api/users/upgrade-pro", { method: "POST" })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "Failed to upgrade")
+        return
+      }
+      const data = await res.json()
+      setTier("PRO")
+      setProExpiresAt(data.expiresAt)
+      toast.success("Upgraded to Pro! 🎉")
+      router.refresh()
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setUpgrading(false)
     }
   }
 
@@ -139,6 +167,77 @@ export default function TaskerSettingsPage() {
                 Save Changes
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-amber-500" />
+              Subscription
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Current Plan</p>
+                <p className="text-sm text-muted-foreground">
+                  {tier === "PRO" ? "Pro — 3% commission per job" : "Standard — 5% commission per job"}
+                </p>
+              </div>
+              <Badge
+                variant="outline"
+                className={
+                  tier === "PRO"
+                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    : "bg-slate-50 text-slate-700 border-slate-200"
+                }
+              >
+                {tier === "PRO" ? (
+                  <><Crown className="h-3 w-3 mr-1" /> PRO</>
+                ) : (
+                  "STANDARD"
+                )}
+              </Badge>
+            </div>
+
+            {tier === "PRO" && proExpiresAt && (
+              <div className="text-sm text-muted-foreground">
+                Valid until {formatDate(proExpiresAt)}
+                {new Date(proExpiresAt) < new Date() && (
+                  <span className="text-red-500 ml-2">(Expired)</span>
+                )}
+              </div>
+            )}
+
+            {tier === "STANDARD" && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-sm">Go Pro — ₹199/month</p>
+                    <ul className="text-sm text-muted-foreground mt-1 space-y-1">
+                      <li>• Reduced commission: 3% (vs 5%)</li>
+                      <li>• Featured profile badge</li>
+                      <li>• Priority in search results</li>
+                      <li>• Early access to new jobs</li>
+                    </ul>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleUpgradePro}
+                  disabled={upgrading}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+                >
+                  {upgrading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Crown className="mr-2 h-4 w-4" />
+                  )}
+                  Upgrade to Pro — ₹199/month
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -141,7 +141,7 @@ export default function AdminUsersPage() {
               <SelectItem value="ADMIN">Admin</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={fetchUsers} aria-label="Refresh">
+          <Button variant="outline" className="h-11 w-11" onClick={fetchUsers} aria-label="Refresh">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -188,7 +188,7 @@ export default function AdminUsersPage() {
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="font-medium truncate max-w-[160px]">
+                          <p className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
                             {user.name || "Unnamed"}
                           </p>
                           <p className="text-xs text-muted-foreground">{user.email || "—"}</p>
@@ -252,14 +252,13 @@ export default function AdminUsersPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex items-center justify-between border-t px-4 py-3">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-t px-4 py-3">
                   <p className="text-sm text-muted-foreground">
                     Page {page} of {totalPages}
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
-                      size="sm"
                       disabled={page <= 1}
                       onClick={() => setPage((p) => Math.max(1, p - 1))}
                     >
@@ -267,7 +266,6 @@ export default function AdminUsersPage() {
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
                       disabled={page >= totalPages}
                       onClick={() => setPage((p) => p + 1)}
                     >

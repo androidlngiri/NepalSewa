@@ -228,10 +228,10 @@ function AdminServicesPage() {
             <p className="text-muted-foreground">Manage service categories and offerings.</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Button variant="outline" size="sm" onClick={fetchCategories} aria-label="Refresh">
+            <Button variant="outline" onClick={fetchCategories} aria-label="Refresh">
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             </Button>
-            <Button size="sm" onClick={() => setShowAddCategory(true)} className="gap-1.5">
+            <Button onClick={() => setShowAddCategory(true)} className="gap-1.5">
               <Plus className="h-4 w-4" />
               Add Category
             </Button>
@@ -308,17 +308,17 @@ function AdminServicesPage() {
                             className="h-8 text-sm"
                             autoFocus
                           />
-                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => saveCategoryName(cat.id)} disabled={saving === `cat-edit-${cat.id}`}>
-                            <Check className="h-3.5 w-3.5" />
+                          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => saveCategoryName(cat.id)} disabled={saving === `cat-edit-${cat.id}`}>
+                            <Check className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => setEditCategory(null)}>
-                            <X className="h-3.5 w-3.5" />
+                          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => setEditCategory(null)}>
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       ) : (
                         <CardTitle className="text-base flex items-center gap-2">
                           {cat.name}
-                          <button onClick={() => startEditCategory(cat)} className="text-muted-foreground hover:text-foreground">
+                          <button onClick={() => startEditCategory(cat)} className="text-muted-foreground hover:text-foreground p-2">
                             <Pencil className="h-3 w-3" />
                           </button>
                         </CardTitle>
@@ -363,27 +363,27 @@ function AdminServicesPage() {
                               className="h-7 text-xs w-20"
                               type="number"
                             />
-                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => saveServiceEdit(s.id)} disabled={saving === `svc-edit-${s.id}`}>
-                              <Check className="h-3 w-3" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => saveServiceEdit(s.id)} disabled={saving === `svc-edit-${s.id}`}>
+                              <Check className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setEditService(null)}>
-                              <X className="h-3 w-3" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => setEditService(null)}>
+                              <X className="h-4 w-4" />
                             </Button>
                           </div>
                         ) : (
                           <>
                             <span className="flex-1 truncate">{s.name}</span>
                             <span className="text-muted-foreground text-xs">NPR {s.price}</span>
-                            <button onClick={() => startEditService(s)} className="text-muted-foreground hover:text-foreground shrink-0">
-                              <Pencil className="h-3 w-3" />
+                            <button onClick={() => startEditService(s)} className="text-muted-foreground hover:text-foreground shrink-0 p-2">
+                              <Pencil className="h-3.5 w-3.5" />
                             </button>
                             <button
                               onClick={() => toggleService(s.id, s.isActive)}
                               disabled={saving === `svc-toggle-${s.id}`}
-                              className="text-muted-foreground hover:text-foreground shrink-0"
+                              className="text-muted-foreground hover:text-foreground shrink-0 p-2"
                               title={s.isActive ? "Disable" : "Enable"}
                             >
-                              {s.isActive ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3 text-emerald-500" />}
+                              {s.isActive ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5 text-emerald-500" />}
                             </button>
                           </>
                         )}

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User, Send,
+  CheckCircle2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
+import { ChatBox } from "@/components/chat/ChatBox"
 import { formatDate, formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -29,6 +31,7 @@ interface JobDetail {
   service: { id: string; name: string; slug: string }
   user: { id: string; name: string; image: string | null; wardNo: number | null }
   myBid?: { id: string; amount: number; status: string }
+  taskerAssignments?: { id: string; status: string }[]
 }
 
 export default function TaskerJobDetailPage() {
@@ -37,16 +40,23 @@ export default function TaskerJobDetailPage() {
   const [job, setJob] = useState<JobDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [bidding, setBidding] = useState(false)
+  const [markingComplete, setMarkingComplete] = useState(false)
   const [bidAmount, setBidAmount] = useState("")
   const [bidMessage, setBidMessage] = useState("")
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
       try {
-        const [reqRes, bidRes] = await Promise.all([
+        const [reqRes, bidRes, sessionRes] = await Promise.all([
           fetch("/api/requests"),
           fetch("/api/bids"),
+          fetch("/api/auth/session"),
         ])
+        if (sessionRes.ok) {
+          const sess = await sessionRes.json()
+          setCurrentUserId(sess?.user?.id || null)
+        }
         if (reqRes.ok) {
           const jobs = await reqRes.json()
           const list = Array.isArray(jobs) ? jobs : []
@@ -54,6 +64,7 @@ export default function TaskerJobDetailPage() {
           if (found && bidRes.ok) {
             const myBids = await bidRes.json()
             found.myBid = (Array.isArray(myBids) ? myBids : []).find((b: any) => b.requestId === params.id)
+            found.taskerAssignments = found.taskerAssignments || []
           }
           setJob(found || null)
         }
@@ -91,6 +102,30 @@ export default function TaskerJobDetailPage() {
       setBidding(false)
     }
   }
+
+  async function handleMarkComplete(assignmentId: string) {
+    setMarkingComplete(true)
+    try {
+      const res = await fetch(`/api/assignments/${assignmentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "AWAITING_CONFIRMATION" }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "Failed to mark as complete")
+        return
+      }
+      toast.success("Marked as complete! Waiting for customer confirmation.")
+      router.refresh()
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setMarkingComplete(false)
+    }
+  }
+
+  const assignment = job?.taskerAssignments?.[0]
 
   if (loading) {
     return (
@@ -137,14 +172,14 @@ export default function TaskerJobDetailPage() {
                 </p>
               </div>
               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                {job.status}
+                {job.status.replace("_", " ")}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm leading-relaxed">{job.description}</p>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               {job.budget && (
                 <div className="flex items-center gap-2">
                   <IndianRupee className="h-4 w-4 text-muted-foreground" />
@@ -191,6 +226,40 @@ export default function TaskerJobDetailPage() {
               </div>
             </div>
 
+            {assignment && (
+              <div className="border-t pt-4">
+                <p className="text-sm font-medium mb-2">Assignment Status</p>
+                <Badge
+                  variant="outline"
+                  className={
+                    assignment.status === "IN_PROGRESS"
+                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                      : assignment.status === "AWAITING_CONFIRMATION"
+                      ? "bg-purple-50 text-purple-700 border-purple-200"
+                      : assignment.status === "COMPLETED"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-red-50 text-red-700 border-red-200"
+                  }
+                >
+                  {assignment.status.replace("_", " ")}
+                </Badge>
+                {assignment.status === "IN_PROGRESS" && (
+                  <Button
+                    onClick={() => handleMarkComplete(assignment.id)}
+                    disabled={markingComplete}
+                    className="mt-3 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  >
+                    {markingComplete ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                    )}
+                    Mark as Complete
+                  </Button>
+                )}
+              </div>
+            )}
+
             {job.status === "OPEN" && !job.myBid && (
               <div className="border-t pt-4 space-y-3">
                 <h4 className="text-sm font-medium">Place a Bid</h4>
@@ -200,7 +269,7 @@ export default function TaskerJobDetailPage() {
                     id="bidAmount"
                     type="number"
                     placeholder="e.g., 5000"
-                    className="h-10 mt-1"
+                    className="h-11 mt-1"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
                     min="1"
@@ -232,7 +301,7 @@ export default function TaskerJobDetailPage() {
               </div>
             )}
 
-            {job.myBid && (
+            {job.myBid && !assignment && (
               <div className="border-t pt-4">
                 <Badge variant="outline" className={
                   job.myBid.status === "PENDING"
@@ -247,6 +316,14 @@ export default function TaskerJobDetailPage() {
             )}
           </CardContent>
         </Card>
+
+        {assignment && currentUserId && (
+          <ChatBox
+            requestId={job.id}
+            currentUserId={currentUserId}
+            otherUserName={job.user.name}
+          />
+        )}
       </div>
     </DashboardLayout>
   )

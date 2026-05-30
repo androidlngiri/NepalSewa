@@ -27,6 +27,10 @@ export async function GET(req: Request) {
             service: {
               select: { id: true, name: true },
             },
+            taskerAssignments: {
+              where: { taskerId: session.user.id },
+              select: { id: true, status: true },
+            },
           },
         },
       },
