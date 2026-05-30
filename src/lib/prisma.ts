@@ -15,10 +15,7 @@ function getPrisma(): PrismaClient {
     database: url.pathname.replace(/^\//, ""),
     user: url.username,
     password: decodeURIComponent(url.password),
-    ssl:
-      process.env.NODE_ENV === "production"
-        ? { rejectUnauthorized: true }
-        : { rejectUnauthorized: false },
+    ssl: { rejectUnauthorized: false },
   })
   const adapter = new PrismaPg(pool)
   globalForPrisma.prisma = new PrismaClient({ adapter })
