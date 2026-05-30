@@ -96,12 +96,15 @@ export function Navbar() {
           size="icon"
           className="md:hidden"
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-controls="mobile-menu"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
       </div>
 
       <div
+        id="mobile-menu"
         className={cn(
           "md:hidden border-t bg-background transition-all duration-200 overflow-hidden",
           isOpen ? "max-h-96" : "max-h-0"

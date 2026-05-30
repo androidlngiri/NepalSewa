@@ -32,7 +32,6 @@ export async function GET() {
 
     return NextResponse.json(user)
   } catch (error) {
-    console.error("User fetch error:", error)
     return NextResponse.json(
       { error: "Failed to fetch user" },
       { status: 500 }
@@ -50,14 +49,18 @@ export async function PATCH(req: Request) {
     const body = await req.json()
     const { name, phone, wardNo, address, bio } = body
 
+    function sanitize(str: string | undefined): string | undefined {
+      return str ? str.replace(/[<>&"']/g, "").trim() : undefined
+    }
+
     const user = await prisma.user.update({
       where: { id: session.user.id },
       data: {
-        ...(name !== undefined && { name }),
+        ...(name !== undefined && { name: sanitize(name) }),
         ...(phone !== undefined && { phone }),
         ...(wardNo !== undefined && { wardNo: wardNo ? parseInt(wardNo) : null }),
         ...(address !== undefined && { address }),
-        ...(bio !== undefined && { bio }),
+        ...(bio !== undefined && { bio: sanitize(bio) }),
       },
       select: {
         id: true,
@@ -73,7 +76,6 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json(user)
   } catch (error) {
-    console.error("User update error:", error)
     return NextResponse.json(
       { error: "Failed to update user" },
       { status: 500 }

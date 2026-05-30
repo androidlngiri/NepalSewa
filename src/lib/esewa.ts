@@ -1,8 +1,12 @@
 import crypto from "node:crypto"
 
 function getConfig() {
-  const merchantCode = process.env.ESEWA_MERCHANT_CODE || "EPAYTEST"
-  const secretKey = process.env.ESEWA_SECRET_KEY || "8gBm/:&EnhH.1/q"
+  const merchantCode = process.env.ESEWA_MERCHANT_CODE
+  const secretKey = process.env.ESEWA_SECRET_KEY
+
+  if (!merchantCode || !secretKey) {
+    throw new Error("ESEWA_MERCHANT_CODE and ESEWA_SECRET_KEY must be set")
+  }
   const successUrl = process.env.ESEWA_SUCCESS_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/success`
   const failureUrl = process.env.ESEWA_FAILURE_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/failure`
   const isTest = process.env.ESEWA_MODE !== "production"
@@ -28,7 +32,7 @@ export function generateTransactionUuid(): string {
   const now = new Date()
   const datePart = `${String(now.getDate()).padStart(2, "0")}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getFullYear()).slice(2)}`
   const timePart = `${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`
-  const random = crypto.randomBytes(3).toString("hex")
+  const random = crypto.randomUUID().split("-")[0]
   return `NPS-${datePart}-${timePart}-${random}`
 }
 

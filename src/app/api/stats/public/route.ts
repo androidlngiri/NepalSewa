@@ -14,7 +14,7 @@ export async function GET() {
         prisma.review.aggregate({ _avg: { rating: true } }),
       ])
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       users: totalUsers ?? 0,
       taskers: totalTaskers ?? 0,
       completedJobs: completedJobs ?? 0,
@@ -23,8 +23,9 @@ export async function GET() {
         ? Math.round(reviews._avg.rating * 20)
         : null,
     })
+    response.headers.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600")
+    return response
   } catch (error) {
-    console.error("Stats error:", error)
     return NextResponse.json(
       { users: 0, taskers: 0, completedJobs: 0, totalRequests: 0, satisfactionRate: null },
       { status: 200 }

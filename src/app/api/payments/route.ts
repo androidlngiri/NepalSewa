@@ -29,7 +29,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(transactions)
   } catch (error) {
-    console.error("Payments list error:", error)
     return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 })
   }
 }

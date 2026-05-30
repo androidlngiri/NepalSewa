@@ -50,7 +50,7 @@ export default function UserDashboardPage() {
         if (dashRes.ok) setData(await dashRes.json())
         if (reqRes.ok) setRequests(await reqRes.json())
       } catch (e) {
-        console.error(e)
+        // console.error(e)
       } finally {
         setLoading(false)
       }

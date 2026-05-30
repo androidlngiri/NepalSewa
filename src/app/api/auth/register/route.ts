@@ -31,6 +31,14 @@ export async function POST(req: Request) {
       )
     }
 
+    const allowedRoles = ["USER", "TASKER"]
+    if (role && !allowedRoles.includes(role)) {
+      return NextResponse.json(
+        { error: "Invalid role specified" },
+        { status: 400 }
+      )
+    }
+
     if (!password || password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
@@ -92,7 +100,6 @@ export async function POST(req: Request) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Registration error:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

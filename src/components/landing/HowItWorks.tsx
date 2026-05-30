@@ -50,8 +50,8 @@ export function HowItWorks() {
         </div>
 
         <div className="relative grid gap-8 md:grid-cols-4">
-          {steps.map((step, i) => (
-            <div key={i} className="relative flex flex-col items-center text-center">
+          {steps.map((step) => (
+            <div key={step.title} className="relative flex flex-col items-center text-center">
               <div className="relative mb-6">
                 <div
                   className={`flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br ${step.color} shadow-xl shadow-${step.color}/20`}

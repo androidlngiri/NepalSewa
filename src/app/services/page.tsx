@@ -45,7 +45,7 @@ export default function ServicesPage() {
               <div className="mt-8 flex w-full max-w-xl gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Search services..." className="h-12 pl-11 text-base rounded-2xl border-2" />
+                  <Input placeholder="Search services..." aria-label="Filter services" className="h-12 pl-11 text-base rounded-2xl border-2" />
                 </div>
                 <Button className="h-12 rounded-2xl bg-emerald-600 text-white px-6 hover:bg-emerald-700">
                   Search
@@ -54,8 +54,8 @@ export default function ServicesPage() {
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {allServices.map((service, i) => (
-                <Link key={i} href={`/services/${service.slug}`}>
+              {allServices.map((service) => (
+                <Link key={service.slug} href={`/services/${service.slug}`}>
                   <Card className="group h-full border-2 border-transparent bg-white transition-all hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
                     <CardContent className="p-6">
                       <div className="mb-4 flex items-center justify-between">

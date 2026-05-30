@@ -30,7 +30,7 @@ export default function UserBidsPage() {
     fetch("/api/bids")
       .then((r) => r.json())
       .then(setBids)
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 

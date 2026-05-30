@@ -124,8 +124,8 @@ export function ServicesSection() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {services.map((service, i) => (
-            <Link key={i} href={`/services/${service.slug}`}>
+          {services.map((service) => (
+            <Link key={service.slug} href={`/services/${service.slug}`}>
               <Card className="group relative h-full overflow-hidden border-2 border-transparent bg-white transition-all hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1">
                 <CardContent className="p-6">
                   <div className="mb-4 flex items-center justify-between">

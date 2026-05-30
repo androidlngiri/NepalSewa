@@ -34,7 +34,7 @@ export default function UserRequestsPage() {
     fetch("/api/requests?role=user")
       .then((r) => r.json())
       .then(setRequests)
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 

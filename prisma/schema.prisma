@@ -158,7 +158,14 @@ model Request {
   service       Service        @relation(fields: [serviceId], references: [id])
   bids          Bid[]
   taskerAssignments TaskerAssignment[]
+  reviews       Review[]
+  transactions  Transaction[]
 
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([wardNo])
+  @@index([status, wardNo])
   @@map("requests")
 }
 
@@ -175,6 +182,8 @@ model TaskerAssignment {
   request   Request       @relation(fields: [requestId], references: [id])
 
   @@unique([taskerId, requestId])
+  @@index([taskerId])
+  @@index([requestId])
   @@map("tasker_assignments")
 }
 
@@ -192,6 +201,8 @@ model Bid {
   tasker      User       @relation(fields: [taskerId], references: [id])
 
   @@unique([requestId, taskerId])
+  @@index([taskerId])
+  @@index([requestId])
   @@map("bids")
 }
 
@@ -206,7 +217,11 @@ model Review {
 
   reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id])
   reviewee    User     @relation("Reviewee", fields: [revieweeId], references: [id])
+  request     Request? @relation(fields: [requestId], references: [id])
 
+  @@unique([reviewerId, revieweeId, requestId])
+  @@index([reviewerId])
+  @@index([revieweeId])
   @@map("reviews")
 }
 
@@ -224,6 +239,9 @@ model Transaction {
   createdAt       DateTime      @default(now())
 
   user            User          @relation(fields: [userId], references: [id])
+  request         Request?      @relation(fields: [requestId], references: [id])
 
+  @@index([userId])
+  @@index([transactionUuid])
   @@map("transactions")
 }

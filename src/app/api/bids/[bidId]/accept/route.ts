@@ -18,7 +18,7 @@ export async function POST(
     const bid = await prisma.bid.findUnique({
       where: { id: bidId },
       include: {
-        request: true,
+        request: { include: { user: { select: { isActive: true } } } },
         tasker: { select: { id: true, name: true, email: true } },
       },
     })
@@ -48,6 +48,36 @@ export async function POST(
       )
     }
 
+    if (!bid.request.user.isActive) {
+      return NextResponse.json(
+        { error: "Cannot accept bids on this request" },
+        { status: 400 }
+      )
+    }
+
+    const existingAssignment = await prisma.taskerAssignment.findFirst({
+      where: { requestId: bid.requestId },
+    })
+
+    if (existingAssignment) {
+      return NextResponse.json(
+        { error: "An assignment already exists for this request" },
+        { status: 400 }
+      )
+    }
+
+    const accepted = await prisma.bid.updateMany({
+      where: { id: bidId, status: "PENDING" },
+      data: { status: "ACCEPTED" },
+    })
+
+    if (accepted.count === 0) {
+      return NextResponse.json(
+        { error: "Bid could not be accepted" },
+        { status: 409 }
+      )
+    }
+
     const [assignment] = await prisma.$transaction([
       prisma.taskerAssignment.create({
         data: {
@@ -55,10 +85,6 @@ export async function POST(
           requestId: bid.requestId,
           status: "IN_PROGRESS",
         },
-      }),
-      prisma.bid.update({
-        where: { id: bidId },
-        data: { status: "ACCEPTED" },
       }),
       prisma.request.update({
         where: { id: bid.requestId },
@@ -85,7 +111,6 @@ export async function POST(
 
     return NextResponse.json(assignment, { status: 201 })
   } catch (error) {
-    console.error("Bid accept error:", error)
     return NextResponse.json(
       { error: "Failed to accept bid" },
       { status: 500 }

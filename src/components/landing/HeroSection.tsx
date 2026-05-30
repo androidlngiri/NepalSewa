@@ -85,6 +85,7 @@ export function HeroSection() {
               <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="What service do you need? (e.g. plumber, electrician...)"
+                aria-label="Search for services"
                 className="h-14 pl-11 pr-4 text-base rounded-2xl border-2 shadow-lg shadow-emerald-500/10"
               />
             </div>
@@ -125,9 +126,9 @@ export function HeroSection() {
               { icon: Home, label: "Cleaning" },
               { icon: Truck, label: "Moving" },
               { icon: Code, label: "Tech Support" },
-            ].map((item, i) => (
+            ].map((item) => (
               <Link
-                key={i}
+                key={item.label}
                 href={`/services?q=${item.label.toLowerCase()}`}
                 className="flex flex-col items-center gap-2 rounded-2xl border bg-white/80 p-4 backdrop-blur-sm transition-all hover:border-emerald-200 hover:bg-emerald-50/50 hover:shadow-md hover:-translate-y-0.5"
               >

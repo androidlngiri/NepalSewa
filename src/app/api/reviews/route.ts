@@ -36,6 +36,12 @@ export async function POST(req: Request) {
     if (requestId) {
       const request = await prisma.request.findUnique({
         where: { id: requestId },
+        include: {
+          taskerAssignments: {
+            where: { status: { in: ["IN_PROGRESS", "COMPLETED"] } },
+            select: { taskerId: true },
+          },
+        },
       })
 
       if (!request) {
@@ -48,6 +54,14 @@ export async function POST(req: Request) {
       if (request.status !== "COMPLETED") {
         return NextResponse.json(
           { error: "Can only review completed requests" },
+          { status: 400 }
+        )
+      }
+
+      const assignedTaskerIds = request.taskerAssignments.map((a: any) => a.taskerId)
+      if (assignedTaskerIds.length > 0 && !assignedTaskerIds.includes(revieweeId)) {
+        return NextResponse.json(
+          { error: "Reviewee does not match the assigned tasker for this request" },
           { status: 400 }
         )
       }
@@ -111,7 +125,6 @@ export async function POST(req: Request) {
       { status: 201 }
     )
   } catch (error) {
-    console.error("Review create error:", error)
     return NextResponse.json(
       { error: "Failed to submit review" },
       { status: 500 }
@@ -141,7 +154,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(reviews)
   } catch (error) {
-    console.error("Reviews fetch error:", error)
     return NextResponse.json(
       { error: "Failed to fetch reviews" },
       { status: 500 }

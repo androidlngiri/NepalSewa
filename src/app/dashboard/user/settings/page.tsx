@@ -151,7 +151,7 @@ export default function UserSettingsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 19 }, (_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>
+                      <SelectItem key={`ward-${i + 1}`} value={String(i + 1)}>
                         Ward {i + 1}
                       </SelectItem>
                     ))}

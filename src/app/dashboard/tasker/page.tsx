@@ -52,7 +52,7 @@ export default function TaskerDashboardPage() {
         if (dashRes.ok) setData(await dashRes.json())
         if (jobsRes.ok) setOpenJobs(await jobsRes.json())
       } catch (e) {
-        console.error(e)
+        // console.error(e)
       } finally {
         setLoading(false)
       }
@@ -187,9 +187,9 @@ export default function TaskerDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {data.recentEarnings.slice(0, 5).map((earning, i) => (
+                {data.recentEarnings.slice(0, 5).map((earning) => (
                   <div
-                    key={i}
+                    key={`${earning.date}-${earning.amount}`}
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <span className="text-sm text-muted-foreground">

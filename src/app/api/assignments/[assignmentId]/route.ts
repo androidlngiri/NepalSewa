@@ -26,7 +26,7 @@ export async function PATCH(
 
     const assignment = await prisma.taskerAssignment.findUnique({
       where: { id: assignmentId },
-      include: { request: true },
+      include: { request: { include: { user: { select: { isActive: true } } } }, tasker: { select: { isActive: true } } },
     })
 
     if (!assignment) {
@@ -47,9 +47,24 @@ export async function PATCH(
       )
     }
 
-    if (isTasker && status === "COMPLETED" && assignment.status !== "IN_PROGRESS") {
+    if (!assignment.request.user.isActive || !assignment.tasker.isActive) {
       return NextResponse.json(
-        { error: "Tasker can only mark in-progress jobs as completed" },
+        { error: "Cannot update assignment for inactive user" },
+        { status: 400 }
+      )
+    }
+
+    const validTransitions: Record<string, string[]> = {
+      OPEN: ["IN_PROGRESS", "CANCELLED"],
+      IN_PROGRESS: ["COMPLETED", "CANCELLED"],
+      COMPLETED: [],
+      CANCELLED: [],
+    }
+
+    const allowed = validTransitions[assignment.status] || []
+    if (!allowed.includes(status)) {
+      return NextResponse.json(
+        { error: `Cannot transition from ${assignment.status} to ${status}` },
         { status: 400 }
       )
     }
@@ -86,7 +101,6 @@ export async function PATCH(
 
     return NextResponse.json(updated)
   } catch (error) {
-    console.error("Assignment update error:", error)
     return NextResponse.json(
       { error: "Failed to update assignment" },
       { status: 500 }
@@ -142,7 +156,6 @@ export async function GET(
 
     return NextResponse.json(assignment)
   } catch (error) {
-    console.error("Assignment fetch error:", error)
     return NextResponse.json(
       { error: "Failed to fetch assignment" },
       { status: 500 }

@@ -17,19 +17,19 @@ const footerLinks = {
     { href: "/how-it-works", label: "How It Works" },
     { href: "/pricing", label: "Pricing" },
     { href: "/contact", label: "Contact" },
-    { href: "/blog", label: "Blog" },
+    { href: "#", label: "Blog" },
   ],
   support: [
-    { href: "/faq", label: "FAQ" },
+    { href: "#", label: "FAQ" },
     { href: "/privacy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms of Service" },
-    { href: "/safety", label: "Safety Guidelines" },
+    { href: "#", label: "Safety Guidelines" },
   ],
   tasker: [
-    { href: "/become-tasker", label: "Become a Tasker" },
-    { href: "/tasker-guide", label: "Tasker Guide" },
-    { href: "/earnings", label: "Earnings" },
-    { href: "/success-stories", label: "Success Stories" },
+    { href: "#", label: "Become a Tasker" },
+    { href: "#", label: "Tasker Guide" },
+    { href: "#", label: "Earnings" },
+    { href: "#", label: "Success Stories" },
   ],
 }
 
@@ -56,9 +56,9 @@ export function Footer() {
                 { label: "Facebook", href: "#" },
                 { label: "Twitter", href: "#" },
                 { label: "Instagram", href: "#" },
-              ].map((social, i) => (
+              ].map((social) => (
                 <Link
-                  key={i}
+                  key={social.label}
                   href={social.href}
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-colors hover:bg-emerald-200"
                 >
@@ -73,8 +73,8 @@ export function Footer() {
               Services
             </h3>
             <ul className="space-y-3">
-              {footerLinks.services.map((link, i) => (
-                <li key={i}>
+              {footerLinks.services.map((link) => (
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-muted-foreground transition-colors hover:text-emerald-600"
@@ -91,8 +91,8 @@ export function Footer() {
               Company
             </h3>
             <ul className="space-y-3">
-              {footerLinks.company.map((link, i) => (
-                <li key={i}>
+              {footerLinks.company.map((link) => (
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-muted-foreground transition-colors hover:text-emerald-600"
@@ -109,8 +109,8 @@ export function Footer() {
               Support
             </h3>
             <ul className="space-y-3">
-              {footerLinks.support.map((link, i) => (
-                <li key={i}>
+              {footerLinks.support.map((link) => (
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-muted-foreground transition-colors hover:text-emerald-600"
@@ -127,8 +127,8 @@ export function Footer() {
               For Taskers
             </h3>
             <ul className="space-y-3">
-              {footerLinks.tasker.map((link, i) => (
-                <li key={i}>
+              {footerLinks.tasker.map((link) => (
+                <li key={link.href}>
                   <Link
                     href={link.href}
                     className="text-sm text-muted-foreground transition-colors hover:text-emerald-600"

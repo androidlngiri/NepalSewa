@@ -50,7 +50,7 @@ export default function TaskerJobsPage() {
         setJobs(data)
         setFiltered(data)
       })
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
@@ -126,6 +126,7 @@ export default function TaskerJobsPage() {
             <Briefcase className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search jobs by title, description, or service..."
+              aria-label="Search jobs"
               className="h-11 pl-10"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -138,7 +139,7 @@ export default function TaskerJobsPage() {
           >
             <option value="">All Wards</option>
             {Array.from({ length: 19 }, (_, i) => (
-              <option key={i + 1} value={String(i + 1)}>
+              <option key={`ward-${i + 1}`} value={String(i + 1)}>
                 Ward {i + 1}
               </option>
             ))}

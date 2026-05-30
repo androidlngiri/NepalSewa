@@ -10,9 +10,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { requestId, amount } = await req.json()
+    const { requestId, amount: clientAmount } = await req.json()
 
-    if (!requestId || !amount) {
+    if (!requestId || !clientAmount) {
       return NextResponse.json({ error: "requestId and amount required" }, { status: 400 })
     }
 
@@ -28,9 +28,48 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
+    const acceptedBid = await prisma.bid.findFirst({
+      where: { requestId, status: "ACCEPTED" },
+      orderBy: { createdAt: "desc" },
+    })
+
+    const dbAmount = acceptedBid?.amount ?? request.budget
+
+    if (!dbAmount) {
+      return NextResponse.json(
+        { error: "No accepted bid or budget found for this request" },
+        { status: 400 }
+      )
+    }
+
+    if (Number(clientAmount) !== dbAmount) {
+      return NextResponse.json(
+        { error: "Amount mismatch" },
+        { status: 400 }
+      )
+    }
+
+    const existingTransaction = await prisma.transaction.findFirst({
+      where: { requestId, status: { in: ["PENDING", "COMPLETED"] } },
+      orderBy: { createdAt: "desc" },
+    })
+
+    if (existingTransaction) {
+      if (existingTransaction.status === "COMPLETED") {
+        return NextResponse.json(
+          { error: "Payment already completed for this request" },
+          { status: 400 }
+        )
+      }
+      return NextResponse.json(
+        { error: "A payment is already pending for this request" },
+        { status: 409 }
+      )
+    }
+
     const { merchantCode } = getConfig()
     const transactionUuid = generateTransactionUuid()
-    const numericAmount = Number(amount)
+    const numericAmount = dbAmount
 
     const formFields = getEpayFormFields(numericAmount, transactionUuid, merchantCode)
 
@@ -53,7 +92,6 @@ export async function POST(req: Request) {
       transactionUuid,
     })
   } catch (error) {
-    console.error("Payment initiate error:", error)
     return NextResponse.json({ error: "Failed to initiate payment" }, { status: 500 })
   }
 }

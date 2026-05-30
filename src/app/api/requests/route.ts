@@ -25,7 +25,7 @@ export async function GET(req: Request) {
 
     if (role === "tasker") {
       where.taskerAssignments = { some: { taskerId: session.user.id } }
-    } else if (role === "user") {
+    } else {
       where.userId = session.user.id
     }
 
@@ -89,7 +89,6 @@ export async function GET(req: Request) {
     }
     return NextResponse.json(requests)
   } catch (error) {
-    console.error("Requests fetch error:", error)
     return NextResponse.json(
       { error: "Failed to fetch requests" },
       { status: 500 }
@@ -141,7 +140,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {
-    console.error("Request create error:", error)
     return NextResponse.json(
       { error: "Failed to create request" },
       { status: 500 }

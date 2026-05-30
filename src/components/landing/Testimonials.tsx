@@ -57,9 +57,9 @@ export function Testimonials() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {testimonials.map((testimonial, i) => (
+          {testimonials.map((testimonial) => (
             <div
-              key={i}
+              key={testimonial.name}
               className="group relative rounded-2xl border bg-white/80 p-8 backdrop-blur-sm transition-all hover:border-emerald-200 hover:shadow-xl"
             >
               <Quote className="absolute top-6 right-6 h-10 w-10 text-emerald-100 group-hover:text-emerald-200 transition-colors" />
@@ -82,7 +82,7 @@ export function Testimonials() {
               <div className="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_: unknown, j: number) => (
                   <Star
-                    key={j}
+                    key={`star-${j}`}
                     className={`h-4 w-4 ${
                       j < testimonial.rating
                         ? "fill-amber-400 text-amber-400"

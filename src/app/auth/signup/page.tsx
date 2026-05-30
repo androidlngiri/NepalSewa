@@ -35,6 +35,25 @@ function SignUpForm() {
       toast.error("Email or phone is required")
       return
     }
+
+    if (form.password.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      return
+    }
+    if (!/[A-Z]/.test(form.password)) {
+      toast.error("Password must contain at least one uppercase letter")
+      return
+    }
+    if (!/[0-9]/.test(form.password)) {
+      toast.error("Password must contain at least one number")
+      return
+    }
+
+    if (form.phone && !/^(98|97|96)\d{8}$/.test(form.phone)) {
+      toast.error("Please enter a valid Nepali phone number (98/97/96 followed by 8 digits)")
+      return
+    }
+
     setIsLoading(true)
 
     try {

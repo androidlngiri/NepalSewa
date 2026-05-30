@@ -86,9 +86,9 @@ export default function PricingPage() {
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3 max-w-5xl mx-auto">
-              {plans.map((plan, i) => (
+              {plans.map((plan) => (
                 <Card
-                  key={i}
+                  key={plan.name}
                   className={`relative flex flex-col border-2 ${
                     plan.popular
                       ? "border-emerald-500 shadow-xl shadow-emerald-500/10"
@@ -111,8 +111,8 @@ export default function PricingPage() {
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ul className="space-y-3">
-                      {plan.features.map((feature, j) => (
-                        <li key={j} className="flex items-start gap-3 text-sm">
+                      {plan.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-3 text-sm">
                           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 mt-0.5">
                             <Check className="h-3 w-3 text-emerald-600" />
                           </div>

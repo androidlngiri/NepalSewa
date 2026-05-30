@@ -45,19 +45,25 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL("/dashboard/user?payment=notfound", req.url))
     }
 
-    if (transaction.status === "COMPLETED") {
-      return NextResponse.redirect(new URL("/dashboard/user?payment=already", req.url))
+    if (Number(total_amount) !== transaction.amount) {
+      return NextResponse.redirect(new URL("/dashboard/user?payment=failed", req.url))
     }
 
     const isComplete = status === "COMPLETE"
 
-    await prisma.transaction.update({
-      where: { id: transaction.id },
+    const updated = await prisma.transaction.updateMany({
+      where: { id: transaction.id, status: "PENDING" },
       data: {
         status: isComplete ? "COMPLETED" : "FAILED",
         reference: decoded.transaction_code || null,
       },
     })
+
+    if (updated.count === 0) {
+      return transaction.status === "COMPLETED"
+        ? NextResponse.redirect(new URL("/dashboard/user?payment=already", req.url))
+        : NextResponse.redirect(new URL("/dashboard/user?payment=failed", req.url))
+    }
 
     if (isComplete && transaction.requestId) {
       await prisma.request.update({
@@ -88,7 +94,6 @@ export async function GET(req: Request) {
     const redirectParam = isComplete ? "success" : "failed"
     return NextResponse.redirect(new URL(`/dashboard/user?payment=${redirectParam}`, req.url))
   } catch (error) {
-    console.error("Payment success error:", error)
     return NextResponse.redirect(new URL("/dashboard/user?payment=error", req.url))
   }
 }

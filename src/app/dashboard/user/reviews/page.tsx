@@ -24,7 +24,7 @@ export default function UserReviewsPage() {
     fetch("/api/reviews")
       .then((r) => r.json())
       .then(setReviews)
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 

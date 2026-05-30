@@ -35,7 +35,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(bids)
   } catch (error) {
-    console.error("Bids fetch error:", error)
     return NextResponse.json(
       { error: "Failed to fetch bids" },
       { status: 500 }
@@ -50,12 +49,49 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    if (session.user.role !== "TASKER") {
+      return NextResponse.json(
+        { error: "Only taskers can place bids" },
+        { status: 403 }
+      )
+    }
+
     const body = await req.json()
     const { requestId, amount, message } = body
 
     if (!requestId || !amount) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      )
+    }
+
+    const request = await prisma.request.findUnique({
+      where: { id: requestId },
+      select: { status: true, userId: true, user: { select: { isActive: true } } },
+    })
+
+    if (!request) {
+      return NextResponse.json({ error: "Request not found" }, { status: 404 })
+    }
+
+    if (request.userId === session.user.id) {
+      return NextResponse.json(
+        { error: "Cannot bid on your own request" },
+        { status: 400 }
+      )
+    }
+
+    if (!request.user.isActive) {
+      return NextResponse.json(
+        { error: "Cannot bid on this request" },
+        { status: 400 }
+      )
+    }
+
+    if (request.status !== "OPEN") {
+      return NextResponse.json(
+        { error: "Can only bid on open requests" },
         { status: 400 }
       )
     }
@@ -85,7 +121,7 @@ export async function POST(req: Request) {
       },
     })
 
-    const request = await prisma.request.findUnique({
+    const requestWithDetails = await prisma.request.findUnique({
       where: { id: requestId },
       include: {
         user: { select: { email: true } },
@@ -93,11 +129,11 @@ export async function POST(req: Request) {
       },
     })
 
-    if (request?.user.email) {
+    if (requestWithDetails?.user.email) {
       sendBidNotification({
-        to: request.user.email,
+        to: requestWithDetails.user.email,
         taskerName: session.user.name || "A tasker",
-        serviceName: request.service.name,
+        serviceName: requestWithDetails.service.name,
         amount: parseFloat(amount),
         requestId,
       }).catch(() => {})
@@ -105,7 +141,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(bid, { status: 201 })
   } catch (error) {
-    console.error("Bid create error:", error)
     return NextResponse.json(
       { error: "Failed to create bid" },
       { status: 500 }

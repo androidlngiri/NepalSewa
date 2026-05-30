@@ -26,6 +26,14 @@ const rolePaths: Record<string, string> = {
   ADMIN: "/dashboard/admin",
 }
 
+function addSecurityHeaders(response: NextResponse) {
+  response.headers.set("X-Frame-Options", "DENY")
+  response.headers.set("X-Content-Type-Options", "nosniff")
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin")
+  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+  return response
+}
+
 export default auth((req) => {
   const { pathname } = req.nextUrl
   const isPublic = publicPaths.some(
@@ -37,14 +45,14 @@ export default auth((req) => {
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/images")
 
-  if (isPublic || isApi || isStatic) return
+  if (isPublic || isApi || isStatic) return addSecurityHeaders(NextResponse.next())
 
   const session = req.auth
 
   if (!session?.user) {
     const signInUrl = new URL("/auth/signin", req.nextUrl.origin)
     signInUrl.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(signInUrl)
+    return addSecurityHeaders(NextResponse.redirect(signInUrl))
   }
 
   const role = session.user.role as string
@@ -52,9 +60,11 @@ export default auth((req) => {
   if (pathname.startsWith("/dashboard")) {
     const expectedPath = rolePaths[role]
     if (expectedPath && !pathname.startsWith(expectedPath)) {
-      return NextResponse.redirect(new URL(expectedPath, req.url))
+      return addSecurityHeaders(NextResponse.redirect(new URL(expectedPath, req.url)))
     }
   }
+
+  return addSecurityHeaders(NextResponse.next())
 })
 
 export const config = {

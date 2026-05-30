@@ -65,7 +65,7 @@ export function FAQSection() {
         <div className="space-y-3">
           {faqs.map((faq, i) => (
             <div
-              key={i}
+              key={faq.question}
               className={cn(
                 "rounded-2xl border bg-white transition-all",
                 openIndex === i && "border-emerald-200 shadow-md"
@@ -73,6 +73,8 @@ export function FAQSection() {
             >
               <button
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                aria-expanded={openIndex === i}
+                aria-controls={`faq-answer-${i}`}
                 className="flex w-full items-center justify-between px-6 py-5 text-left"
               >
                 <span className="font-medium text-base pr-4">
@@ -94,6 +96,7 @@ export function FAQSection() {
                 </div>
               </button>
               <div
+                id={`faq-answer-${i}`}
                 className={cn(
                   "overflow-hidden transition-all duration-300",
                   openIndex === i ? "max-h-96 pb-5" : "max-h-0"

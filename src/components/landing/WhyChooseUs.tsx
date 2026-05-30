@@ -74,9 +74,9 @@ export function WhyChooseUs() {
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, i) => (
+          {features.map((feature) => (
             <div
-              key={i}
+              key={feature.title}
               className="group rounded-2xl border bg-white p-8 transition-all hover:border-emerald-200 hover:shadow-xl hover:-translate-y-1"
             >
               <div

@@ -41,7 +41,8 @@ function SignInForm() {
 
       toast.success("Welcome back!")
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard/user"
-      router.push(callbackUrl)
+      const safeCallbackUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard/user"
+      router.push(safeCallbackUrl)
       router.refresh()
     } catch {
       toast.error("Something went wrong")

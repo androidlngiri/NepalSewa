@@ -136,7 +136,6 @@ export async function GET() {
       totalSpent: transactions._sum.amount || 0,
     })
   } catch (error) {
-    console.error("Dashboard error:", error)
     return NextResponse.json(
       { error: "Failed to load dashboard" },
       { status: 500 }

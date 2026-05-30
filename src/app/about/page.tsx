@@ -37,8 +37,8 @@ export default function AboutPage() {
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2 mb-16">
-              {values.map((value, i) => (
-                <div key={i} className="rounded-2xl border bg-white p-8">
+              {values.map((value) => (
+                <div key={value.title} className="rounded-2xl border bg-white p-8">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                     <value.icon className="h-6 w-6" />
                   </div>

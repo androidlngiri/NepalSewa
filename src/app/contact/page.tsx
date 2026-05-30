@@ -44,8 +44,8 @@ export default function ContactPage() {
 
             <div className="grid gap-8 lg:grid-cols-3">
               <div className="space-y-4 lg:col-span-1">
-                {contactInfo.map((item, i) => (
-                  <Card key={i}>
+                {contactInfo.map((item) => (
+                  <Card key={item.title}>
                     <CardContent className="flex items-center gap-4 p-5">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                         <item.icon className="h-5 w-5" />

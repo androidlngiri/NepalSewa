@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
         const res = await fetch("/api/dashboard")
         if (res.ok) setData(await res.json())
       } catch (e) {
-        console.error(e)
+        // console.error(e)
       } finally {
         setLoading(false)
       }

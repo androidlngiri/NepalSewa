@@ -85,7 +85,7 @@ export default function HowItWorksPage() {
             <div className="space-y-16">
               {steps.map((step, i) => (
                 <div
-                  key={i}
+                  key={step.title}
                   className={`flex flex-col items-center gap-8 lg:flex-row ${
                     i % 2 === 1 ? "lg:flex-row-reverse" : ""
                   }`}
@@ -100,8 +100,8 @@ export default function HowItWorksPage() {
                     <h2 className="text-2xl font-bold mb-4">{step.title}</h2>
                     <p className="text-muted-foreground mb-6 max-w-lg">{step.description}</p>
                     <ul className="space-y-2">
-                      {step.details.map((detail, j) => (
-                        <li key={j} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      {step.details.map((detail) => (
+                        <li key={detail} className="flex items-center gap-2 text-sm text-muted-foreground">
                           <div className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${step.color}`} />
                           {detail}
                         </li>

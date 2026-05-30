@@ -22,7 +22,7 @@ export default function TaskerEarningsPage() {
     fetch("/api/dashboard")
       .then((r) => r.json())
       .then(setData)
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
@@ -93,9 +93,9 @@ export default function TaskerEarningsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {data.recentEarnings.map((earning, i) => (
+                    {data.recentEarnings.map((earning) => (
                       <div
-                        key={i}
+                        key={`${earning.date}-${earning.amount}`}
                         className="flex items-center justify-between rounded-lg border p-3"
                       >
                         <span className="text-sm text-muted-foreground">
