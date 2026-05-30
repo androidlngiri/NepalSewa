@@ -45,7 +45,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           image: user.image,
           role: user.role,
-          isTasker: user.isTasker,
         }
       },
     }),
@@ -55,7 +54,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.role = (user as any).role
         token.id = user.id
-        token.isTasker = (user as any).isTasker
+        // Fetch isTasker from DB for the token
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: user.id },
+            select: { isTasker: true },
+          })
+          token.isTasker = dbUser?.isTasker ?? false
+        } catch {
+          token.isTasker = false
+        }
       }
       return token
     },
