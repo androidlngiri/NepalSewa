@@ -46,8 +46,8 @@ export default function middleware(req: NextRequest) {
   )
   if (isPublic) return addSecurityHeaders(NextResponse.next())
 
-  const sessionToken = req.cookies.get("next-auth.session-token")?.value
-  const secureToken = req.cookies.get("__Secure-next-auth.session-token")?.value
+  const sessionToken = req.cookies.get("authjs.session-token")?.value ?? req.cookies.get("next-auth.session-token")?.value
+  const secureToken = req.cookies.get("__Secure-authjs.session-token")?.value ?? req.cookies.get("__Secure-next-auth.session-token")?.value
 
   if (!sessionToken && !secureToken) {
     const signInUrl = new URL("/auth/signin", req.nextUrl.origin)
