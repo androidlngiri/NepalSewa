@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Wrench, Zap, PaintBucket, Home, Truck, Code, Sparkles,
   User, Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Star, Clock,
-  Briefcase, CheckCircle2,
+  Briefcase, CheckCircle2, Phone,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -40,6 +40,7 @@ function SignUpForm() {
     email: "",
     name: "",
     password: "",
+    phone: "",
   })
 
   async function handleContinue(e: React.FormEvent) {
@@ -67,7 +68,7 @@ function SignUpForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, isTasker }),
+        body: JSON.stringify({ ...form, phone: form.phone || undefined, isTasker }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -196,6 +197,22 @@ function SignUpForm() {
                           className="h-12 pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20"
                           value={form.email}
                           onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-white/80">
+                        Phone <span className="text-white/40 font-normal">(optional)</span>
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                        <Input
+                          type="tel"
+                          placeholder="98XXXXXXXX"
+                          className="h-12 pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20"
+                          value={form.phone}
+                          onChange={(e) => setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
                         />
                       </div>
                     </div>

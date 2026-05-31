@@ -22,8 +22,57 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        phone: { label: "Phone", type: "text" },
+        otp: { label: "OTP", type: "text" },
       },
       async authorize(credentials) {
+        const phone = credentials?.phone as string | undefined
+        const otp = credentials?.otp as string | undefined
+
+        if (phone && otp) {
+          const otpRecord = await prisma.oTPCode.findFirst({
+            where: {
+              phone,
+              code: otp,
+              used: false,
+              expiresAt: { gt: new Date() },
+            },
+            orderBy: { createdAt: "desc" },
+          })
+
+          if (!otpRecord) return null
+
+          await prisma.oTPCode.update({
+            where: { id: otpRecord.id },
+            data: { used: true },
+          })
+
+          let user = await prisma.user.findUnique({ where: { phone } })
+
+          if (!user) {
+            user = await prisma.user.create({
+              data: {
+                phone,
+                role: "USER",
+                phoneVerified: true,
+              },
+            })
+          } else if (!user.phoneVerified) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { phoneVerified: true },
+            })
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            role: user.role,
+          }
+        }
+
         if (!credentials?.email || !credentials?.password) return null
 
         const user = await prisma.user.findUnique({
