@@ -55,18 +55,13 @@ export function HeroSection() {
             Butwal's Trusted Service Marketplace
           </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-          >
-            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl select-text">
+            <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent selection:text-emerald-600">
               Expert Services
             </span>
             <br />
-            At Your Doorstep in Butwal
-          </motion.h1>
+            <span className="select-text">At Your Doorstep in Butwal</span>
+          </h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}

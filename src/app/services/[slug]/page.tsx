@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Metadata } from "next"
 
@@ -105,10 +104,11 @@ export default async function ServiceCategoryPage({ params }: Props) {
                   </p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-muted-foreground">Bidding opens</span>
-                    <Link href={`/dashboard/user/requests/new?service=${service.id}`}>
-                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
-                        Post a Request &amp; Get Bids
-                      </Button>
+                    <Link
+                      href={`/dashboard/user/requests/new?service=${service.id}`}
+                      className="inline-flex items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-sm font-medium transition-all"
+                    >
+                      Post a Request &amp; Get Bids
                     </Link>
                   </div>
                 </CardContent>
