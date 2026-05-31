@@ -224,14 +224,14 @@ export default function UserSettingsPage() {
               <Switch checked={isTasker} onCheckedChange={setIsTasker} />
             </div>
             {isTasker && (
-              <div className="mt-4 flex gap-3">
-                <Link href="/dashboard/tasker">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Briefcase className="h-4 w-4" />
-                    Tasker Dashboard
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </Link>
+            <div className="mt-4 flex gap-3 flex-wrap">
+              <Link href="/dashboard/tasker">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  Tasker Dashboard
+                  <ExternalLink className="h-3 w-3" />
+                </Button>
+              </Link>
                 <Link href="/dashboard/user">
                   <Button variant="outline" size="sm" className="gap-2">
                     User Dashboard

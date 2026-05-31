@@ -196,7 +196,7 @@ function AdminRequestDetailPage() {
 
                 <p className="text-sm leading-relaxed">{request.description}</p>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                   {request.budget && (
                     <div className="flex items-center gap-2">
                       <IndianRupee className="h-4 w-4 text-muted-foreground" />

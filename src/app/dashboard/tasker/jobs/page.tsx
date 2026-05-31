@@ -123,8 +123,8 @@ export default function TaskerJobsPage() {
           </p>
         </div>
 
-        <div className="flex gap-3">
-          <div className="relative flex-1">
+        <div className="flex gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[200px]">
             <Briefcase className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search jobs by title, description, or service..."

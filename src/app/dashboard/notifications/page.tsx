@@ -74,7 +74,7 @@ export default function NotificationsPage() {
   return (
     <DashboardLayout role="user">
       <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <Link
               href="/dashboard"

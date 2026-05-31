@@ -18,9 +18,9 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
 
   if (status === "loading") {
     return (
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen flex-col lg:flex-row">
         <div className="hidden w-64 border-r bg-background lg:block" />
-        <main className="flex-1 overflow-y-auto bg-gray-50/50">
+        <main className="flex-1 bg-gray-50/50">
           <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             <DashboardSkeleton />
           </div>
@@ -44,7 +44,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen flex-col lg:flex-row">
       <Suspense fallback={null}>
         <DashboardNav
           role={role}
@@ -55,7 +55,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
       </Suspense>
-      <main className="flex-1 overflow-y-auto bg-gray-50/50 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
+      <main className="flex-1 bg-gray-50/50 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:overflow-y-auto lg:pb-0">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <DashboardErrorBoundary>
             {children}

@@ -205,7 +205,7 @@ export default function TaskerEarningsPage() {
                             <p className="text-sm font-medium">{m.month}</p>
                             <p className="text-xs text-muted-foreground">{m.jobs} jobs</p>
                           </div>
-                          <div className="flex items-center gap-4 ml-4 flex-shrink-0 text-right">
+                          <div className="flex items-center gap-3 ml-4 text-right flex-wrap">
                             <div>
                               <p className="text-xs text-muted-foreground">Gross</p>
                               <p className="text-sm font-medium">{formatPrice(m.gross)}</p>
@@ -304,7 +304,7 @@ export default function TaskerEarningsPage() {
                             {` • ${formatDate(tx.createdAt)}`}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3 ml-4 flex-shrink-0 text-right">
+                        <div className="flex items-center gap-3 ml-4 text-right flex-wrap">
                           <div>
                             <p className="text-xs text-muted-foreground">Earned</p>
                             <p className="font-medium text-emerald-600">

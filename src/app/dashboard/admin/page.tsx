@@ -181,13 +181,13 @@ export default function AdminDashboardPage() {
                   <Link
                     key={item.status}
                     href={`/dashboard/admin/requests?status=${item.status}`}
-                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors gap-2"
                   >
                       <span className="text-sm text-muted-foreground">
                         {statusLabels[item.status] || item.status}
                       </span>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-2 w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
+                      <div className="flex items-center gap-3 min-w-0 flex-wrap justify-end">
+                        <div className="h-2 w-24 sm:w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                           style={{
@@ -224,13 +224,13 @@ export default function AdminDashboardPage() {
                   <Link
                     key={item.role}
                     href="/dashboard/admin/users"
-                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors"
+                    className="flex items-center justify-between hover:bg-muted/50 rounded-lg px-2 py-1 -mx-2 transition-colors gap-2"
                   >
                       <span className="text-sm text-muted-foreground capitalize">
                         {item.role.toLowerCase()}
                       </span>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-2 w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
+                      <div className="flex items-center gap-3 min-w-0 flex-wrap justify-end">
+                        <div className="h-2 w-24 sm:w-full max-w-[200px] rounded-full bg-muted overflow-hidden">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-500"
                           style={{

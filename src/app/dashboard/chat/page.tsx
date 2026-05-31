@@ -72,7 +72,7 @@ export default function ChatPage() {
   const selectedConv = conversations.find((c) => c.requestId === selectedId)
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col lg:flex-row gap-0 overflow-hidden rounded-2xl border bg-background">
+    <div className="flex h-[calc(100dvh-8rem)] flex-col lg:flex-row gap-0 overflow-hidden rounded-2xl border bg-background">
       {/* Conversation list */}
       <div className={cn(
         "w-full shrink-0 border-r lg:w-80",
