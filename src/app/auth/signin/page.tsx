@@ -43,6 +43,19 @@ function OtpInput({ length, value, onChange }: { length: number; value: string[]
     }
   }
 
+  function handlePaste(e: React.ClipboardEvent) {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length)
+    if (pasted.length === 0) return
+    const next = [...value]
+    for (let i = 0; i < pasted.length; i++) {
+      next[i] = pasted[i]
+    }
+    onChange(next)
+    const focusIdx = Math.min(pasted.length, length - 1)
+    refs.current[focusIdx]?.focus()
+  }
+
   useEffect(() => {
     refs.current[0]?.focus()
   }, [])
@@ -55,11 +68,14 @@ function OtpInput({ length, value, onChange }: { length: number; value: string[]
           ref={(el) => { refs.current[i] = el }}
           type="text"
           inputMode="numeric"
+          autoComplete={i === 0 ? "one-time-code" : "off"}
           maxLength={1}
+          name={i === 0 ? "otp-code" : `otp-code${i + 1}`}
           className="w-11 h-12 text-center text-lg font-bold bg-white/5 border border-white/10 text-white rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20 outline-none"
           value={value[i] || ""}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
+          onPaste={i === 0 ? handlePaste : undefined}
         />
       ))}
     </div>
