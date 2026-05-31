@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { Providers } from "@/components/providers"
 import PwaWrapper from "@/components/pwa/PwaWrapper"
+import { ChatBot } from "@/components/chat/ChatBot"
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -156,6 +157,7 @@ export default function RootLayout({
           </Providers>
         </TooltipProvider>
         <PwaWrapper />
+        <ChatBot />
         <Toaster richColors position="top-center" />
       </body>
     </html>
