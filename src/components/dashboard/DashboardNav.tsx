@@ -18,6 +18,7 @@ import {
   IndianRupee,
   Percent,
   Bell,
+  Mail,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -37,6 +38,7 @@ const userNav = [
   { href: "/dashboard/user", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/user/requests", label: "My Requests", icon: ClipboardList },
   { href: "/dashboard/user/bids", label: "Bids Received", icon: MessageSquare },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/user/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/user/settings", label: "Settings", icon: Settings },
@@ -46,6 +48,7 @@ const taskerNav = [
   { href: "/dashboard/tasker", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/tasker/jobs", label: "Available Jobs", icon: ClipboardList },
   { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
   { href: "/dashboard/tasker/reviews", label: "Reviews", icon: Star },
@@ -57,6 +60,7 @@ const adminNav = [
   { href: "/dashboard/admin/users", label: "Users", icon: User },
   { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
   { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
   { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },

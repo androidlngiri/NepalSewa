@@ -13,6 +13,7 @@ import {
   Percent,
   Plus,
   Menu,
+  Mail,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -25,25 +26,25 @@ interface BottomNavItem {
 const userNav: BottomNavItem[] = [
   { href: "/dashboard/user", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard/user/requests", label: "Requests", icon: ClipboardList },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/user/requests/new", label: "Post", icon: Plus },
   { href: "/dashboard/user/bids", label: "Bids", icon: MessageSquare },
-  { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
 ]
 
 const taskerNav: BottomNavItem[] = [
   { href: "/dashboard/tasker", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard/tasker/jobs", label: "Jobs", icon: ClipboardList },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
-  { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
 ]
 
 const adminNav: BottomNavItem[] = [
   { href: "/dashboard/admin", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard/admin/users", label: "Users", icon: User },
+  { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
   { href: "/dashboard/admin/commissions", label: "Commission", icon: Percent },
-  { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
 ]
 
 export function DashboardBottomNav({ role, isTasker, onToggleSidebar }: { role: string; isTasker?: boolean; onToggleSidebar?: () => void }) {
