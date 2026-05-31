@@ -151,16 +151,16 @@ export function ServicesSection() {
         </div>
 
         <div className="mt-12 text-center">
-          <Link href="/services">
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-2xl border-2 px-8 py-6 text-base font-medium"
-            >
-              View All Services
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/services" />}
+            nativeButton={false}
+            size="lg"
+            variant="outline"
+            className="rounded-2xl border-2 px-8 py-6 text-base font-medium"
+          >
+            View All Services
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </div>
     </section>

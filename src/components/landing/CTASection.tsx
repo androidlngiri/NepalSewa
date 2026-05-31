@@ -26,26 +26,26 @@ export function CTASection() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
-            <Link href="/auth/signup?role=user">
-              <Button
-                size="lg"
-                className="h-14 rounded-2xl bg-white text-emerald-700 hover:bg-emerald-50 px-10 text-base font-semibold shadow-xl hover:shadow-2xl transition-all"
-              >
-                <Gavel className="mr-2 h-5 w-5" />
-                Post a Request
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link href="/auth/signup?role=tasker">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-14 rounded-2xl border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 px-10 text-base font-semibold backdrop-blur-sm transition-all"
-              >
-                <Briefcase className="mr-2 h-5 w-5" />
-                I Want to Work
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/auth/signup?role=user" />}
+              nativeButton={false}
+              size="lg"
+              className="h-14 rounded-2xl bg-white text-emerald-700 hover:bg-emerald-50 px-10 text-base font-semibold shadow-xl hover:shadow-2xl transition-all"
+            >
+              <Gavel className="mr-2 h-5 w-5" />
+              Post a Request
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              render={<Link href="/auth/signup?role=tasker" />}
+              nativeButton={false}
+              size="lg"
+              variant="outline"
+              className="h-14 rounded-2xl border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 px-10 text-base font-semibold backdrop-blur-sm transition-all"
+            >
+              <Briefcase className="mr-2 h-5 w-5" />
+              I Want to Work
+            </Button>
           </div>
 
           <p className="mt-6 text-sm text-emerald-200">

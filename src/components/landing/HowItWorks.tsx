@@ -70,14 +70,14 @@ export function HowItWorks() {
         </div>
 
         <div className="mt-14 text-center">
-          <Link href="/auth/signup">
-            <Button
-              size="lg"
-              className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-10 py-6 text-base shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all"
-            >
-              Post Your First Request
-            </Button>
-          </Link>
+          <Button
+            render={<Link href="/auth/signup" />}
+            nativeButton={false}
+            size="lg"
+            className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-10 py-6 text-base shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all"
+          >
+            Post Your First Request
+          </Button>
         </div>
       </div>
     </section>

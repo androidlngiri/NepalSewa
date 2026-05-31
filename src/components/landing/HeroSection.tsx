@@ -81,25 +81,25 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-2xl"
           >
-            <Link href="/auth/signup?role=user" className="flex-1">
-              <Button
-                size="lg"
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base"
-              >
-                <Gavel className="mr-2 h-5 w-5" />
-                Post a Request & Get Quotes
-              </Button>
-            </Link>
-            <Link href="/services" className="sm:flex-1">
-              <Button
-                size="lg"
-                variant="outline"
-                className="w-full h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base"
-              >
-                Browse Services
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <Button
+              render={<Link href="/auth/signup?role=user" />}
+              nativeButton={false}
+              size="lg"
+              className="flex-1 w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base"
+            >
+              <Gavel className="mr-2 h-5 w-5" />
+              Post a Request & Get Quotes
+            </Button>
+            <Button
+              render={<Link href="/services" />}
+              nativeButton={false}
+              size="lg"
+              variant="outline"
+              className="sm:flex-1 w-full h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base"
+            >
+              Browse Services
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </motion.div>
 
           <motion.div

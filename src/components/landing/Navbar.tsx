@@ -77,19 +77,21 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <>
-              <Link href="/auth/signin">
-                <Button variant="ghost" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/auth/signup">
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg transition-all"
-                >
-                  Get Started
-                </Button>
-              </Link>
+              <Button
+                render={<Link href="/auth/signin" />}
+                nativeButton={false}
+                variant="ghost" size="sm"
+              >
+                Sign In
+              </Button>
+              <Button
+                render={<Link href="/auth/signup" />}
+                nativeButton={false}
+                size="sm"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg transition-all"
+              >
+                Get Started
+              </Button>
             </>
           )}
         </div>
@@ -128,27 +130,33 @@ export function Navbar() {
           <div className="flex flex-col gap-2 pt-2 border-t mt-2">
             {user ? (
               <>
-                <Link href={dashboardHref}>
-                  <Button variant="outline" className="w-full">
-                    Dashboard
-                  </Button>
-                </Link>
+                <Button
+                  render={<Link href={dashboardHref} />}
+                  nativeButton={false}
+                  variant="outline" className="w-full"
+                >
+                  Dashboard
+                </Button>
                 <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => signOut()}>
                   Sign Out
                 </Button>
               </>
             ) : (
               <>
-                <Link href="/auth/signin">
-                  <Button variant="outline" className="w-full">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
-                    Get Started
-                  </Button>
-                </Link>
+                <Button
+                  render={<Link href="/auth/signin" />}
+                  nativeButton={false}
+                  variant="outline" className="w-full"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  render={<Link href="/auth/signup" />}
+                  nativeButton={false}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                >
+                  Get Started
+                </Button>
               </>
             )}
           </div>
