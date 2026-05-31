@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
   Search,
@@ -21,6 +22,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export function HeroSection() {
+  const router = useRouter()
   const [stats, setStats] = useState<{
     users: number
     taskers: number
@@ -82,8 +84,7 @@ export function HeroSection() {
             className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-2xl"
           >
             <Button
-              render={<Link href="/auth/signup?role=user" />}
-              nativeButton={false}
+              onClick={() => router.push("/auth/signup?role=user")}
               size="lg"
               className="flex-1 w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base"
             >
@@ -91,8 +92,7 @@ export function HeroSection() {
               Post a Request & Get Quotes
             </Button>
             <Button
-              render={<Link href="/services" />}
-              nativeButton={false}
+              onClick={() => router.push("/services")}
               size="lg"
               variant="outline"
               className="sm:flex-1 w-full h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base"

@@ -77,18 +77,13 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <>
-              <Button
-                render={<Link href="/auth/signin" />}
-                nativeButton={false}
-                variant="ghost" size="sm"
-              >
+              <Button variant="ghost" size="sm" onClick={() => router.push("/auth/signin")}>
                 Sign In
               </Button>
               <Button
-                render={<Link href="/auth/signup" />}
-                nativeButton={false}
                 size="sm"
                 className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg transition-all"
+                onClick={() => router.push("/auth/signup")}
               >
                 Get Started
               </Button>
@@ -130,11 +125,7 @@ export function Navbar() {
           <div className="flex flex-col gap-2 pt-2 border-t mt-2">
             {user ? (
               <>
-                <Button
-                  render={<Link href={dashboardHref} />}
-                  nativeButton={false}
-                  variant="outline" className="w-full"
-                >
+                <Button variant="outline" className="w-full" onClick={() => router.push(dashboardHref)}>
                   Dashboard
                 </Button>
                 <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => signOut()}>
@@ -143,17 +134,12 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Button
-                  render={<Link href="/auth/signin" />}
-                  nativeButton={false}
-                  variant="outline" className="w-full"
-                >
+                <Button variant="outline" className="w-full" onClick={() => router.push("/auth/signin")}>
                   Sign In
                 </Button>
                 <Button
-                  render={<Link href="/auth/signup" />}
-                  nativeButton={false}
                   className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  onClick={() => router.push("/auth/signup")}
                 >
                   Get Started
                 </Button>

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Wrench,
   Zap,
@@ -96,6 +97,7 @@ const services = [
 ]
 
 export function ServicesSection() {
+  const router = useRouter()
   return (
     <section className="relative py-20 lg:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
@@ -152,11 +154,10 @@ export function ServicesSection() {
 
         <div className="mt-12 text-center">
           <Button
-            render={<Link href="/services" />}
-            nativeButton={false}
             size="lg"
             variant="outline"
             className="rounded-2xl border-2 px-8 py-6 text-base font-medium"
+            onClick={() => router.push("/services")}
           >
             View All Services
             <ArrowRight className="ml-2 h-5 w-5" />

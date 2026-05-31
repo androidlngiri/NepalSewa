@@ -2,7 +2,7 @@
 
 import { FileText, Users, ThumbsUp, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 const steps = [
   {
@@ -36,6 +36,7 @@ const steps = [
 ]
 
 export function HowItWorks() {
+  const router = useRouter()
   return (
     <section className="relative py-20 lg:py-28 bg-gradient-to-b from-white to-emerald-50/50">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
@@ -71,10 +72,9 @@ export function HowItWorks() {
 
         <div className="mt-14 text-center">
           <Button
-            render={<Link href="/auth/signup" />}
-            nativeButton={false}
             size="lg"
             className="rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-10 py-6 text-base shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all"
+            onClick={() => router.push("/auth/signup")}
           >
             Post Your First Request
           </Button>

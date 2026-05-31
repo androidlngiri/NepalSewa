@@ -1,10 +1,11 @@
 "use client"
 
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ArrowRight, Sparkles, Gavel, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function CTASection() {
+  const router = useRouter()
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800" />
@@ -27,21 +28,19 @@ export function CTASection() {
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <Button
-              render={<Link href="/auth/signup?role=user" />}
-              nativeButton={false}
               size="lg"
               className="h-14 rounded-2xl bg-white text-emerald-700 hover:bg-emerald-50 px-10 text-base font-semibold shadow-xl hover:shadow-2xl transition-all"
+              onClick={() => router.push("/auth/signup?role=user")}
             >
               <Gavel className="mr-2 h-5 w-5" />
               Post a Request
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button
-              render={<Link href="/auth/signup?role=tasker" />}
-              nativeButton={false}
               size="lg"
               variant="outline"
               className="h-14 rounded-2xl border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 px-10 text-base font-semibold backdrop-blur-sm transition-all"
+              onClick={() => router.push("/auth/signup?role=tasker")}
             >
               <Briefcase className="mr-2 h-5 w-5" />
               I Want to Work
