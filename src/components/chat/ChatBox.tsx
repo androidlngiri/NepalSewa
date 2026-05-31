@@ -218,6 +218,7 @@ export function ChatBox({ requestId, currentUserId, otherUserName, inline }: Cha
         <input
           type="text"
           placeholder="Type a message..."
+          autoFocus
           className="flex-1 rounded-xl border border-input bg-transparent px-3 py-2 text-sm outline-none focus:border-emerald-400"
           value={input}
           onChange={(e) => setInput(e.target.value)}

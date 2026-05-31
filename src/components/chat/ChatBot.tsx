@@ -123,6 +123,7 @@ export function ChatBot() {
 
           <div className="flex items-center gap-2 border-t p-3">
             <input
+              autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
