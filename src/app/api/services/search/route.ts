@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { generateEmbedding } from "@/lib/embedding"
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,6 +24,7 @@ export async function GET(req: NextRequest) {
 
     // Try hybrid search (vector + full-text). Falls back to basic text search if vector fails.
     try {
+      const { generateEmbedding } = await import("@/lib/embedding")
       const queryEmbedding = await generateEmbedding(q)
       const embeddingStr = `[${queryEmbedding.join(",")}]`
 
