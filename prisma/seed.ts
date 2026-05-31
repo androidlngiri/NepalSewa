@@ -20,21 +20,95 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log("Seeding database...")
 
-  const adminPassword = await bcrypt.hash("admin123", 12)
+  const hash = await bcrypt.hash("password123", 12)
+  const adminHash = await bcrypt.hash("admin123", 12)
 
+  // --- Admin ---
   const admin = await prisma.user.upsert({
     where: { email: "admin@nepalsewa.com" },
     update: {},
     create: {
       name: "Admin",
       email: "admin@nepalsewa.com",
-      passwordHash: adminPassword,
+      passwordHash: adminHash,
       role: "ADMIN",
       isActive: true,
     },
   })
-  console.log("Admin user created:", admin.email)
+  console.log("Admin:", admin.email)
 
+  // --- Sample Customers ---
+  const customer1 = await prisma.user.upsert({
+    where: { email: "ram@example.com" },
+    update: {},
+    create: {
+      name: "Ram Bahadur",
+      email: "ram@example.com",
+      passwordHash: hash,
+      role: "USER",
+      isActive: true,
+      wardNo: 3,
+      address: "Milijuli, Butwal",
+      phone: "9800000001",
+    },
+  })
+
+  const customer2 = await prisma.user.upsert({
+    where: { email: "sita@example.com" },
+    update: {},
+    create: {
+      name: "Sita Devi",
+      email: "sita@example.com",
+      passwordHash: hash,
+      role: "USER",
+      isActive: true,
+      wardNo: 7,
+      address: "Golpark, Butwal",
+      phone: "9800000002",
+    },
+  })
+  console.log("Customers created:", customer1.email, customer2.email)
+
+  // --- Sample Taskers ---
+  const tasker1 = await prisma.user.upsert({
+    where: { email: "hari@example.com" },
+    update: {},
+    create: {
+      name: "Hari Prasad",
+      email: "hari@example.com",
+      passwordHash: hash,
+      role: "TASKER",
+      isTasker: true,
+      isActive: true,
+      wardNo: 5,
+      address: "Suryapura, Butwal",
+      phone: "9800000003",
+      bio: "Experienced plumber with 10 years in Butwal",
+      tier: "PRO",
+      proExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const tasker2 = await prisma.user.upsert({
+    where: { email: "gita@example.com" },
+    update: {},
+    create: {
+      name: "Gita Tamang",
+      email: "gita@example.com",
+      passwordHash: hash,
+      role: "TASKER",
+      isTasker: true,
+      isActive: true,
+      wardNo: 2,
+      address: "Jitgadhi, Butwal",
+      phone: "9800000004",
+      bio: "Professional cleaner and home organizer",
+      tier: "STANDARD",
+    },
+  })
+  console.log("Taskers created:", tasker1.email, tasker2.email)
+
+  // --- Categories & Services ---
   const categories = [
     {
       name: "Plumbing",
@@ -144,31 +218,377 @@ async function main() {
     },
   ]
 
+  const categoryMap = new Map<string, string>()
+  const serviceMap = new Map<string, string>()
+
   for (const catData of categories) {
     const { services, ...categoryFields } = catData
-
     const category = await prisma.category.upsert({
       where: { slug: categoryFields.slug },
       update: {},
       create: categoryFields,
     })
+    categoryMap.set(category.slug, category.id)
 
     for (const svc of services) {
-      await prisma.service.upsert({
+      const service = await prisma.service.upsert({
         where: { categoryId_slug: { categoryId: category.id, slug: svc.slug } },
         update: {},
-        create: {
-          ...svc,
-          categoryId: category.id,
-          priceUnit: "per hour",
-        },
+        create: { ...svc, categoryId: category.id, priceUnit: "per hour" },
       })
+      serviceMap.set(svc.slug, service.id)
     }
-
-    console.log(`Category "${category.name}" created with ${services.length} services`)
+    console.log(`Category "${category.name}" ready`)
   }
 
-  console.log("Seeding complete!")
+  const plumbingServices = await prisma.service.findMany({
+    where: { category: { slug: "plumbing" } },
+  })
+  const cleaningServices = await prisma.service.findMany({
+    where: { category: { slug: "cleaning" } },
+  })
+  const paintingServices = await prisma.service.findMany({
+    where: { category: { slug: "painting" } },
+  })
+
+  // --- Sample Requests ---
+
+  // COMPLETED request: Ram's pipe repair
+  const req1 = await prisma.request.create({
+    data: {
+      userId: customer1.id,
+      serviceId: plumbingServices[0].id,
+      title: "Leaking kitchen pipe needs repair",
+      description: "The pipe under my kitchen sink has been leaking for 2 days. Need someone to fix it urgently.",
+      location: "Milijuli, Ward 3",
+      wardNo: 3,
+      budget: 1000,
+      urgency: "urgent",
+      status: "COMPLETED",
+      createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  // COMPLETED request: Sita's deep cleaning
+  const req2 = await prisma.request.create({
+    data: {
+      userId: customer2.id,
+      serviceId: cleaningServices[0].id,
+      title: "Full home deep cleaning before Tihar",
+      description: "Need a thorough deep cleaning of my 2-floor home before the festival. 3 bedrooms, 2 bathrooms, kitchen, and living room.",
+      location: "Golpark, Ward 7",
+      wardNo: 7,
+      budget: 3000,
+      urgency: "normal",
+      status: "COMPLETED",
+      createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  // IN_PROGRESS request: Ram's painting
+  const req3 = await prisma.request.create({
+    data: {
+      userId: customer1.id,
+      serviceId: paintingServices[0].id,
+      title: "Living room painting needed",
+      description: "Want to paint my living room (approx 12x15 ft). Need both walls and ceiling done. I have the paint, just need labor.",
+      location: "Milijuli, Ward 3",
+      wardNo: 3,
+      budget: 3000,
+      urgency: "normal",
+      status: "IN_PROGRESS",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  // OPEN request: Sita's furniture assembly
+  const req4 = await prisma.request.create({
+    data: {
+      userId: customer2.id,
+      serviceId: (
+        await prisma.service.findFirst({ where: { slug: "house-shifting" } })
+      )!.id,
+      title: "Need help assembling new furniture",
+      description: "Bought a new bed and wardrobe from a furniture shop. Need someone to assemble them at home. I have all the parts and tools.",
+      location: "Golpark, Ward 7",
+      wardNo: 7,
+      budget: 1500,
+      urgency: "low",
+      status: "OPEN",
+      createdAt: new Date(),
+    },
+  })
+  console.log("Sample requests created")
+
+  // --- Sample Bids ---
+  const bid1 = await prisma.bid.create({
+    data: {
+      requestId: req1.id,
+      taskerId: tasker1.id,
+      amount: 800,
+      message: "I can fix this today. I'm a licensed plumber with 10 years experience. I have all necessary tools.",
+      status: "ACCEPTED",
+      createdAt: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const bid2 = await prisma.bid.create({
+    data: {
+      requestId: req2.id,
+      taskerId: tasker2.id,
+      amount: 2500,
+      message: "I specialize in deep cleaning. Will bring my own eco-friendly cleaning supplies. Satisfaction guaranteed!",
+      status: "ACCEPTED",
+      createdAt: new Date(Date.now() - 19 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const bid3 = await prisma.bid.create({
+    data: {
+      requestId: req3.id,
+      taskerId: tasker1.id,
+      amount: 2500,
+      message: "Experienced painter. Can start tomorrow and finish in 2 days.",
+      status: "ACCEPTED",
+      createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const bid4 = await prisma.bid.create({
+    data: {
+      requestId: req4.id,
+      taskerId: tasker1.id,
+      amount: 1200,
+      message: "I can assemble both pieces in about 3-4 hours. Have done many furniture assemblies before.",
+      status: "PENDING",
+    },
+  })
+
+  const bid5 = await prisma.bid.create({
+    data: {
+      requestId: req4.id,
+      taskerId: tasker2.id,
+      amount: 1000,
+      message: "Happy to help with assembly! I'm available this weekend.",
+      status: "PENDING",
+    },
+  })
+  console.log("Sample bids created")
+
+  // --- Sample Assignments ---
+  const assign1 = await prisma.taskerAssignment.create({
+    data: {
+      taskerId: tasker1.id,
+      requestId: req1.id,
+      status: "COMPLETED",
+      createdAt: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const assign2 = await prisma.taskerAssignment.create({
+    data: {
+      taskerId: tasker2.id,
+      requestId: req2.id,
+      status: "COMPLETED",
+      createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  await prisma.taskerAssignment.create({
+    data: {
+      taskerId: tasker1.id,
+      requestId: req3.id,
+      status: "IN_PROGRESS",
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+    },
+  })
+  console.log("Sample assignments created")
+
+  // --- Sample Reviews ---
+  const reviewRate = tasker1.tier === "PRO" ? 0.03 : 0.05
+
+  await prisma.review.upsert({
+    where: {
+      reviewerId_revieweeId_requestId: {
+        reviewerId: customer1.id,
+        revieweeId: tasker1.id,
+        requestId: req1.id,
+      },
+    },
+    update: {},
+    create: {
+      reviewerId: customer1.id,
+      revieweeId: tasker1.id,
+      requestId: req1.id,
+      rating: 5,
+      comment: "Excellent work! Hari fixed my pipe within an hour and even checked other pipes for potential issues. Very professional.",
+      createdAt: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  await prisma.review.upsert({
+    where: {
+      reviewerId_revieweeId_requestId: {
+        reviewerId: customer2.id,
+        revieweeId: tasker2.id,
+        requestId: req2.id,
+      },
+    },
+    update: {},
+    create: {
+      reviewerId: customer2.id,
+      revieweeId: tasker2.id,
+      requestId: req2.id,
+      rating: 5,
+      comment: "Gita did an amazing job cleaning my home. Everything sparkles! Highly recommend.",
+      createdAt: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const taskerRating1 = await prisma.review.aggregate({
+    where: { revieweeId: tasker1.id },
+    _avg: { rating: true },
+  })
+  if (taskerRating1._avg.rating) {
+    await prisma.user.update({
+      where: { id: tasker1.id },
+      data: { rating: Math.round(taskerRating1._avg.rating * 10) / 10 },
+    })
+  }
+
+  const taskerRating2 = await prisma.review.aggregate({
+    where: { revieweeId: tasker2.id },
+    _avg: { rating: true },
+  })
+  if (taskerRating2._avg.rating) {
+    await prisma.user.update({
+      where: { id: tasker2.id },
+      data: { rating: Math.round(taskerRating2._avg.rating * 10) / 10 },
+    })
+  }
+  console.log("Sample reviews created")
+
+  // --- Sample Transactions (with commission) ---
+  const commission1 = Math.round(800 * reviewRate * 100) / 100
+  await prisma.transaction.create({
+    data: {
+      userId: customer1.id,
+      amount: 800,
+      type: "cash",
+      status: "COMPLETED",
+      requestId: req1.id,
+      description: "Cash payment for pipe repair",
+      commission: commission1,
+      commissionRate: reviewRate,
+      taskerId: tasker1.id,
+      createdAt: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000),
+    },
+  })
+
+  const commission2 = Math.round(2500 * 0.05 * 100) / 100
+  await prisma.transaction.create({
+    data: {
+      userId: customer2.id,
+      amount: 2500,
+      type: "cash",
+      status: "COMPLETED",
+      requestId: req2.id,
+      description: "Cash payment for deep cleaning",
+      commission: commission2,
+      commissionRate: 0.05,
+      taskerId: tasker2.id,
+      createdAt: new Date(Date.now() - 17 * 24 * 60 * 60 * 1000),
+    },
+  })
+  console.log("Sample transactions created")
+
+  // --- Sample Messages ---
+  await prisma.message.createMany({
+    data: [
+      {
+        senderId: customer1.id,
+        receiverId: tasker1.id,
+        requestId: req1.id,
+        content: "Hi Hari, when can you come to fix the pipe?",
+        createdAt: new Date(Date.now() - 24 * 24 * 60 * 60 * 1000),
+      },
+      {
+        senderId: tasker1.id,
+        receiverId: customer1.id,
+        requestId: req1.id,
+        content: "I can come today at 3 PM. Is that okay?",
+        createdAt: new Date(Date.now() - 23.9 * 24 * 60 * 60 * 1000),
+      },
+      {
+        senderId: customer1.id,
+        receiverId: tasker1.id,
+        requestId: req1.id,
+        content: "Perfect, see you then!",
+        createdAt: new Date(Date.now() - 23.8 * 24 * 60 * 60 * 1000),
+      },
+    ],
+  })
+  console.log("Sample messages created")
+
+  // --- Sample Testimonials ---
+  const existingTestimonials = await prisma.testimonial.count()
+  if (existingTestimonials === 0) {
+    await prisma.testimonial.createMany({
+      data: [
+        {
+          name: "Rajesh Sharma",
+          location: "Ward 3, Butwal",
+          role: "Homeowner",
+          content:
+            "My sink was leaking at midnight. Found a plumber on NepalSewa in 10 minutes. He came within an hour and fixed it perfectly. This service is a lifesaver!",
+          rating: 5,
+          sortOrder: 1,
+        },
+        {
+          name: "Sita Poudel",
+          location: "Ward 7, Butwal",
+          role: "Homemaker",
+          content:
+            "I needed my house painted before Tihar. Got 3 bids within hours, chose the best one. The painter did an amazing job at half the price quoted by others.",
+          rating: 5,
+          sortOrder: 2,
+        },
+        {
+          name: "Anil KC",
+          location: "Ward 11, Butwal",
+          role: "Business Owner",
+          content:
+            "We use NepalSewa for office cleaning and IT support. Reliable, professional, and affordable. Highly recommend to all business owners in Butwal.",
+          rating: 5,
+          sortOrder: 3,
+        },
+        {
+          name: "Mina Thapa",
+          location: "Ward 5, Butwal",
+          role: "Teacher",
+          content:
+            "Found a great math tutor for my son through NepalSewa. His grades have improved significantly. The platform is very easy to use.",
+          rating: 4,
+          sortOrder: 4,
+        },
+      ],
+    })
+    console.log("Sample testimonials created")
+  } else {
+    console.log("Testimonials already exist, skipping")
+  }
+
+  console.log("\n✅ Seeding complete!")
+  console.log(`  Users: ${await prisma.user.count()}`)
+  console.log(`  Categories: ${await prisma.category.count()}`)
+  console.log(`  Services: ${await prisma.service.count()}`)
+  console.log(`  Requests: ${await prisma.request.count()}`)
+  console.log(`  Bids: ${await prisma.bid.count()}`)
+  console.log(`  Assignments: ${await prisma.taskerAssignment.count()}`)
+  console.log(`  Reviews: ${await prisma.review.count()}`)
+  console.log(`  Transactions: ${await prisma.transaction.count()}`)
+  console.log(`  Messages: ${await prisma.message.count()}`)
+  console.log(`  Testimonials: ${await prisma.testimonial.count()}`)
 }
 
 main()

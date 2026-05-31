@@ -1,48 +1,33 @@
 "use client"
 
-import { Star, Quote } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Star, Quote, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
-const testimonials = [
-  {
-    name: "Rajesh Sharma",
-    location: "Ward 3, Butwal",
-    role: "Homeowner",
-    content:
-      "My sink was leaking at midnight. Found a plumber on NepalSewa in 10 minutes. He came within an hour and fixed it perfectly. This service is a lifesaver!",
-    rating: 5,
-    initials: "RS",
-  },
-  {
-    name: "Sita Poudel",
-    location: "Ward 7, Butwal",
-    role: "Homemaker",
-    content:
-      "I needed my house painted before Tihar. Got 3 bids within hours, chose the best one. The painter did an amazing job at half the price quoted by others.",
-    rating: 5,
-    initials: "SP",
-  },
-  {
-    name: "Anil KC",
-    location: "Ward 11, Butwal",
-    role: "Business Owner",
-    content:
-      "We use NepalSewa for office cleaning and IT support. Reliable, professional, and affordable. Highly recommend to all business owners in Butwal.",
-    rating: 5,
-    initials: "AK",
-  },
-  {
-    name: "Mina Thapa",
-    location: "Ward 5, Butwal",
-    role: "Teacher",
-    content:
-      "Found a great math tutor for my son through NepalSewa. His grades have improved significantly. The platform is very easy to use.",
-    rating: 4,
-    initials: "MT",
-  },
-]
+interface TestimonialItem {
+  id: string
+  name: string
+  location: string | null
+  role: string | null
+  content: string
+  rating: number
+  avatarUrl: string | null
+}
 
 export function Testimonials() {
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/testimonials")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setTestimonials(data)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
   return (
     <section className="relative py-20 lg:py-28 bg-gradient-to-b from-emerald-50/50 to-white overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-b from-emerald-100/30 to-transparent rounded-full blur-3xl" />
@@ -56,44 +41,54 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.name}
-              className="group relative rounded-2xl border bg-white/80 p-8 backdrop-blur-sm transition-all hover:border-emerald-200 hover:shadow-xl"
-            >
-              <Quote className="absolute top-6 right-6 h-10 w-10 text-emerald-100 group-hover:text-emerald-200 transition-colors" />
-              <div className="mb-4 flex items-center gap-4">
-                <Avatar className="h-12 w-12 ring-2 ring-emerald-100">
-                  <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-medium">
-                    {testimonial.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-semibold">{testimonial.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {testimonial.location}
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+          </div>
+        ) : testimonials.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            No testimonials yet.
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {testimonials.map((testimonial) => (
+              <div
+                key={testimonial.id}
+                className="group relative rounded-2xl border bg-white/80 p-8 backdrop-blur-sm transition-all hover:border-emerald-200 hover:shadow-xl"
+              >
+                <Quote className="absolute top-6 right-6 h-10 w-10 text-emerald-100 group-hover:text-emerald-200 transition-colors" />
+                <div className="mb-4 flex items-center gap-4">
+                  <Avatar className="h-12 w-12 ring-2 ring-emerald-100">
+                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-sm font-medium">
+                      {testimonial.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {testimonial.location || testimonial.role || ""}
+                    </div>
                   </div>
                 </div>
+                <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
+                  &ldquo;{testimonial.content}&rdquo;
+                </p>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star
+                      key={`star-${j}`}
+                      className={`h-4 w-4 ${
+                        j < testimonial.rating
+                          ? "fill-amber-400 text-amber-400"
+                          : "fill-muted text-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-              <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-                &ldquo;{testimonial.content}&rdquo;
-              </p>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_: unknown, j: number) => (
-                  <Star
-                    key={`star-${j}`}
-                    className={`h-4 w-4 ${
-                      j < testimonial.rating
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-muted text-muted"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
