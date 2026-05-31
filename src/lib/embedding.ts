@@ -1,14 +1,18 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { pipeline, type FeatureExtractionPipeline } from "@xenova/transformers"
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
+let pipe: FeatureExtractionPipeline | null = null
 
-const embeddingModel = genAI.getGenerativeModel({
-  model: "text-embedding-004",
-})
+async function getPipeline(): Promise<FeatureExtractionPipeline> {
+  if (!pipe) {
+    pipe = await pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2")
+  }
+  return pipe
+}
 
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const result = await embeddingModel.embedContent(text)
-  return result.embedding.values
+  const extractor = await getPipeline()
+  const result = await extractor(text, { pooling: "mean", normalize: true })
+  return Array.from(result.data)
 }
 
 export function cosineSimilarity(a: number[], b: number[]): number {
