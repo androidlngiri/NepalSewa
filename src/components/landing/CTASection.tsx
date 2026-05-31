@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowRight, Sparkles, UserPlus, Briefcase } from "lucide-react"
+import { ArrowRight, Sparkles, Gavel, Briefcase } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function CTASection() {
@@ -22,8 +22,7 @@ export function CTASection() {
             Ready to Get Things Done?
           </h2>
           <p className="mt-4 max-w-xl text-lg text-emerald-100">
-            Whether you need a service or want to offer your skills — NepalSewa
-            connects you with your community.
+            Post what you need, compare bids from local taskers, and pick the best deal.
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
@@ -32,8 +31,8 @@ export function CTASection() {
                 size="lg"
                 className="h-14 rounded-2xl bg-white text-emerald-700 hover:bg-emerald-50 px-10 text-base font-semibold shadow-xl hover:shadow-2xl transition-all"
               >
-                <UserPlus className="mr-2 h-5 w-5" />
-                I Need a Service
+                <Gavel className="mr-2 h-5 w-5" />
+                Post a Request
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -50,7 +49,7 @@ export function CTASection() {
           </div>
 
           <p className="mt-6 text-sm text-emerald-200">
-            Free to join • No hidden fees • Cancel anytime
+            Free to join • You choose the price • No hidden fees
           </p>
         </div>
       </div>

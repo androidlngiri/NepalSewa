@@ -3,18 +3,18 @@
 import {
   ShieldCheck,
   Clock,
-  BadgeCheck,
+  Gavel,
   MessageSquare,
   MapPin,
-  Wallet,
+  TrendingDown,
 } from "lucide-react"
 
 const features = [
   {
-    icon: ShieldCheck,
-    title: "Verified Professionals",
+    icon: Gavel,
+    title: "You Set the Price",
     description:
-      "Every tasker is background-verified, rated, and reviewed by real customers in Butwal.",
+      "Post your task with a suggested budget. Taskers compete with their best offers — you pick what works for you.",
     color: "text-emerald-600",
     bgColor: "bg-emerald-50",
   },
@@ -27,18 +27,18 @@ const features = [
     bgColor: "bg-blue-50",
   },
   {
-    icon: BadgeCheck,
-    title: "Quality Guaranteed",
+    icon: ShieldCheck,
+    title: "Verified Taskers",
     description:
-      "Not satisfied? We stand behind our work. Get a free redo or your money back — no questions asked.",
+      "Every tasker is background-verified, rated, and reviewed by real customers in Butwal before they can start bidding.",
     color: "text-amber-600",
     bgColor: "bg-amber-50",
   },
   {
     icon: MessageSquare,
-    title: "Transparent Pricing",
+    title: "Compare Before You Decide",
     description:
-      "See the price upfront. Compare bids from multiple taskers. No hidden charges, no surprises.",
+      "See all bids side by side — compare prices, ratings, and messages. No pressure, no rush.",
     color: "text-purple-600",
     bgColor: "bg-purple-50",
   },
@@ -46,15 +46,15 @@ const features = [
     icon: MapPin,
     title: "Local to Butwal",
     description:
-      "We know Butwal inside out. From Milijuli to Motipur, serviced across all 19 wards.",
+      "We know Butwal inside out. From Milijuli to Motipur, serviced across all 19 wards by nearby taskers.",
     color: "text-rose-600",
     bgColor: "bg-rose-50",
   },
   {
-    icon: Wallet,
-    title: "Best Value Pricing",
+    icon: TrendingDown,
+    title: "Save With Competition",
     description:
-      "Get competitive rates from local taskers. Save up to 30% compared to traditional service providers.",
+      "Taskers bid against each other to win your business. You often pay less than asking price.",
     color: "text-teal-600",
     bgColor: "bg-teal-50",
   },
@@ -69,7 +69,7 @@ export function WhyChooseUs() {
             Why NepalSewa?
           </h2>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-            We make it easy, safe, and affordable to get things done in Butwal.
+            No fixed prices, no hidden fees. You say what you want to pay, and taskers bid for the job.
           </p>
         </div>
 

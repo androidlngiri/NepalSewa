@@ -15,7 +15,7 @@ import {
   Home,
   Truck,
   Code,
-  GraduationCap,
+  Gavel,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,6 +34,7 @@ export function HeroSection() {
       .then(setStats)
       .catch(() => {})
   }, [])
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-white to-white">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMwMDAiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
@@ -71,37 +72,41 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl"
           >
-            From home repairs to professional services — connect with verified
-            taskers in your ward. Safe, fast, and reliable.
+            Post what you need, get multiple quotes from local taskers, and pick the best one.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-8 flex w-full max-w-xl items-center gap-2"
+            className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-2xl"
           >
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="What service do you need? (e.g. plumber, electrician...)"
-                aria-label="Search for services"
-                className="h-14 pl-11 pr-4 text-base rounded-2xl border-2 shadow-lg shadow-emerald-500/10"
-              />
-            </div>
-            <Button
-              size="lg"
-              className="h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all"
-            >
-              Search
-            </Button>
+            <Link href="/auth/signup?role=user" className="flex-1">
+              <Button
+                size="lg"
+                className="w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base"
+              >
+                <Gavel className="mr-2 h-5 w-5" />
+                Post a Request & Get Quotes
+              </Button>
+            </Link>
+            <Link href="/services" className="sm:flex-1">
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base"
+              >
+                Browse Services
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"
+            className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"
           >
             <Shield className="h-4 w-4 text-emerald-500" />
             <span>Verified taskers</span>
@@ -110,7 +115,7 @@ export function HeroSection() {
             <span>Rated & reviewed</span>
             <span className="text-muted-foreground/40">|</span>
             <Zap className="h-4 w-4 text-emerald-500" />
-            <span>Same-day service</span>
+            <span>You pick the best price</span>
           </motion.div>
 
           <motion.div

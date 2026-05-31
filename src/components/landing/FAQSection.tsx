@@ -8,7 +8,7 @@ const faqs = [
   {
     question: "How do I find a tasker in Butwal?",
     answer:
-      "Simply describe your task, set your budget, and post it on NepalSewa. Taskers in your ward will see it and send you bids. You can compare their ratings, reviews, and prices before choosing.",
+      "Simply describe your task, set a suggested budget, and post it on NepalSewa. Taskers in your area will see it and send you bids. Compare their prices, ratings, and reviews — then choose the best one.",
   },
   {
     question: "Is it safe to hire through NepalSewa?",
@@ -18,7 +18,7 @@ const faqs = [
   {
     question: "How much does it cost to use NepalSewa?",
     answer:
-      "Posting a task and browsing bids is completely free. We only charge a small service fee (as low as 5%) when a tasker completes your job. Taskers pay a nominal listing fee.",
+      "Posting a task and browsing bids is completely free. We only charge a small service fee (3-5% of the job amount) when a tasker completes your job. Taskers pay nothing unless they earn.",
   },
   {
     question: "What areas of Butwal do you cover?",
@@ -28,12 +28,12 @@ const faqs = [
   {
     question: "Can I become a tasker on NepalSewa?",
     answer:
-      "Yes! If you have a skill — plumbing, electrical, painting, tutoring, cleaning, etc. — you can sign up as a tasker. Create your profile, set your rates, and start receiving job requests in your area.",
+      "Yes! If you have a skill — plumbing, electrical, painting, tutoring, cleaning, etc. — you can sign up as a tasker. Create your profile, browse open requests in your area, and bid on jobs that fit you.",
   },
   {
     question: "What if I'm not satisfied with the service?",
     answer:
-      "Your satisfaction is guaranteed. If the work isn't up to standard, you can request a fix or a refund. Our support team mediates any disputes to ensure fair resolution.",
+      "Your satisfaction matters. If the work isn't up to standard, you can discuss it with the tasker. Our support team mediates any disputes to ensure fair resolution for both sides.",
   },
   {
     question: "How quickly can I get a tasker?",
