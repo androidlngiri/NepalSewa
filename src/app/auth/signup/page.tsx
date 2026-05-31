@@ -85,7 +85,7 @@ function SignUpForm() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900 py-8">
+    <div className="relative h-dvh lg:h-screen flex lg:grid lg:grid-cols-2 items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(16,185,129,0.15),transparent_50%)]" />
@@ -111,30 +111,28 @@ function SignUpForm() {
         ))}
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-md px-4">
-        {/* Logo */}
+      {/* LEFT COLUMN — desktop only */}
+      <div className="hidden lg:flex flex-col items-center justify-center relative z-10 px-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-6"
         >
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-              <Wrench className="h-6 w-6 text-white" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+              <Wrench className="h-7 w-7 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">
+            <span className="text-3xl font-bold text-white">
               <span className="text-emerald-400">Nepal</span>Sewa
             </span>
           </Link>
         </motion.div>
 
-        {/* Perks */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 space-y-2"
+          className="mb-8 space-y-2"
         >
           {perks.map((perk, i) => (
             <motion.div
@@ -150,24 +148,82 @@ function SignUpForm() {
           ))}
         </motion.div>
 
-        {/* Trust row */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex justify-center gap-4 mb-6 text-xs text-emerald-200/80"
+          className="flex justify-center gap-4 mb-8 text-xs text-emerald-200/80"
         >
           <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified taskers</span>
           <span className="flex items-center gap-1"><Star className="h-3 w-3" /> Rated & reviewed</span>
           <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Same-day service</span>
         </motion.div>
 
-        {/* Form card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.25 }}
         >
+          <p className="text-emerald-200/30 text-sm max-w-xs mx-auto leading-relaxed text-center">
+            Post a task, get quotes from local taskers, pick the best one. Pay only when you&apos;re satisfied.
+          </p>
+        </motion.div>
+      </div>
+
+      {/* RIGHT COLUMN — always visible */}
+      <div className="relative z-10 w-full max-w-md lg:max-w-none px-4 lg:px-8 flex items-center justify-center h-full py-4">
+        <div className="w-full max-w-md">
+
+          {/* MOBILE branding — only below lg */}
+          <div className="lg:hidden">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-4"
+            >
+              <Link href="/" className="inline-flex items-center gap-2.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+                  <Wrench className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold text-white">
+                  <span className="text-emerald-400">Nepal</span>Sewa
+                </span>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-4 space-y-1.5"
+            >
+              {perks.map((perk, i) => (
+                <motion.div
+                  key={perk}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15 + i * 0.08 }}
+                  className="flex items-center gap-2 text-xs text-emerald-200/80"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  {perk}
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="flex justify-center gap-4 mb-4 text-xs text-emerald-200/80"
+            >
+              <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified taskers</span>
+              <span className="flex items-center gap-1"><Star className="h-3 w-3" /> Rated & reviewed</span>
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> Same-day service</span>
+            </motion.div>
+          </div>
+
+          {/* CARD — shared between mobile & desktop */}
           <Card className="border-0 bg-white/10 backdrop-blur-xl shadow-2xl shadow-black/20 overflow-hidden">
             <div className="p-6 sm:p-8">
               <AnimatePresence mode="wait">
@@ -336,7 +392,7 @@ function SignUpForm() {
               </AnimatePresence>
             </div>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -189,7 +189,7 @@ function SignInForm() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
+    <div className="relative h-dvh lg:h-screen flex lg:grid lg:grid-cols-2 items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.1),transparent_50%)]" />
@@ -206,17 +206,18 @@ function SignInForm() {
         ))}
       </div>
 
-      <div className="relative z-10 w-full max-w-md px-4">
+      {/* LEFT COLUMN — desktop only */}
+      <div className="hidden lg:flex flex-col items-center justify-center relative z-10 px-12">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="text-center mb-6"
         >
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-              <Wrench className="h-6 w-6 text-white" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+              <Wrench className="h-7 w-7 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">
+            <span className="text-3xl font-bold text-white">
               <span className="text-emerald-400">Nepal</span>Sewa
             </span>
           </Link>
@@ -226,7 +227,7 @@ function SignInForm() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex justify-center gap-4 mb-8 text-xs text-emerald-200/80"
+          className="flex justify-center gap-4 mb-6 text-xs text-emerald-200/80"
         >
           <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified</span>
           <span className="flex items-center gap-1"><Star className="h-3 w-3" /> 4.8 avg</span>
@@ -237,22 +238,70 @@ function SignInForm() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 }}
-          className="text-center mb-8"
+          className="text-center"
         >
-          <p className="text-2xl font-bold text-white">
+          <p className="text-3xl font-bold text-white">
             <span className="text-emerald-400">5,000+</span>{" "}
             <span className="text-white/80">tasks completed</span>
           </p>
-          <p className="text-sm text-emerald-200/70 mt-1">
+          <p className="text-sm text-emerald-200/70 mt-2">
             Join Butwal&apos;s trusted service marketplace
           </p>
+          <p className="text-emerald-200/30 text-sm mt-8 max-w-xs mx-auto leading-relaxed">
+            Post a task, get quotes from local taskers, pick the best one. Pay only when you&apos;re satisfied.
+          </p>
         </motion.div>
+      </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+      {/* RIGHT COLUMN — always visible */}
+      <div className="relative z-10 w-full max-w-md lg:max-w-none px-4 lg:px-8 flex items-center justify-center h-full py-4">
+        <div className="w-full max-w-md">
+
+          {/* MOBILE branding — only below lg */}
+          <div className="lg:hidden">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-4"
+            >
+              <Link href="/" className="inline-flex items-center gap-2.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+                  <Wrench className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold text-white">
+                  <span className="text-emerald-400">Nepal</span>Sewa
+                </span>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-center gap-4 mb-4 text-xs text-emerald-200/80"
+            >
+              <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified</span>
+              <span className="flex items-center gap-1"><Star className="h-3 w-3" /> 4.8 avg</span>
+              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 30min response</span>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-center mb-4"
+            >
+              <p className="text-xl font-bold text-white">
+                <span className="text-emerald-400">5,000+</span>{" "}
+                <span className="text-white/80">tasks completed</span>
+              </p>
+              <p className="text-xs text-emerald-200/70 mt-0.5">
+                Join Butwal&apos;s trusted service marketplace
+              </p>
+            </motion.div>
+          </div>
+
+          {/* CARD — shared between mobile & desktop */}
           <Card className="border-0 bg-white/10 backdrop-blur-xl shadow-2xl shadow-black/20 overflow-hidden">
             <div className="p-6 sm:p-8">
               {/* Method tabs */}
@@ -503,7 +552,7 @@ function SignInForm() {
               </AnimatePresence>
             </div>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   )
