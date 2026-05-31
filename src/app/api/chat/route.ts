@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { GoogleGenerativeAI } from "@google/generative-ai"
 
 const SYSTEM_PROMPT = `You are the NepalSewa Butwal assistant — a friendly, knowledgeable helper for Butwal's local service marketplace.
 
@@ -24,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 })
     }
 
-    const apiKey = process.env.GEMINI_API_KEY
+    const apiKey = process.env.GROQ_API_KEY
 
     if (!apiKey) {
       return NextResponse.json({
@@ -32,21 +31,37 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash-lite",
-      systemInstruction: SYSTEM_PROMPT,
-    })
-
-    const chat = model.startChat({
-      history: (history || []).slice(-10).map((msg: any) => ({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }],
+    const messages = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...(history || []).slice(-10).map((msg: any) => ({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: msg.content,
       })),
+      { role: "user", content: message },
+    ]
+
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "mixtral-8x7b-32768",
+        messages,
+        max_tokens: 1024,
+        temperature: 0.7,
+      }),
     })
 
-    const result = await chat.sendMessage(message)
-    const reply = result.response.text()
+    if (!res.ok) {
+      const err = await res.text()
+      console.error("Groq API error:", res.status, err)
+      return NextResponse.json({ reply: "I'm sorry, I couldn't process that. Please try again." })
+    }
+
+    const data = await res.json()
+    const reply = data.choices?.[0]?.message?.content || "I'm sorry, I couldn't process that."
 
     return NextResponse.json({ reply })
   } catch (error) {
