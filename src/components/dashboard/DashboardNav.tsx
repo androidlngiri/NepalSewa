@@ -16,6 +16,7 @@ import {
   X,
   Briefcase,
   IndianRupee,
+  Percent,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -52,6 +53,7 @@ const adminNav = [
   { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
   { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
+  { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ]
 
