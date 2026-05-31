@@ -152,7 +152,7 @@ export function ServicesSection() {
                       {service.count}
                     </span>
                     <span className="text-muted-foreground group-hover:text-emerald-600 transition-colors flex items-center gap-1">
-                      Book now →
+                      Get quotes →
                     </span>
                   </div>
                 </CardContent>

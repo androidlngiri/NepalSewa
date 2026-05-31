@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Loader2, Send, ArrowLeft, ImagePlus, X } from "lucide-react"
+import {
+  Loader2, Send, ArrowLeft, ImagePlus, X, Search, MapPin,
+  ChevronDown, ChevronUp, Zap,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -13,10 +16,11 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { toast } from "sonner"
 import Link from "next/link"
 
-interface Category {
+interface FlatService {
   id: string
   name: string
-  services: { id: string; name: string }[]
+  categoryName: string
+  categoryId: string
 }
 
 const URGENCY_OPTIONS = [
@@ -26,90 +30,119 @@ const URGENCY_OPTIONS = [
   { value: "emergency", label: "Emergency — Within 2 hours" },
 ]
 
-const WARD_OPTIONS = Array.from({ length: 19 }, (_, i) => ({
-  value: String(i + 1),
-  label: `Ward ${i + 1}`,
-}))
-
 function NewRequestForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const preselectedServiceId = searchParams.get("service")
-  const [categories, setCategories] = useState<Category[]>([])
+  const [allServices, setAllServices] = useState<FlatService[]>([])
+  const [loadingSvcs, setLoadingSvcs] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
-  const [loadingCat, setLoadingCat] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [images, setImages] = useState<string[]>([])
+  const [showDetails, setShowDetails] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const searchRef = useRef<HTMLDivElement>(null)
+
   const [form, setForm] = useState({
-    categoryId: "",
     serviceId: "",
     title: "",
     description: "",
-    location: "",
-    wardNo: "",
+    address: "",
     budget: "",
     urgency: "normal",
     scheduledDate: "",
   })
 
-  const selectedCategory = categories.find((c) => c.id === form.categoryId)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showResults, setShowResults] = useState(false)
+  const [selectedService, setSelectedService] = useState<FlatService | null>(null)
 
   useEffect(() => {
     fetch("/api/services")
       .then((r) => r.json())
-      .then((data: Category[]) => {
-        setCategories(data)
-        if (preselectedServiceId) {
-          for (const cat of data) {
-            const found = cat.services.find((s) => s.id === preselectedServiceId)
-            if (found) {
-              setForm((prev) => ({ ...prev, categoryId: cat.id, serviceId: found.id }))
-              break
-            }
+      .then((data: any[]) => {
+        const flat: FlatService[] = []
+        for (const cat of data) {
+          for (const svc of cat.services) {
+            flat.push({ id: svc.id, name: svc.name, categoryName: cat.name, categoryId: cat.id })
           }
         }
-        setLoadingCat(false)
+        setAllServices(flat)
+        if (preselectedServiceId) {
+          const found = flat.find((s) => s.id === preselectedServiceId)
+          if (found) {
+            setSelectedService(found)
+            setSearchQuery(found.name)
+            setForm((prev) => ({
+              ...prev,
+              serviceId: found.id,
+              title: `Need ${found.name.toLowerCase()} service`,
+            }))
+          }
+        }
+        setLoadingSvcs(false)
       })
       .catch(() => {
         toast.error("Failed to load services")
-        setLoadingCat(false)
+        setLoadingSvcs(false)
       })
   }, [preselectedServiceId])
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
+
+  const filteredResults = searchQuery.trim()
+    ? allServices.filter(
+        (s) =>
+          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          s.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : []
+
+  function handleSelectService(svc: FlatService) {
+    setSelectedService(svc)
+    setSearchQuery(svc.name)
+    setForm((prev) => ({
+      ...prev,
+      serviceId: svc.id,
+      title: `Need ${svc.name.toLowerCase()} service`,
+    }))
+    setShowResults(false)
+  }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image must be under 5MB")
       return
     }
-
     if (!file.type.startsWith("image/")) {
       toast.error("Only image files are allowed")
       return
     }
-
     setUploading(true)
     try {
       const formData = new FormData()
       formData.append("file", file)
-
       const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
-
       if (!res.ok) {
         const data = await res.json()
         toast.error(data.error || "Upload failed")
         return
       }
-
       const data = await res.json()
       setImages((prev) => [...prev, data.url])
-      toast.success("Image uploaded")
     } catch {
       toast.error("Failed to upload image")
     } finally {
@@ -124,30 +157,38 @@ function NewRequestForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.serviceId || !form.title || !form.description) {
-      toast.error("Please fill in all required fields")
+    if (!form.serviceId) {
+      toast.error("Please select a service from the list")
       return
     }
-    if (form.budget && (isNaN(Number(form.budget)) || Number(form.budget) <= 0)) {
-      toast.error("Budget must be a positive number")
+    if (!form.address?.trim()) {
+      toast.error("Please enter your address or area")
       return
     }
-    setIsLoading(true)
 
+    setIsLoading(true)
     try {
       const res = await fetch("/api/requests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, images }),
+        body: JSON.stringify({
+          serviceId: form.serviceId,
+          title: form.title,
+          description: form.description || `I need ${selectedService?.name.toLowerCase() || "a service"} in ${form.address}.`,
+          location: form.address,
+          wardNo: null,
+          budget: form.budget || null,
+          urgency: form.urgency,
+          scheduledDate: form.scheduledDate || null,
+          images,
+        }),
       })
-
       if (!res.ok) {
         const data = await res.json()
         toast.error(data.error || "Failed to create request")
         return
       }
-
-      toast.success("Request posted successfully!")
+      toast.success("Posted! Taskers will start bidding shortly.")
       router.push("/dashboard/user")
     } catch {
       toast.error("Something went wrong")
@@ -169,237 +210,236 @@ function NewRequestForm() {
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Post a New Request</h1>
           <p className="text-muted-foreground">
-            Describe what you need, set a suggested budget, and let taskers compete with their best price.
+            Tell us what you need and taskers will bid for the job.
           </p>
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Request Details</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-5 sm:p-6">
             <form onSubmit={onSubmit} className="space-y-5">
-              <div className="space-y-2">
-                <Label>Category *</Label>
-                <Select
-                  value={form.categoryId}
-                  onValueChange={(v, _details) => {
-                    if (v) setForm({ ...form, categoryId: v, serviceId: "" })
-                  }}
-                  disabled={loadingCat}
-                  itemToStringLabel={(value) => {
-                    const cat = categories.find((c) => c.id === value)
-                    return cat?.name || ""
-                  }}
-                >
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder={loadingCat ? "Loading..." : "Select category"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Service *</Label>
-                <Select
-                  value={form.serviceId}
-                  onValueChange={(v, _details) => {
-                    if (v) setForm({ ...form, serviceId: v })
-                  }}
-                  disabled={!form.categoryId}
-                  itemToStringLabel={(value) => {
-                    const svc = selectedCategory?.services.find((s) => s.id === value)
-                    return svc?.name || ""
-                  }}
-                >
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select service" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {selectedCategory?.services.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="title">Title *</Label>
-                <Input
-                  id="title"
-                  placeholder="e.g., Need a plumber to fix bathroom faucet"
-                  className="h-11"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Describe your task in detail — what needs to be done, what materials are needed, etc."
-                  rows={4}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="wardNo">Your Ward (Butwal)</Label>
-                  <Select
-                    value={form.wardNo}
-                    onValueChange={(v, _details) => {
-                      if (v) setForm({ ...form, wardNo: v })
-                    }}
-                    itemToStringLabel={(value) => {
-                      const ward = WARD_OPTIONS.find((w) => w.value === value)
-                      return ward?.label || ""
-                    }}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder="Select ward" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {WARD_OPTIONS.map((w) => (
-                        <SelectItem key={w.value} value={w.value}>
-                          {w.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="budget">Your Budget (NPR) — Optional</Label>
+              {/* Step 1: Service search */}
+              <div ref={searchRef} className="space-y-1.5">
+                <Label className="text-sm font-medium">What do you need done? *</Label>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="budget"
-                    type="number"
-                    placeholder="e.g., 5000"
-                    className="h-11"
-                    value={form.budget}
-                    onChange={(e) => setForm({ ...form, budget: e.target.value })}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    This is just a suggestion — taskers will bid their own price.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="urgency">Urgency</Label>
-                  <Select
-                    value={form.urgency}
-                    onValueChange={(v, _details) => {
-                      if (v) setForm({ ...form, urgency: v })
+                    placeholder='e.g., "plumber", "electrician", "house cleaning"...'
+                    className="h-12 pl-10 pr-4 text-base rounded-xl"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value)
+                      setShowResults(true)
+                      if (selectedService) {
+                        setSelectedService(null)
+                        setForm((prev) => ({ ...prev, serviceId: "", title: "" }))
+                      }
                     }}
-                    itemToStringLabel={(value) => {
-                      const opt = URGENCY_OPTIONS.find((u) => u.value === value)
-                      return opt?.label || ""
-                    }}
-                  >
-                    <SelectTrigger className="h-11">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {URGENCY_OPTIONS.map((u) => (
-                        <SelectItem key={u.value} value={u.value}>
-                          {u.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onFocus={() => setShowResults(true)}
+                    disabled={loadingSvcs}
+                  />
+                  {loadingSvcs && (
+                    <Loader2 className="absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                  )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="scheduledDate">Preferred Date</Label>
-                  <Input
-                    id="scheduledDate"
-                    type="date"
-                    className="h-11"
-                    value={form.scheduledDate}
-                    onChange={(e) => setForm({ ...form, scheduledDate: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location Details</Label>
-                <Input
-                  id="location"
-                  placeholder="e.g., Milijuli, near the old bus park"
-                  className="h-11"
-                  value={form.location}
-                  onChange={(e) => setForm({ ...form, location: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Photos (optional)</Label>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-20 w-20 rounded-xl border-2 border-dashed"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? (
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                    ) : (
-                      <ImagePlus className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </Button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleUpload}
-                  />
-                  {images.map((url) => (
-                    <div key={url} className="relative h-20 w-20 rounded-xl overflow-hidden border">
-                      <img src={url} alt="Uploaded task photo" className="h-full w-full object-cover" />
+                {/* Autocomplete dropdown */}
+                {showResults && filteredResults.length > 0 && (
+                  <div className="absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border bg-card shadow-xl overflow-hidden">
+                    {filteredResults.slice(0, 8).map((svc) => (
                       <button
+                        key={svc.id}
                         type="button"
-                        onClick={() => removeImage(url)}
-                        aria-label="Remove image"
-                        className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                        onClick={() => handleSelectService(svc)}
+                        className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-emerald-50 border-b last:border-0"
                       >
-                        <X className="h-3 w-3" />
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                          <Zap className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{svc.name}</p>
+                          <p className="text-xs text-muted-foreground">{svc.categoryName}</p>
+                        </div>
                       </button>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Upload photos of the task. Max 5MB per image.
-                </p>
+                    ))}
+                    {filteredResults.length > 8 && (
+                      <p className="px-4 py-2 text-xs text-muted-foreground text-center border-t">
+                        {filteredResults.length - 8} more — type to narrow down
+                      </p>
+                    )}
+                  </div>
+                )}
+                {showResults && searchQuery.trim() && filteredResults.length === 0 && !loadingSvcs && (
+                  <div className="absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border bg-card shadow-xl p-4 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No matching services found. Try a different word.
+                    </p>
+                  </div>
+                )}
+
+                {selectedService && (
+                  <p className="text-xs text-emerald-600 flex items-center gap-1 pt-1">
+                    <Zap className="h-3 w-3" />
+                    Selected: {selectedService.name} ({selectedService.categoryName})
+                  </p>
+                )}
               </div>
 
+              {/* Step 2: Address */}
+              <div className="space-y-1.5">
+                <Label htmlFor="address" className="text-sm font-medium">Your location *</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="address"
+                    placeholder="e.g., Ward 5, Milijuli, near the bus park"
+                    className="h-12 pl-10 pr-4 text-base rounded-xl"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Post button */}
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 text-base font-semibold"
-                disabled={isLoading}
+                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 text-base font-semibold rounded-xl"
+                disabled={isLoading || !form.serviceId}
               >
                 {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 ) : (
-                  <Send className="mr-2 h-4 w-4" />
+                  <Send className="mr-2 h-5 w-5" />
                 )}
                 Post &amp; Get Bids
               </Button>
+
+              {/* Expandable details toggle */}
+              <div className="border-t pt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDetails(!showDetails)}
+                  className="flex w-full items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                >
+                  {showDetails ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                  {showDetails ? "Hide optional details" : "Add details (optional)"}
+                </button>
+
+                {showDetails && (
+                  <div className="space-y-4 pt-3 animate-in">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        placeholder="Describe your task — what needs to be done, what materials are needed..."
+                        rows={3}
+                        className="rounded-xl"
+                        value={form.description}
+                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="budget">Suggested budget (NPR)</Label>
+                        <Input
+                          id="budget"
+                          type="number"
+                          placeholder="e.g., 5000"
+                          className="h-11 rounded-xl"
+                          value={form.budget}
+                          onChange={(e) => setForm({ ...form, budget: e.target.value })}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Just a hint — taskers bid their own price
+                        </p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="urgency">Urgency</Label>
+                        <Select
+                          value={form.urgency}
+                          onValueChange={(v) => {
+                            if (v) setForm({ ...form, urgency: v })
+                          }}
+                          itemToStringLabel={(value) => {
+                            const opt = URGENCY_OPTIONS.find((u) => u.value === value)
+                            return opt?.label || ""
+                          }}
+                        >
+                          <SelectTrigger className="h-11 rounded-xl">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {URGENCY_OPTIONS.map((u) => (
+                              <SelectItem key={u.value} value={u.value}>
+                                {u.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="scheduledDate">Preferred date</Label>
+                        <Input
+                          id="scheduledDate"
+                          type="date"
+                          className="h-11 rounded-xl"
+                          value={form.scheduledDate}
+                          onChange={(e) => setForm({ ...form, scheduledDate: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label>Photos (optional)</Label>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="h-20 w-20 rounded-xl border-2 border-dashed"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploading}
+                        >
+                          {uploading ? (
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          ) : (
+                            <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleUpload}
+                        />
+                        {images.map((url) => (
+                          <div key={url} className="relative h-20 w-20 rounded-xl overflow-hidden border">
+                            <img src={url} alt="Uploaded photo" className="h-full w-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(url)}
+                              aria-label="Remove image"
+                              className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Max 5MB per image
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </form>
           </CardContent>
         </Card>
