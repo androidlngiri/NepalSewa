@@ -17,19 +17,18 @@ const footerLinks = {
     { href: "/how-it-works", label: "How It Works" },
     { href: "/pricing", label: "Pricing" },
     { href: "/contact", label: "Contact" },
-    { href: "#", label: "Blog" },
   ],
   support: [
-    { href: "#", label: "FAQ" },
+    { href: "/", label: "FAQ" },
     { href: "/privacy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms of Service" },
-    { href: "#", label: "Safety Guidelines" },
+    { href: "/terms", label: "Safety Guidelines" },
   ],
   tasker: [
-    { href: "#", label: "Become a Tasker" },
-    { href: "#", label: "Tasker Guide" },
-    { href: "#", label: "Earnings" },
-    { href: "#", label: "Success Stories" },
+    { href: "/auth/signup?role=tasker", label: "Become a Tasker" },
+    { href: "/how-it-works", label: "Tasker Guide" },
+    { href: "/dashboard/tasker/earnings", label: "Earnings" },
+    { href: "/about", label: "Success Stories" },
   ],
 }
 
@@ -53,9 +52,9 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { label: "Facebook", href: "#" },
-                { label: "Twitter", href: "#" },
-                { label: "Instagram", href: "#" },
+                { label: "Facebook", href: "https://facebook.com/nepalsewa" },
+                { label: "Twitter", href: "https://twitter.com/nepalsewa" },
+                { label: "Instagram", href: "https://instagram.com/nepalsewa" },
               ].map((social) => (
                 <Link
                   key={social.label}

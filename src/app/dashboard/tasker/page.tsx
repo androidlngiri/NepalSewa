@@ -98,7 +98,7 @@ export default function TaskerDashboardPage() {
     {
       title: "Rating",
       value: data?.rating ? data.rating.toFixed(1) : "New",
-      href: "#",
+      href: "/dashboard/tasker/reviews",
       icon: Star,
       color: "text-purple-600",
       bg: "bg-purple-50",
