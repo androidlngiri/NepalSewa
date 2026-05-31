@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { DashboardNav } from "./DashboardNav"
+import { DashboardBottomNav } from "./DashboardBottomNav"
 import { DashboardErrorBoundary } from "@/components/ui/error-boundary"
 import { DashboardSkeleton } from "@/components/ui/skeleton"
 
@@ -50,13 +51,19 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           isTasker={session.user.isTasker}
         />
       </Suspense>
-      <main className="flex-1 overflow-y-auto bg-gray-50/50">
+      <main className="flex-1 overflow-y-auto bg-gray-50/50 pb-16 lg:pb-0">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <DashboardErrorBoundary>
             {children}
           </DashboardErrorBoundary>
         </div>
       </main>
+      <Suspense fallback={null}>
+        <DashboardBottomNav
+          role={role}
+          isTasker={session.user.isTasker}
+        />
+      </Suspense>
     </div>
   )
 }
