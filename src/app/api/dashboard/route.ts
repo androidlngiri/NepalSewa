@@ -73,8 +73,8 @@ export async function GET() {
           where: { taskerId: session.user.id, status: "COMPLETED" },
         }),
         prisma.transaction.aggregate({
-          _sum: { amount: true },
-          where: { userId: session.user.id, status: "COMPLETED" },
+          _sum: { amount: true, commission: true },
+          where: { taskerId: session.user.id, status: "COMPLETED" },
         }),
         prisma.review.findMany({
           where: { revieweeId: session.user.id },
@@ -88,7 +88,7 @@ export async function GET() {
           : 0
 
       const recentEarnings = await prisma.transaction.findMany({
-        where: { userId: session.user.id, status: "COMPLETED" },
+        where: { taskerId: session.user.id, status: "COMPLETED" },
         orderBy: { createdAt: "desc" },
         take: 30,
       })
@@ -97,10 +97,13 @@ export async function GET() {
         activeBids,
         completedJobs,
         earnedTotal: earnings._sum.amount || 0,
+        totalCommission: earnings._sum.commission || 0,
+        netEarnings: (earnings._sum.amount || 0) - (earnings._sum.commission || 0),
         rating: avgRating,
-        recentEarnings: recentEarnings.map((t: { createdAt: Date; amount: number }) => ({
+        recentEarnings: recentEarnings.map((t: { createdAt: Date; amount: number; commission: number | null }) => ({
           date: t.createdAt.toISOString(),
           amount: t.amount,
+          commission: t.commission,
         })),
       })
     }
