@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { Providers } from "@/components/providers"
+import PwaWrapper from "@/components/pwa/PwaWrapper"
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
   },
   description:
     "Find trusted professionals in Butwal, Nepal for home services, repairs, cleaning, tutoring, and more. Book verified taskers instantly.",
+  manifest: "/manifest",
   keywords: [
     "Butwal services",
     "Nepal service marketplace",
@@ -32,6 +34,9 @@ export const metadata: Metadata = {
   creator: "NepalSewa",
   publisher: "NepalSewa",
   metadataBase: new URL("https://nepalsewa.com.np"),
+  icons: {
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     type: "website",
     locale: "ne_NP",
@@ -75,6 +80,9 @@ export default function RootLayout({
   return (
     <html lang="ne" className={`${inter.variable} h-full antialiased`}>
       <head>
+        <meta name="theme-color" content="#059669" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -138,6 +146,7 @@ export default function RootLayout({
             <ErrorBoundary><main id="main-content">{children}</main></ErrorBoundary>
           </Providers>
         </TooltipProvider>
+        <PwaWrapper />
         <Toaster richColors position="top-center" />
       </body>
     </html>
