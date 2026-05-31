@@ -9,6 +9,16 @@ export default function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [show, setShow] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    function check() {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -40,7 +50,7 @@ export default function PwaInstallPrompt() {
     localStorage.setItem("pwa-dismissed", "true")
   }
 
-  if (!show || dismissed) return null
+  if (!show || dismissed || !isMobile) return null
 
   return (
     <AnimatePresence>
