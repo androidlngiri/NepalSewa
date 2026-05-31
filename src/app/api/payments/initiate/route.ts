@@ -73,6 +73,24 @@ export async function POST(req: Request) {
 
     const formFields = getEpayFormFields(numericAmount, transactionUuid, merchantCode)
 
+    const taskerAssignment = await prisma.taskerAssignment.findFirst({
+      where: { requestId: request.id, tasker: { isActive: true } },
+      orderBy: { createdAt: "desc" },
+      include: { tasker: { select: { id: true, tier: true, proExpiresAt: true } } },
+    })
+
+    let commission: number | null = null
+    let commissionRate: number | null = null
+    if (taskerAssignment) {
+      commissionRate =
+        taskerAssignment.tasker.tier === "PRO" &&
+        taskerAssignment.tasker.proExpiresAt &&
+        new Date(taskerAssignment.tasker.proExpiresAt) > new Date()
+          ? 0.03
+          : 0.05
+      commission = Math.round(numericAmount * commissionRate * 100) / 100
+    }
+
     await prisma.transaction.create({
       data: {
         userId: session.user.id,
@@ -83,6 +101,9 @@ export async function POST(req: Request) {
         transactionUuid,
         productCode: merchantCode,
         description: `Payment for request: ${request.title}`,
+        commission,
+        commissionRate,
+        taskerId: taskerAssignment?.tasker.id || null,
       },
     })
 
