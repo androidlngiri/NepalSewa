@@ -24,9 +24,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cleanSlug = slug.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")
   const category = await prisma.category.findFirst({ where: { slug: cleanSlug } })
   if (!category) return { title: "Service Not Found - NepalSewa" }
+  const title = `${category.name} Services - NepalSewa Butwal`
+  const description = category.description || `Find trusted ${category.name.toLowerCase()} service providers in Butwal, Nepal.`
   return {
-    title: `${category.name} Services - NepalSewa Butwal`,
-    description: category.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: `/og?title=${encodeURIComponent(category.name + " Services")}&description=${encodeURIComponent(description)}&type=Service`,
+          width: 1200,
+          height: 630,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`/og?title=${encodeURIComponent(category.name + " Services")}&description=${encodeURIComponent(description)}&type=Service`],
+    },
   }
 }
 

@@ -46,12 +46,21 @@ export const metadata: Metadata = {
     description:
       "Find trusted professionals in Butwal, Nepal for all your service needs. Book verified taskers instantly.",
     url: "https://nepalsewa.com.np",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "NepalSewa - Butwal's Trusted Service Marketplace",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "NepalSewa - Butwal's Trusted Service Marketplace",
     description:
       "Find trusted professionals in Butwal, Nepal for all your service needs.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
