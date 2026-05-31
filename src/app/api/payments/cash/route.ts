@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sendPaymentConfirmation } from "@/lib/email"
+import { createNotification } from "@/lib/notification"
 
 export async function POST(req: Request) {
   try {
@@ -99,6 +100,16 @@ export async function POST(req: Request) {
         serviceName: request.service.name,
         amount,
       }).catch(() => {})
+    }
+
+    if (taskerAssignment?.tasker.id) {
+      await createNotification({
+        userId: taskerAssignment.tasker.id,
+        type: "payment_received",
+        title: "Payment Received",
+        message: `Cash payment of रू ${amount.toLocaleString()} confirmed for "${request.title}"`,
+        link: `/dashboard/tasker/earnings`,
+      })
     }
 
     return NextResponse.json({ success: true })

@@ -17,10 +17,12 @@ import {
   Briefcase,
   IndianRupee,
   Percent,
+  Bell,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { NotificationBell } from "@/components/notifications/NotificationBell"
 import { useState } from "react"
 
 interface DashboardNavProps {
@@ -34,6 +36,7 @@ const userNav = [
   { href: "/dashboard/user", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/user/requests", label: "My Requests", icon: ClipboardList },
   { href: "/dashboard/user/bids", label: "Bids Received", icon: MessageSquare },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/user/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/user/settings", label: "Settings", icon: Settings },
 ]
@@ -42,6 +45,7 @@ const taskerNav = [
   { href: "/dashboard/tasker", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/tasker/jobs", label: "Available Jobs", icon: ClipboardList },
   { href: "/dashboard/tasker/my-bids", label: "My Bids", icon: MessageSquare },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
   { href: "/dashboard/tasker/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
@@ -52,6 +56,7 @@ const adminNav = [
   { href: "/dashboard/admin/users", label: "Users", icon: User },
   { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
   { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
   { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
@@ -171,7 +176,8 @@ export function DashboardNav({ role, userName, userImage, isTasker }: DashboardN
 
         {/* User section */}
         <div className="border-t p-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <NotificationBell />
             <Avatar className="h-9 w-9">
               {userImage ? (
                 <img src={userImage} alt={userName} />

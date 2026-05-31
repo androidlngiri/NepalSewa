@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sendBidNotification } from "@/lib/email"
+import { createNotification } from "@/lib/notification"
 
 export async function GET(req: Request) {
   try {
@@ -142,6 +143,14 @@ export async function POST(req: Request) {
         requestId,
       }).catch(() => {})
     }
+
+    await createNotification({
+      userId: request.userId,
+      type: "new_bid",
+      title: "New Bid Received",
+      message: `${session.user.name || "A tasker"} placed a bid of रू ${parseFloat(amount).toLocaleString()} on your request`,
+      link: `/dashboard/user/bids?requestId=${requestId}`,
+    })
 
     return NextResponse.json(bid, { status: 201 })
   } catch (error) {

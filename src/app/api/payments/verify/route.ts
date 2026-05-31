@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { checkEpayTransactionStatus, getConfig } from "@/lib/esewa"
+import { createNotification } from "@/lib/notification"
 
 export async function POST(req: Request) {
   try {
@@ -48,6 +49,16 @@ export async function POST(req: Request) {
         await prisma.request.update({
           where: { id: transaction.requestId },
           data: { status: "COMPLETED" },
+        })
+      }
+
+      if (transaction.taskerId) {
+        await createNotification({
+          userId: transaction.taskerId,
+          type: "payment_received",
+          title: "eSewa Payment Received",
+          message: `Payment of रू ${transaction.amount.toLocaleString()} confirmed for your job`,
+          link: `/dashboard/tasker/earnings`,
         })
       }
 

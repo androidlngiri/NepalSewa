@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { Metadata } from "next"
 
@@ -61,6 +60,10 @@ export default async function ServiceCategoryPage({ params }: Props) {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{category.name} Services</h1>
             <p className="text-muted-foreground mt-1">{category.description}</p>
+            <p className="text-xs text-emerald-600 mt-2 flex items-center gap-1">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Post a request and let taskers bid their best price — you choose.
+            </p>
           </div>
         </div>
 
@@ -69,23 +72,28 @@ export default async function ServiceCategoryPage({ params }: Props) {
             <p className="text-muted-foreground col-span-full text-center py-12">No services available yet.</p>
           )}
           {services.map((service) => (
-            <Card key={service.id} className="group border-2 border-transparent hover:border-emerald-200 hover:shadow-lg transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold">{service.name}</h3>
-                  <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">NPR {service.price}</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">{service.priceUnit}</span>
-                  <Link href={`/dashboard/user/requests/new?service=${service.id}`}>
-                    <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
-                      Book Now
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+              <Card key={service.id} className="group border-2 border-transparent hover:border-emerald-200 hover:shadow-lg transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-lg font-semibold">{service.name}</h3>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                      {service.priceUnit}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Expected range: NPR {service.price} — taskers bid their own price
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">Bidding opens</span>
+                    <Link href={`/dashboard/user/requests/new?service=${service.id}`}>
+                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl">
+                        Post a Request &amp; Get Bids
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
           ))}
         </div>
       </div>

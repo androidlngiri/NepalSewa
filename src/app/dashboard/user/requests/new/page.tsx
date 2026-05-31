@@ -169,7 +169,7 @@ function NewRequestForm() {
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Post a New Request</h1>
           <p className="text-muted-foreground">
-            Describe what you need and taskers will send you bids.
+            Describe what you need, set a suggested budget, and let taskers compete with their best price.
           </p>
         </div>
 
@@ -282,7 +282,7 @@ function NewRequestForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="budget">Budget (NPR)</Label>
+                  <Label htmlFor="budget">Your Budget (NPR) — Optional</Label>
                   <Input
                     id="budget"
                     type="number"
@@ -291,6 +291,9 @@ function NewRequestForm() {
                     value={form.budget}
                     onChange={(e) => setForm({ ...form, budget: e.target.value })}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    This is just a suggestion — taskers will bid their own price.
+                  </p>
                 </div>
               </div>
 
@@ -387,7 +390,7 @@ function NewRequestForm() {
 
               <Button
                 type="submit"
-                className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+                className="w-full h-11 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 text-base font-semibold"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -395,7 +398,7 @@ function NewRequestForm() {
                 ) : (
                   <Send className="mr-2 h-4 w-4" />
                 )}
-                Post Request
+                Post &amp; Get Bids
               </Button>
             </form>
           </CardContent>

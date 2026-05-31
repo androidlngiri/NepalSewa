@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { createNotification } from "@/lib/notification"
 
 export async function POST(req: Request) {
   try {
@@ -114,6 +115,14 @@ export async function POST(req: Request) {
     await prisma.user.update({
       where: { id: revieweeId },
       data: { rating: aggregation._avg.rating },
+    })
+
+    await createNotification({
+      userId: revieweeId,
+      type: "new_review",
+      title: "New Review Received",
+      message: `${session.user.name || "Someone"} gave you ${rating} star${rating !== 1 ? "s" : ""}${comment ? `: "${comment.substring(0, 100)}"` : ""}`,
+      link: `/dashboard/reviews`,
     })
 
     return NextResponse.json(

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sendBidAcceptedNotification } from "@/lib/email"
+import { createNotification } from "@/lib/notification"
 
 export async function POST(
   _req: Request,
@@ -108,6 +109,14 @@ export async function POST(
         requestId: bid.request.id,
       }).catch(() => {})
     }
+
+    await createNotification({
+      userId: bid.taskerId,
+      type: "bid_accepted",
+      title: "Bid Accepted!",
+      message: `Your bid of रू ${bid.amount.toLocaleString()} on "${bid.request.title}" has been accepted`,
+      link: `/dashboard/tasker/my-bids?requestId=${bid.request.id}`,
+    })
 
     return NextResponse.json(assignment, { status: 201 })
   } catch (error) {

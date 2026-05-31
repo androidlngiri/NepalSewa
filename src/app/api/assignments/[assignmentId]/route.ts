@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { sendCompletionAwaitingNotification, sendJobConfirmedNotification } from "@/lib/email"
+import { createNotification } from "@/lib/notification"
 
 export async function PATCH(
   req: Request,
@@ -99,6 +100,14 @@ export async function PATCH(
         }).catch(() => {})
       }
 
+      await createNotification({
+        userId: assignment.request.user.id,
+        type: "job_awaiting_confirmation",
+        title: "Job Marked Complete",
+        message: `${assignment.tasker.name || "Your tasker"} marked "${assignment.request.title}" as complete. Please confirm.`,
+        link: `/dashboard/user/requests`,
+      })
+
       return NextResponse.json({ status: "AWAITING_CONFIRMATION" })
     }
 
@@ -169,6 +178,14 @@ export async function PATCH(
           requestTitle: assignment.request.title,
         }).catch(() => {})
       }
+
+      await createNotification({
+        userId: assignment.tasker.id,
+        type: "job_completed",
+        title: "Job Completed",
+        message: `"${assignment.request.title}" has been confirmed as complete by ${assignment.request.user.name || "the customer"}`,
+        link: `/dashboard/tasker/my-bids`,
+      })
 
       return NextResponse.json(updated)
     }

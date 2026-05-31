@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User, Send,
-  CheckCircle2,
+  CheckCircle2, TrendingUp, Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -261,57 +261,111 @@ export default function TaskerJobDetailPage() {
             )}
 
             {job.status === "OPEN" && !job.myBid && (
-              <div className="border-t pt-4 space-y-3">
-                <h4 className="text-sm font-medium">Place a Bid</h4>
-                <div>
-                  <Label htmlFor="bidAmount">Your Price (NPR)</Label>
-                  <Input
-                    id="bidAmount"
-                    type="number"
-                    placeholder="e.g., 5000"
-                    className="h-11 mt-1"
-                    value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    min="1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="bidMessage">Message (optional)</Label>
-                  <Textarea
-                    id="bidMessage"
-                    placeholder="Describe your experience or approach..."
-                    rows={2}
-                    className="mt-1"
-                    value={bidMessage}
-                    onChange={(e) => setBidMessage(e.target.value)}
-                  />
-                </div>
-                <Button
-                  onClick={handleBid}
-                  disabled={bidding}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-                >
-                  {bidding ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="mr-2 h-4 w-4" />
+              <div className="border-t pt-4">
+                <div className="rounded-xl border-2 border-emerald-100 bg-gradient-to-b from-emerald-50/50 to-white p-5 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100">
+                      <Zap className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-base">Place Your Bid</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Win this job by offering your best price
+                      </p>
+                    </div>
+                  </div>
+
+                  {job.budget && (
+                    <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-3 text-sm">
+                      <span className="text-emerald-700">Suggested budget</span>
+                      <span className="font-bold text-emerald-700">
+                        {formatPrice(job.budget)}
+                      </span>
+                    </div>
                   )}
-                  Submit Bid
-                </Button>
+
+                  <div>
+                    <Label htmlFor="bidAmount" className="text-sm font-medium">Your Price (NPR) *</Label>
+                    <Input
+                      id="bidAmount"
+                      type="number"
+                      placeholder="e.g., 5000"
+                      className="h-12 mt-1.5 text-base"
+                      value={bidAmount}
+                      onChange={(e) => setBidAmount(e.target.value)}
+                      min="1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="bidMessage" className="text-sm font-medium">Why you? (optional)</Label>
+                    <Textarea
+                      id="bidMessage"
+                      placeholder="Briefly describe your experience or approach..."
+                      rows={2}
+                      className="mt-1.5"
+                      value={bidMessage}
+                      onChange={(e) => setBidMessage(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    onClick={handleBid}
+                    disabled={bidding}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-12 text-base font-semibold"
+                  >
+                    {bidding ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="mr-2 h-4 w-4" />
+                    )}
+                    Submit Bid
+                  </Button>
+                  <p className="text-center text-xs text-muted-foreground">
+                    <TrendingUp className="inline h-3 w-3 mr-1" />
+                    Lower prices and faster responses win more jobs
+                  </p>
+                </div>
               </div>
             )}
 
             {job.myBid && !assignment && (
               <div className="border-t pt-4">
-                <Badge variant="outline" className={
+                <div className={`rounded-xl p-4 border ${
                   job.myBid.status === "PENDING"
-                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                    ? "bg-amber-50 border-amber-200"
                     : job.myBid.status === "ACCEPTED"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-red-50 text-red-700 border-red-200"
-                }>
-                  Your bid: {formatPrice(job.myBid.amount)} — {job.myBid.status}
-                </Badge>
+                    ? "bg-emerald-50 border-emerald-200"
+                    : "bg-red-50 border-red-200"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className={`text-sm font-medium ${
+                        job.myBid.status === "PENDING" ? "text-amber-800"
+                        : job.myBid.status === "ACCEPTED" ? "text-emerald-800"
+                        : "text-red-800"
+                      }`}>
+                        Your Bid: {formatPrice(job.myBid.amount)}
+                      </p>
+                      <p className={`text-xs ${
+                        job.myBid.status === "PENDING" ? "text-amber-600"
+                        : job.myBid.status === "ACCEPTED" ? "text-emerald-600"
+                        : "text-red-600"
+                      }`}>
+                        {job.myBid.status === "PENDING"
+                          ? "Waiting for customer to accept"
+                          : job.myBid.status === "ACCEPTED"
+                          ? "Accepted! Start working"
+                          : "Not selected"}
+                      </p>
+                    </div>
+                    <span className={`text-lg font-bold ${
+                      job.myBid.status === "PENDING" ? "text-amber-600"
+                      : job.myBid.status === "ACCEPTED" ? "text-emerald-600"
+                      : "text-red-600"
+                    }`}>
+                      {formatPrice(job.myBid.amount)}
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
           </CardContent>

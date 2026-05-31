@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { createNotification } from "@/lib/notification"
 
 export async function GET(req: Request) {
   try {
@@ -114,6 +115,14 @@ export async function POST(req: Request) {
           select: { id: true, name: true, image: true },
         },
       },
+    })
+
+    await createNotification({
+      userId: receiverId,
+      type: "new_message",
+      title: "New Message",
+      message: `${session.user.name || "Someone"} sent you a message`,
+      link: `/dashboard/chat/${requestId}`,
     })
 
     return NextResponse.json(message, { status: 201 })

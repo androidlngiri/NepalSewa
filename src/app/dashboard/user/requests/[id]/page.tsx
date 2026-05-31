@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
   Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User,
-  CheckCircle2, Wallet, ThumbsUp, Star,
+  CheckCircle2, Wallet, ThumbsUp, Star, TrendingUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EsewaPayButton } from "@/components/payments/eSewaPayButton"
@@ -462,43 +462,85 @@ export default function UserRequestDetailPage() {
         {request.status === "OPEN" && (
           <Card>
             <CardHeader>
-              <CardTitle>Bids ({pendingBids.length})</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  Bids ({pendingBids.length})
+                </CardTitle>
+                {pendingBids.length > 0 && (
+                  <span className="text-xs text-muted-foreground">
+                    Sorted by price
+                  </span>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {pendingBids.length === 0 ? (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  No bids yet. Check back soon.
+                <div className="text-center py-8">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
+                    <Clock className="h-6 w-6 text-amber-500" />
+                  </div>
+                  <h3 className="text-sm font-medium mb-1">Waiting for bids</h3>
+                  <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                    Taskers are reviewing your request. You&apos;ll be notified when a bid comes in.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {pendingBids.map((bid) => (
+                  {[...pendingBids]
+                    .sort((a, b) => a.amount - b.amount)
+                    .map((bid, index) => (
                     <div
                       key={bid.id}
-                      className="rounded-xl border p-4"
+                      className={`relative rounded-xl border-2 p-4 transition-all hover:shadow-md ${
+                        index === 0 ? "border-emerald-300 bg-emerald-50/30" : "hover:border-emerald-100"
+                      }`}
                     >
+                      {index === 0 && pendingBids.length > 1 && (
+                        <div className="absolute -top-2.5 right-4">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                            <TrendingUp className="h-3 w-3" />
+                            Best Price
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-start justify-between gap-4">
-                        <div>
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <p className="font-medium">{bid.tasker?.name || "Unknown Tasker"}</p>
-                            {bid.tasker.rating && (
-                              <span className="text-sm text-amber-500">
-                                ★ {bid.tasker.rating.toFixed(1)}
-                              </span>
-                            )}
+                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-sm font-medium text-emerald-700">
+                              {bid.tasker?.name?.charAt(0)?.toUpperCase() || "?"}
+                            </div>
+                            <div>
+                              <p className="font-medium">{bid.tasker?.name || "Unknown Tasker"}</p>
+                              {bid.tasker.rating && (
+                                <span className="flex items-center gap-1 text-xs text-amber-500">
+                                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                                  {bid.tasker.rating.toFixed(1)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {bid.message && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {bid.message}
+                            <p className="text-sm text-muted-foreground mt-2 ml-10 line-clamp-2">
+                              &ldquo;{bid.message}&rdquo;
                             </p>
                           )}
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className="text-lg font-bold text-emerald-600">
-                            {formatPrice(bid.amount)}
-                          </span>
+                        <div className="flex flex-col items-end gap-2 shrink-0">
+                          <div className="text-right">
+                            <span className={`text-xl font-bold ${
+                              index === 0 ? "text-emerald-600" : "text-gray-700"
+                            }`}>
+                              {formatPrice(bid.amount)}
+                            </span>
+                            {index === 0 && pendingBids.length > 1 && (
+                              <p className="text-[10px] text-emerald-500 font-medium">
+                                Lowest bid
+                              </p>
+                            )}
+                          </div>
                           <Button
                             size="sm"
-                            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                            className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 px-5"
                             onClick={() => handleAcceptBid(bid.id)}
                           >
                             <CheckCircle2 className="mr-1 h-4 w-4" />

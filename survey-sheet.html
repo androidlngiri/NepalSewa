@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+<meta charset="UTF-8">
+<title>NepalSewa — ग्राहक सर्वेक्षण</title>
+<style>
+  @page { margin: 15mm; size: A4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.5; color: #222; padding: 20px; }
+  h1 { font-size: 22px; margin-bottom: 4px; color: #059669; }
+  h2 { font-size: 16px; margin: 20px 0 10px; border-bottom: 2px solid #059669; padding-bottom: 4px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 16px; }
+  .page { max-width: 700px; margin: 0 auto; }
+  .section { margin-bottom: 24px; padding: 16px; background: #f9f9f9; border-radius: 8px; border: 1px solid #ddd; }
+  .q { margin-bottom: 14px; }
+  .q-title { font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+  .q-title .en { font-weight: 400; color: #888; font-size: 12px; }
+  .opts { padding-left: 12px; }
+  .opts label { display: block; margin: 3px 0; cursor: pointer; }
+  .opts input { margin-right: 8px; }
+  .info { margin-top: 6px; padding: 6px 10px; background: #fff; border: 1px dashed #ccc; border-radius: 4px; font-size: 13px; }
+  .info label { display: block; }
+  .info textarea, .info input[type="text"] { width: 100%; border: none; border-bottom: 1px solid #ccc; padding: 2px 0; font-size: 13px; outline: none; background: transparent; }
+  hr { margin: 16px 0; border: none; border-top: 1px dashed #ccc; }
+  .footer { text-align: center; font-size: 11px; color: #999; margin-top: 20px; }
+  @media print {
+    body { padding: 0; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>📋 ग्राहक सर्वेक्षण — Customer Survey</h1>
+<p class="sub">NepalSewa (नेपालसेवा) — स्थानीय सेवा खोजी प्लेटफर्म<br><small>कृपया २ मिनेट दिनुहोस् / Please take 2 minutes</small></p>
+
+<!-- CUSTOMER -->
+<h2>१. ग्राहकको लागि — For Customers</h2>
+<div class="section">
+
+<div class="q">
+  <div class="q-title">१. जब तपाईंलाई प्लम्बर / इलेक्ट्रिसियन / सफाइकर्मी चाहिन्छ, तपाईं कुन प्रणाली मन पराउनुहुन्छ?<br><span class="en">When you need a plumber/electrician/cleaner, which system do you prefer?</span></div>
+  <div class="opts">
+    <label><input type="radio" name="c1"> (क) Fix price देखेर तुरुन्तै भर्नुहोस् → See a fixed price and hire instantly</label>
+    <label><input type="radio" name="c1"> (ख) आफ्नो आवश्यकता पोस्ट गर्नुहोस् र धेरैले quote गर्न दिनुहोस् → Post your need and get multiple quotes</label>
+    <label><input type="radio" name="c1"> (ग) दुवै ठिक छ → Either is fine</label>
+  </div>
+</div>
+
+<div class="q">
+  <div class="q-title">२. एउटै कामको लागि तीनवटा quote आए — रू ५००, रू ७००, रू ९०० — कुन छान्नुहुन्छ?<br><span class="en">You get 3 quotes for the same job — Rs 500, Rs 700, Rs 900 — which do you pick?</span></div>
+  <div class="opts">
+    <label><input type="radio" name="c2"> (क) सबैभन्दा सस्तो → Cheapest (रू ५००)</label>
+    <label><input type="radio" name="c2"> (ख) बीचको मूल्य (भरपर्दो हुन्छ) → Middle one (trust it's fair, रू ७००)</label>
+    <label><input type="radio" name="c2"> (ग) महँगो (गुणस्तर राम्रो हुन्छ) → Most expensive (must be best, रू ९००)</label>
+  </div>
+</div>
+
+<div class="q">
+  <div class="q-title">३. के तपाईं रू २०-५० सानो बुकिङ शुल्क तिरेर Fix Price मा तुरुन्त सेवा लिन चाहनुहुन्छ?<br><span class="en">Would you pay a small booking fee (Rs 20-50) to get a fixed upfront price?</span></div>
+  <div class="opts">
+    <label><input type="radio" name="c3"> हो → Yes</label>
+    <label><input type="radio" name="c3"> होइन → No</label>
+  </div>
+</div>
+
+<div class="info">
+  <label>तपाईंको Ward No / क्षेत्र: <input type="text" style="width:80px"></label>
+  <label>थप सुझाव / Other feedback: <textarea rows="1" style="margin-top:2px"></textarea></label>
+</div>
+</div>
+
+<hr>
+
+<!-- TASKER -->
+<h2>२. सेवा प्रदायकको लागि — For Taskers</h2>
+<div class="section">
+
+<div class="q">
+  <div class="q-title">१. तपाईं कुन प्रणाली मन पराउनुहुन्छ?<br><span class="en">Which system do you prefer?</span></div>
+  <div class="opts">
+    <label><input type="radio" name="t1"> (क) आफ्नै Fix Price सेट गर्ने (जस्तै Plumbing = रू ६००) र सिधै बुकिङ पाउने → Set your own fixed price and get booked directly</label>
+    <label><input type="radio" name="t1"> (ख) प्रत्येक काममा बिड गर्ने र प्रतिस्पर्धा गर्ने → Bid on each job and compete</label>
+    <label><input type="radio" name="t1"> (ग) दुवै विकल्प उपलब्ध → Both options available</label>
+  </div>
+</div>
+
+<div class="q">
+  <div class="q-title">२. तपाईंले एक काम पाउन सामान्यतः कतिवटा बिड पठाउनुहुन्छ?<br><span class="en">How many bids do you usually send to win one job?</span></div>
+  <div class="info">
+    <label>जवाफ / Answer: <input type="text" style="width:60px"> bids</label>
+  </div>
+</div>
+
+<div class="q">
+  <div class="q-title">३. के तपाईं ३-५% कमिसन तिरेर पूर्व-भुक्तानी भएको, मोलमोलाइ नभएको जब पाउन चाहनुहुन्छ?<br><span class="en">Would you pay 3-5% commission for instant, pre-paid jobs without haggling?</span></div>
+  <div class="opts">
+    <label><input type="radio" name="t3"> हो → Yes</label>
+    <label><input type="radio" name="t3"> होइन → No</label>
+  </div>
+</div>
+
+<div class="info">
+  <label>तपाईंको सेवा / Your service: <input type="text" style="width:200px"></label>
+  <label>थप सुझाव / Other feedback: <textarea rows="1" style="margin-top:2px"></textarea></label>
+</div>
+</div>
+
+<div class="footer">
+  धन्यवाद! — nepal-sewa.vercel.app — Thank you!
+</div>
+
+</div>
+</body>
+</html>
