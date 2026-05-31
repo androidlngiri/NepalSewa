@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Wrench, Zap, PaintBucket, Home, Truck, Code, Sparkles,
   Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Star, Clock,
-  Phone, Smartphone,
+  Phone, Smartphone, MapPin, Gavel,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -229,9 +229,9 @@ function SignInForm() {
           transition={{ delay: 0.1 }}
           className="flex justify-center gap-4 mb-6 text-xs text-emerald-200/80"
         >
-          <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified</span>
-          <span className="flex items-center gap-1"><Star className="h-3 w-3" /> 4.8 avg</span>
-          <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 30min response</span>
+          <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified taskers</span>
+          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Local to Butwal</span>
+          <span className="flex items-center gap-1"><Gavel className="h-3 w-3" /> You pick the price</span>
         </motion.div>
 
         <motion.div
@@ -240,14 +240,7 @@ function SignInForm() {
           transition={{ delay: 0.15 }}
           className="text-center"
         >
-          <p className="text-3xl font-bold text-white">
-            <span className="text-emerald-400">5,000+</span>{" "}
-            <span className="text-white/80">tasks completed</span>
-          </p>
-          <p className="text-sm text-emerald-200/70 mt-2">
-            Join Butwal&apos;s trusted service marketplace
-          </p>
-          <p className="text-emerald-200/30 text-sm mt-8 max-w-xs mx-auto leading-relaxed">
+          <p className="text-emerald-200/30 text-sm max-w-xs mx-auto leading-relaxed">
             Post a task, get quotes from local taskers, pick the best one. Pay only when you&apos;re satisfied.
           </p>
         </motion.div>
@@ -278,26 +271,9 @@ function SignInForm() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="flex justify-center gap-4 mb-4 text-xs text-emerald-200/80"
+              className="text-center mb-4 text-xs text-emerald-200/70"
             >
-              <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified</span>
-              <span className="flex items-center gap-1"><Star className="h-3 w-3" /> 4.8 avg</span>
-              <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> 30min response</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-center mb-4"
-            >
-              <p className="text-xl font-bold text-white">
-                <span className="text-emerald-400">5,000+</span>{" "}
-                <span className="text-white/80">tasks completed</span>
-              </p>
-              <p className="text-xs text-emerald-200/70 mt-0.5">
-                Join Butwal&apos;s trusted service marketplace
-              </p>
+              Post a task, get quotes from local taskers, pick the best one.
             </motion.div>
           </div>
 

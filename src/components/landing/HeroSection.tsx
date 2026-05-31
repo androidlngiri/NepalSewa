@@ -153,25 +153,27 @@ export function HeroSection() {
           >
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-600">
-                {stats ? `${stats.users}+` : "500+"}
+                {stats ? `${stats.users}` : "—"}
               </div>
-              <div className="text-sm text-muted-foreground">Happy Customers</div>
+              <div className="text-sm text-muted-foreground">Registered Users</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-600">
-                {stats ? `${stats.taskers}+` : "50+"}
+                {stats ? `${stats.taskers}` : "—"}
               </div>
-              <div className="text-sm text-muted-foreground">Expert Taskers</div>
+              <div className="text-sm text-muted-foreground">Active Taskers</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-emerald-600">
-                {stats?.satisfactionRate ? `${stats.satisfactionRate}%` : "98%"}
+                {stats?.completedJobs ? `${stats.completedJobs}` : "—"}
+              </div>
+              <div className="text-sm text-muted-foreground">Jobs Completed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-emerald-600">
+                {stats?.satisfactionRate ? `${stats.satisfactionRate}%` : "—"}
               </div>
               <div className="text-sm text-muted-foreground">Satisfaction Rate</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">30min</div>
-              <div className="text-sm text-muted-foreground">Avg Response Time</div>
             </div>
           </motion.div>
         </div>

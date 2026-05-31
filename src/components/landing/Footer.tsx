@@ -19,16 +19,14 @@ const footerLinks = {
     { href: "/contact", label: "Contact" },
   ],
   support: [
-    { href: "/", label: "FAQ" },
+    { href: "/contact", label: "Contact Us" },
     { href: "/privacy", label: "Privacy Policy" },
     { href: "/terms", label: "Terms of Service" },
-    { href: "/terms", label: "Safety Guidelines" },
   ],
   tasker: [
     { href: "/auth/signup?role=tasker", label: "Become a Tasker" },
-    { href: "/how-it-works", label: "Tasker Guide" },
+    { href: "/how-it-works", label: "How It Works" },
     { href: "/dashboard/tasker/earnings", label: "Earnings" },
-    { href: "/about", label: "Success Stories" },
   ],
 }
 
@@ -149,7 +147,7 @@ export function Footer() {
             </div>
             <div className="flex items-center gap-1.5">
               <Phone className="h-4 w-4 text-emerald-500" />
-              +977-98XXXXXXXX
+              +977-71XXXXXX
             </div>
             <div className="flex items-center gap-1.5">
               <Mail className="h-4 w-4 text-emerald-500" />

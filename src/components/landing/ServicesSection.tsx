@@ -28,7 +28,6 @@ const services = [
     description: "Pipe repair, faucet installation, water tank cleaning",
     color: "from-blue-500 to-cyan-600",
     bgColor: "bg-blue-50",
-    count: "24 taskers",
     popular: true,
   },
   {
@@ -38,7 +37,6 @@ const services = [
     description: "Wiring, switchboard repair, fan installation",
     color: "from-amber-500 to-orange-600",
     bgColor: "bg-amber-50",
-    count: "18 taskers",
     popular: true,
   },
   {
@@ -48,7 +46,6 @@ const services = [
     description: "Interior/exterior painting, texture finishes",
     color: "from-rose-500 to-pink-600",
     bgColor: "bg-rose-50",
-    count: "15 taskers",
     popular: false,
   },
   {
@@ -58,7 +55,6 @@ const services = [
     description: "Deep cleaning, office cleaning, carpet wash",
     color: "from-emerald-500 to-green-600",
     bgColor: "bg-emerald-50",
-    count: "20 taskers",
     popular: true,
   },
   {
@@ -68,7 +64,6 @@ const services = [
     description: "House shifting, parcel delivery, cargo transport",
     color: "from-violet-500 to-purple-600",
     bgColor: "bg-violet-50",
-    count: "12 taskers",
     popular: false,
   },
   {
@@ -78,7 +73,6 @@ const services = [
     description: "Computer repair, web design, IT solutions",
     color: "from-indigo-500 to-blue-600",
     bgColor: "bg-indigo-50",
-    count: "10 taskers",
     popular: false,
   },
   {
@@ -88,7 +82,6 @@ const services = [
     description: "Home tutoring, exam prep, skill classes",
     color: "from-teal-500 to-emerald-600",
     bgColor: "bg-teal-50",
-    count: "22 taskers",
     popular: false,
   },
   {
@@ -98,7 +91,6 @@ const services = [
     description: "Haircut, massage, beauty services at home",
     color: "from-pink-500 to-rose-600",
     bgColor: "bg-pink-50",
-    count: "16 taskers",
     popular: true,
   },
 ]
@@ -147,10 +139,7 @@ export function ServicesSection() {
                   <p className="mb-4 text-sm text-muted-foreground">
                     {service.description}
                   </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-emerald-600 font-medium">
-                      {service.count}
-                    </span>
+                  <div className="flex items-center justify-end text-sm">
                     <span className="text-muted-foreground group-hover:text-emerald-600 transition-colors flex items-center gap-1">
                       Get quotes →
                     </span>

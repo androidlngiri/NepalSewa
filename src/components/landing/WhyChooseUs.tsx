@@ -22,7 +22,7 @@ const features = [
     icon: Clock,
     title: "Same-Day Service",
     description:
-      "Need help urgently? Many taskers offer same-day service. Average response time is under 30 minutes.",
+      "Need help urgently? Many taskers offer same-day service. Most tasks get responses within hours of posting.",
     color: "text-blue-600",
     bgColor: "bg-blue-50",
   },

@@ -38,7 +38,7 @@ const faqs = [
   {
     question: "How quickly can I get a tasker?",
     answer:
-      "Most tasks receive bids within 30 minutes during business hours. Many taskers offer same-day or next-day service. Urgent requests can be tagged for faster response.",
+      "Response times vary depending on the task and time of day. Many tasks receive bids within a few hours, and some taskers offer same-day service. Urgent requests can be tagged for faster response.",
   },
   {
     question: "Do you offer services in Nepali language?",

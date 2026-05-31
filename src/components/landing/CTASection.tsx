@@ -15,7 +15,7 @@ export function CTASection() {
         <div className="flex flex-col items-center text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm">
             <Sparkles className="h-4 w-4" />
-            Join 5,000+ users in Butwal
+            Free to join — no hidden fees
           </div>
 
           <h2 className="max-w-3xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">

@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { DashboardNav } from "./DashboardNav"
@@ -41,6 +41,8 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     }
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <div className="flex min-h-screen">
       <Suspense fallback={null}>
@@ -49,9 +51,11 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
           userName={session.user.name || "User"}
           userImage={session.user.image}
           isTasker={session.user.isTasker}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
       </Suspense>
-      <main className="flex-1 overflow-y-auto bg-gray-50/50 pb-16 lg:pb-0">
+      <main className="flex-1 overflow-y-auto bg-gray-50/50 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <DashboardErrorBoundary>
             {children}
@@ -62,6 +66,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
         <DashboardBottomNav
           role={role}
           isTasker={session.user.isTasker}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
       </Suspense>
     </div>

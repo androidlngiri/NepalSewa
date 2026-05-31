@@ -23,13 +23,14 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
-import { useState } from "react"
 
 interface DashboardNavProps {
   role: "user" | "tasker" | "admin"
   userName: string
   userImage?: string | null
   isTasker?: boolean
+  sidebarOpen?: boolean
+  onToggleSidebar?: () => void
 }
 
 const userNav = [
@@ -62,9 +63,8 @@ const adminNav = [
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ]
 
-export function DashboardNav({ role, userName, userImage, isTasker }: DashboardNavProps) {
+export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen = false, onToggleSidebar }: DashboardNavProps) {
   const pathname = usePathname()
-  const [mobileOpen, setMobileOpen] = useState(false)
 
   const initials = userName
     ?.split(" ")
@@ -78,7 +78,7 @@ export function DashboardNav({ role, userName, userImage, isTasker }: DashboardN
     return (
       <Link
         href={href}
-        onClick={() => setMobileOpen(false)}
+        onClick={onToggleSidebar}
         className={cn(
           "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
           isActive
@@ -101,10 +101,10 @@ export function DashboardNav({ role, userName, userImage, isTasker }: DashboardN
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label={mobileOpen ? "Close sidebar" : "Open sidebar"}
+          onClick={onToggleSidebar}
+          aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
         >
-          {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600">
@@ -117,10 +117,10 @@ export function DashboardNav({ role, userName, userImage, isTasker }: DashboardN
       </div>
 
       {/* Mobile overlay */}
-      {mobileOpen && (
+      {sidebarOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={() => setMobileOpen(false)}
+          onClick={onToggleSidebar}
         />
       )}
 
@@ -128,7 +128,7 @@ export function DashboardNav({ role, userName, userImage, isTasker }: DashboardN
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-background transition-transform duration-200 lg:static lg:translate-x-0",
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
         {/* Logo */}

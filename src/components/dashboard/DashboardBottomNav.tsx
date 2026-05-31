@@ -12,7 +12,7 @@ import {
   User,
   Percent,
   Plus,
-  Briefcase,
+  Menu,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -46,7 +46,7 @@ const adminNav: BottomNavItem[] = [
   { href: "/dashboard/notifications", label: "Alerts", icon: Bell },
 ]
 
-export function DashboardBottomNav({ role, isTasker }: { role: string; isTasker?: boolean }) {
+export function DashboardBottomNav({ role, isTasker, onToggleSidebar }: { role: string; isTasker?: boolean; onToggleSidebar?: () => void }) {
   const pathname = usePathname()
 
   const navItems: BottomNavItem[] =
@@ -79,6 +79,15 @@ export function DashboardBottomNav({ role, isTasker }: { role: string; isTasker?
             </Link>
           )
         })}
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition-colors min-w-0 text-muted-foreground hover:text-foreground"
+          aria-label="Open menu"
+        >
+          <Menu className="h-5 w-5" />
+          <span className="text-[10px] font-medium leading-tight truncate max-w-full">Menu</span>
+        </button>
       </div>
     </nav>
   )
