@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import {
-  Search,
   Shield,
   Star,
   Zap,
@@ -18,11 +16,8 @@ import {
   Code,
   Gavel,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
 export function HeroSection() {
-  const router = useRouter()
   const [stats, setStats] = useState<{
     users: number
     taskers: number
@@ -72,30 +67,24 @@ export function HeroSection() {
             Post what you need, get multiple quotes from local taskers, and pick the best one.
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-2xl"
-          >
-            <Button
-              onClick={() => router.push("/auth/signup?role=user")}
-              size="lg"
-              className="flex-1 w-full h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base"
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-2xl">
+            <button
+              type="button"
+              onClick={() => { window.location.href = "/auth/signup?role=user"; }}
+              className="flex-1 cursor-pointer select-auto inline-flex items-center justify-center h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-8 shadow-lg hover:from-emerald-600 hover:to-teal-700 transition-all text-base font-medium gap-2"
             >
-              <Gavel className="mr-2 h-5 w-5" />
+              <Gavel className="h-5 w-5" />
               Post a Request & Get Quotes
-            </Button>
-            <Button
-              onClick={() => router.push("/services")}
-              size="lg"
-              variant="outline"
-              className="sm:flex-1 w-full h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base"
+            </button>
+            <button
+              type="button"
+              onClick={() => { window.location.href = "/services"; }}
+              className="sm:flex-1 cursor-pointer select-auto inline-flex items-center justify-center h-14 rounded-2xl border-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50 px-8 text-base font-medium gap-2"
             >
               Browse Services
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </motion.div>
+              <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
