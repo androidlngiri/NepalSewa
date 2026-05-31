@@ -3,10 +3,21 @@
 import { useState, useRef, useEffect } from "react"
 import { MessageSquare, X, Send, Loader2, Bot, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import ReactMarkdown from "react-markdown"
 
 interface Message {
   role: "user" | "assistant"
   content: string
+}
+
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-0.5">
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40 [animation-delay:0ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40 [animation-delay:150ms]" />
+      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground/40 [animation-delay:300ms]" />
+    </span>
+  )
 }
 
 export function ChatBot() {
@@ -20,7 +31,7 @@ export function ChatBot() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  }, [messages, loading])
 
   async function sendMessage() {
     if (!input.trim() || loading) return
@@ -78,13 +89,17 @@ export function ChatBot() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm ${
+                  className={`max-w-[80%] rounded-2xl px-3.5 py-2 text-sm prose prose-sm dark:prose-invert ${
                     msg.role === "user"
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-emerald-600 text-white prose-strong:text-white prose-code:text-white"
                       : "bg-muted"
                   }`}
                 >
-                  {msg.content}
+                  {msg.role === "assistant" ? (
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
                 {msg.role === "user" && (
                   <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600">
@@ -98,8 +113,8 @@ export function ChatBot() {
                 <div className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100">
                   <Bot className="h-3.5 w-3.5 text-emerald-600" />
                 </div>
-                <div className="rounded-2xl bg-muted px-3.5 py-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <div className="max-w-[80%] rounded-2xl bg-muted px-3.5 py-3">
+                  <TypingDots />
                 </div>
               </div>
             )}

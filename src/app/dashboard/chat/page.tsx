@@ -44,6 +44,23 @@ export default function ChatPage() {
       .finally(() => setLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (!selectedId || !session?.user?.id) return
+    fetch("/api/messages/read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestId: selectedId }),
+    })
+      .then(() => {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.requestId === selectedId ? { ...c, unreadCount: 0 } : c
+          )
+        )
+      })
+      .catch(() => {})
+  }, [selectedId, session?.user?.id])
+
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center py-20">

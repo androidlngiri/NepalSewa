@@ -17,7 +17,8 @@ export async function GET() {
           m."requestId",
           m.content,
           m."createdAt",
-          m."senderId"
+          m."senderId",
+          m."receiverId"
         FROM messages m
         WHERE m."senderId" = ${userId} OR m."receiverId" = ${userId}
         ORDER BY m."requestId", m."createdAt" DESC
@@ -36,6 +37,7 @@ export async function GET() {
         l.content AS "lastContent",
         l."createdAt" AS "lastCreatedAt",
         l."senderId" AS "lastSenderId",
+        l."receiverId" AS "lastReceiverId",
         COALESCE(u.count, 0) AS "unreadCount"
       FROM latest l
       JOIN requests r ON r.id = l."requestId"
@@ -45,9 +47,7 @@ export async function GET() {
 
     const otherUserIds = new Set<string>()
     for (const c of conversations) {
-      const otherId = c.lastSenderId === userId
-        ? (c.requestOwnerId === userId ? null : c.requestOwnerId)
-        : c.lastSenderId
+      const otherId = c.lastSenderId === userId ? c.lastReceiverId : c.lastSenderId
       if (otherId && otherId !== userId) otherUserIds.add(otherId)
     }
 
@@ -58,12 +58,12 @@ export async function GET() {
     const userMap = new Map(users.map((u) => [u.id, u]))
 
     const result = conversations.map((c) => {
-      const otherId = c.lastSenderId === userId ? null : c.lastSenderId
+      const otherId = c.lastSenderId === userId ? c.lastReceiverId : c.lastSenderId
       return {
         requestId: c.requestId,
         requestTitle: c.requestTitle,
         requestStatus: c.requestStatus,
-        otherUser: otherId ? userMap.get(otherId) || null : null,
+        otherUser: otherId && otherId !== userId ? (userMap.get(otherId) || null) : null,
         lastMessage: {
           content: c.lastContent,
           createdAt: c.lastCreatedAt,

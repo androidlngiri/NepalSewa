@@ -12,6 +12,8 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const requestId = searchParams.get("requestId")
+    const take = Math.min(Number(searchParams.get("take")) || 50, 100)
+    const before = searchParams.get("before")
 
     if (!requestId) {
       return NextResponse.json({ error: "requestId is required" }, { status: 400 })
@@ -21,9 +23,7 @@ export async function GET(req: Request) {
       where: { id: requestId },
       select: {
         userId: true,
-        taskerAssignments: {
-          select: { taskerId: true },
-        },
+        taskerAssignments: { select: { taskerId: true } },
       },
     })
 
@@ -31,25 +31,37 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 })
     }
 
-    const isParticipant =
-      request.userId === session.user.id ||
-      request.taskerAssignments.some((a: any) => a.taskerId === session.user.id)
+    const bidderIds = (
+      await prisma.bid.findMany({
+        where: { requestId },
+        select: { taskerId: true },
+      })
+    ).map((b) => b.taskerId)
 
-    if (!isParticipant) {
+    const taskerIds = request.taskerAssignments.map((a: any) => a.taskerId)
+    const participantIds = new Set([request.userId, ...taskerIds, ...bidderIds])
+
+    if (!participantIds.has(session.user.id)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
+    const where: any = { requestId }
+    if (before) {
+      where.createdAt = { lt: new Date(before) }
+    }
+
     const messages = await prisma.message.findMany({
-      where: { requestId },
+      where,
       include: {
         sender: {
           select: { id: true, name: true, image: true },
         },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
+      take,
     })
 
-    return NextResponse.json(messages)
+    return NextResponse.json(messages.reverse())
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch messages" },
@@ -66,7 +78,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { requestId, content } = body
+    const { requestId, content, receiverId: explicitReceiverId } = body
 
     if (!requestId || !content?.trim()) {
       return NextResponse.json(
@@ -79,9 +91,7 @@ export async function POST(req: Request) {
       where: { id: requestId },
       select: {
         userId: true,
-        taskerAssignments: {
-          select: { taskerId: true },
-        },
+        taskerAssignments: { select: { taskerId: true } },
       },
     })
 
@@ -89,15 +99,38 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 })
     }
 
-    const taskerIds = request.taskerAssignments.map((a: any) => a.taskerId)
-    const isCustomer = request.userId === session.user.id
-    const isTasker = taskerIds.includes(session.user.id)
+    const bidderIds = (
+      await prisma.bid.findMany({
+        where: { requestId, status: { in: ["PENDING", "ACCEPTED"] } },
+        select: { taskerId: true },
+      })
+    ).map((b) => b.taskerId)
 
-    if (!isCustomer && !isTasker) {
-      return NextResponse.json({ error: "Only request participants can send messages" }, { status: 403 })
+    const taskerIds = request.taskerAssignments.map((a: any) => a.taskerId)
+    const participantIds = new Set([request.userId, ...taskerIds, ...bidderIds])
+
+    if (!participantIds.has(session.user.id)) {
+      return NextResponse.json(
+        { error: "Only request participants can send messages" },
+        { status: 403 }
+      )
     }
 
-    const receiverId = isCustomer ? (taskerIds[0] || null) : request.userId
+    const isCustomer = request.userId === session.user.id
+    let receiverId = explicitReceiverId || null
+
+    if (!receiverId) {
+      if (isCustomer) {
+        const lastMsg = await prisma.message.findFirst({
+          where: { requestId, senderId: { not: session.user.id } },
+          orderBy: { createdAt: "desc" },
+          select: { senderId: true },
+        })
+        receiverId = lastMsg?.senderId || bidderIds[0] || taskerIds[0] || null
+      } else {
+        receiverId = request.userId
+      }
+    }
 
     if (!receiverId) {
       return NextResponse.json({ error: "No recipient available" }, { status: 400 })
