@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { Providers } from "@/components/providers"
 import PwaWrapper from "@/components/pwa/PwaWrapper"
 import { ChatBot } from "@/components/chat/ChatBot"
+import { FloatingSearch } from "@/components/search/FloatingSearch"
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
@@ -157,6 +158,7 @@ export default function RootLayout({
           </Providers>
         </TooltipProvider>
         <PwaWrapper />
+        <FloatingSearch />
         <ChatBot />
         <Toaster richColors position="top-center" />
         <Analytics />
