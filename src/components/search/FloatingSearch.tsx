@@ -154,7 +154,7 @@ export function FloatingSearch() {
                       {cat.services.map((svc) => (
                         <button
                           key={svc.id}
-                          onClick={() => goToService(svc.categorySlug)}
+                          onClick={() => goToService(cat.slug)}
                           className="hover:bg-muted/50 flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors"
                         >
                           <div className="min-w-0 flex-1">
