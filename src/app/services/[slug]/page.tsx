@@ -62,6 +62,50 @@ export default async function ServiceCategoryPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: `${category.name} Services in Butwal`,
+            description: category.description,
+            numberOfItems: services.length,
+            itemListElement: services.map((s, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              item: {
+                "@type": "Service",
+                name: s.name,
+                description: s.description,
+                provider: {
+                  "@type": "Organization",
+                  name: "NepalSewa",
+                  url: "https://nepal-sewa.vercel.app",
+                },
+                areaServed: {
+                  "@type": "City",
+                  name: "Butwal",
+                },
+                offers: {
+                  "@type": "Offer",
+                  price: s.price,
+                  priceCurrency: "NPR",
+                  availability: "https://schema.org/InStock",
+                },
+              },
+            })),
+            breadcrumb: {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://nepal-sewa.vercel.app" },
+                { "@type": "ListItem", position: 2, name: "Services", item: "https://nepal-sewa.vercel.app/services" },
+                { "@type": "ListItem", position: 3, name: category.name },
+              ],
+            },
+          }),
+        }}
+      />
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <Link
           href="/services"
