@@ -22,6 +22,7 @@ export default function UserSettingsPage() {
   const [isTasker, setIsTasker] = useState(false)
   const [form, setForm] = useState({
     name: "",
+    email: "",
     phone: "",
     address: "",
     bio: "",
@@ -36,6 +37,7 @@ export default function UserSettingsPage() {
           setIsTasker(user.isTasker || false)
           setForm({
             name: user.name || "",
+            email: user.email || "",
             phone: user.phone || "",
             address: user.address || "",
             bio: user.bio || "",
@@ -119,11 +121,12 @@ export default function UserSettingsPage() {
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
-                  value={session?.user?.email || ""}
-                  disabled
-                  className="bg-muted h-11"
+                  type="email"
+                  placeholder="your@email.com"
+                  className="h-11"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
-                <p className="text-muted-foreground text-xs">Email cannot be changed.</p>
               </div>
 
               <div className="space-y-2">

@@ -35,10 +35,7 @@ export async function GET() {
 
     return NextResponse.json(user)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 })
   }
 }
 
@@ -50,7 +47,7 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json()
-    const { name, phone, wardNo, address, bio, isTasker } = body
+    const { name, email, phone, wardNo, address, bio, isTasker } = body
 
     function sanitize(str: string | undefined): string | undefined {
       return str ? str.replace(/[<>&"']/g, "").trim() : undefined
@@ -60,6 +57,7 @@ export async function PATCH(req: Request) {
       where: { id: session.user.id },
       data: {
         ...(name !== undefined && { name: sanitize(name) }),
+        ...(email !== undefined && { email: email || null }),
         ...(phone !== undefined && { phone }),
         ...(wardNo !== undefined && { wardNo: wardNo ? parseInt(wardNo) : null }),
         ...(address !== undefined && { address }),
@@ -81,9 +79,6 @@ export async function PATCH(req: Request) {
 
     return NextResponse.json(user)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to update user" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
   }
 }
