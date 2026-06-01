@@ -4,8 +4,17 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User, Send,
-  CheckCircle2, TrendingUp, Zap,
+  Loader2,
+  ArrowLeft,
+  MapPin,
+  IndianRupee,
+  Clock,
+  AlertCircle,
+  User,
+  Send,
+  CheckCircle2,
+  TrendingUp,
+  Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,11 +34,10 @@ interface JobDetail {
   status: string
   budget: number | null
   urgency: string | null
-  wardNo: number | null
   location: string | null
   createdAt: string
   service: { id: string; name: string; slug: string }
-  user: { id: string; name: string; image: string | null; wardNo: number | null }
+  user: { id: string; name: string; image: string | null }
   myBid?: { id: string; amount: number; status: string }
   taskerAssignments?: { id: string; status: string }[]
 }
@@ -63,7 +71,9 @@ export default function TaskerJobDetailPage() {
           const found = list.find((j: any) => j.id === params.id)
           if (found && bidRes.ok) {
             const myBids = await bidRes.json()
-            found.myBid = (Array.isArray(myBids) ? myBids : []).find((b: any) => b.requestId === params.id)
+            found.myBid = (Array.isArray(myBids) ? myBids : []).find(
+              (b: any) => b.requestId === params.id,
+            )
             found.taskerAssignments = found.taskerAssignments || []
           }
           setJob(found || null)
@@ -140,10 +150,10 @@ export default function TaskerJobDetailPage() {
   if (!job) {
     return (
       <DashboardLayout role="tasker">
-        <div className="flex flex-col items-center justify-center h-96 text-center">
-          <AlertCircle className="h-12 w-12 text-muted-foreground/40 mb-4" />
+        <div className="flex h-96 flex-col items-center justify-center text-center">
+          <AlertCircle className="text-muted-foreground/40 mb-4 h-12 w-12" />
           <h3 className="text-lg font-medium">Job not found</h3>
-          <p className="text-sm text-muted-foreground">This job posting may have been removed.</p>
+          <p className="text-muted-foreground text-sm">This job posting may have been removed.</p>
         </div>
       </DashboardLayout>
     )
@@ -151,11 +161,11 @@ export default function TaskerJobDetailPage() {
 
   return (
     <DashboardLayout role="tasker">
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div>
           <Link
             href="/dashboard/tasker/jobs"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Jobs
@@ -167,11 +177,9 @@ export default function TaskerJobDetailPage() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <CardTitle className="text-xl">{job.title}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {job.service.name}
-                </p>
+                <p className="text-muted-foreground mt-1 text-sm">{job.service.name}</p>
               </div>
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+              <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700">
                 {job.status.replace("_", " ")}
               </Badge>
             </div>
@@ -179,66 +187,57 @@ export default function TaskerJobDetailPage() {
           <CardContent className="space-y-4">
             <p className="text-sm leading-relaxed">{job.description}</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
               {job.budget && (
                 <div className="flex items-center gap-2">
-                  <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                  <span>Budget: <strong>{formatPrice(job.budget)}</strong></span>
-                </div>
-              )}
-              {job.wardNo && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>Ward {job.wardNo}</span>
+                  <IndianRupee className="text-muted-foreground h-4 w-4" />
+                  <span>
+                    Budget: <strong>{formatPrice(job.budget)}</strong>
+                  </span>
                 </div>
               )}
               {job.urgency && (
                 <div className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                  <AlertCircle className="text-muted-foreground h-4 w-4" />
                   <span className="capitalize">Urgency: {job.urgency}</span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="text-muted-foreground h-4 w-4" />
                 <span>{formatDate(job.createdAt)}</span>
               </div>
             </div>
 
             {job.location && (
               <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
+                <MapPin className="text-muted-foreground h-4 w-4" />
                 <span>{job.location}</span>
               </div>
             )}
 
             <div className="border-t pt-4">
-              <p className="text-sm font-medium mb-1">Posted by</p>
+              <p className="mb-1 text-sm font-medium">Posted by</p>
               <div className="flex items-center gap-2">
                 <User className="h-8 w-8 rounded-full bg-emerald-100 p-1.5 text-emerald-600" />
                 <div>
                   <p className="text-sm font-medium">{job.user?.name || "Unknown User"}</p>
-                  {job.user.wardNo && (
-                    <p className="text-xs text-muted-foreground">
-                      Ward {job.user.wardNo}
-                    </p>
-                  )}
                 </div>
               </div>
             </div>
 
             {assignment && (
               <div className="border-t pt-4">
-                <p className="text-sm font-medium mb-2">Assignment Status</p>
+                <p className="mb-2 text-sm font-medium">Assignment Status</p>
                 <Badge
                   variant="outline"
                   className={
                     assignment.status === "IN_PROGRESS"
-                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                      ? "border-amber-200 bg-amber-50 text-amber-700"
                       : assignment.status === "AWAITING_CONFIRMATION"
-                      ? "bg-purple-50 text-purple-700 border-purple-200"
-                      : assignment.status === "COMPLETED"
-                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : "bg-red-50 text-red-700 border-red-200"
+                        ? "border-purple-200 bg-purple-50 text-purple-700"
+                        : assignment.status === "COMPLETED"
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-red-200 bg-red-50 text-red-700"
                   }
                 >
                   {assignment.status.replace("_", " ")}
@@ -262,14 +261,14 @@ export default function TaskerJobDetailPage() {
 
             {job.status === "OPEN" && !job.myBid && (
               <div className="border-t pt-4">
-                <div className="rounded-xl border-2 border-emerald-100 bg-gradient-to-b from-emerald-50/50 to-white p-5 space-y-4">
+                <div className="space-y-4 rounded-xl border-2 border-emerald-100 bg-gradient-to-b from-emerald-50/50 to-white p-5">
                   <div className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100">
                       <Zap className="h-4 w-4 text-emerald-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-base">Place Your Bid</h4>
-                      <p className="text-xs text-muted-foreground">
+                      <h4 className="text-base font-semibold">Place Your Bid</h4>
+                      <p className="text-muted-foreground text-xs">
                         Win this job by offering your best price
                       </p>
                     </div>
@@ -278,26 +277,28 @@ export default function TaskerJobDetailPage() {
                   {job.budget && (
                     <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-3 text-sm">
                       <span className="text-emerald-700">Suggested budget</span>
-                      <span className="font-bold text-emerald-700">
-                        {formatPrice(job.budget)}
-                      </span>
+                      <span className="font-bold text-emerald-700">{formatPrice(job.budget)}</span>
                     </div>
                   )}
 
                   <div>
-                    <Label htmlFor="bidAmount" className="text-sm font-medium">Your Price (NPR) *</Label>
+                    <Label htmlFor="bidAmount" className="text-sm font-medium">
+                      Your Price (NPR) *
+                    </Label>
                     <Input
                       id="bidAmount"
                       type="number"
                       placeholder="e.g., 5000"
-                      className="h-12 mt-1.5 text-base"
+                      className="mt-1.5 h-12 text-base"
                       value={bidAmount}
                       onChange={(e) => setBidAmount(e.target.value)}
                       min="1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="bidMessage" className="text-sm font-medium">Why you? (optional)</Label>
+                    <Label htmlFor="bidMessage" className="text-sm font-medium">
+                      Why you? (optional)
+                    </Label>
                     <Textarea
                       id="bidMessage"
                       placeholder="Briefly describe your experience or approach..."
@@ -310,7 +311,7 @@ export default function TaskerJobDetailPage() {
                   <Button
                     onClick={handleBid}
                     disabled={bidding}
-                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-12 text-base font-semibold"
+                    className="h-12 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white"
                   >
                     {bidding ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -319,8 +320,8 @@ export default function TaskerJobDetailPage() {
                     )}
                     Submit Bid
                   </Button>
-                  <p className="text-center text-xs text-muted-foreground">
-                    <TrendingUp className="inline h-3 w-3 mr-1" />
+                  <p className="text-muted-foreground text-center text-xs">
+                    <TrendingUp className="mr-1 inline h-3 w-3" />
                     Lower prices and faster responses win more jobs
                   </p>
                 </div>
@@ -329,39 +330,53 @@ export default function TaskerJobDetailPage() {
 
             {job.myBid && !assignment && (
               <div className="border-t pt-4">
-                <div className={`rounded-xl p-4 border ${
-                  job.myBid.status === "PENDING"
-                    ? "bg-amber-50 border-amber-200"
-                    : job.myBid.status === "ACCEPTED"
-                    ? "bg-emerald-50 border-emerald-200"
-                    : "bg-red-50 border-red-200"
-                }`}>
+                <div
+                  className={`rounded-xl border p-4 ${
+                    job.myBid.status === "PENDING"
+                      ? "border-amber-200 bg-amber-50"
+                      : job.myBid.status === "ACCEPTED"
+                        ? "border-emerald-200 bg-emerald-50"
+                        : "border-red-200 bg-red-50"
+                  }`}
+                >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className={`text-sm font-medium ${
-                        job.myBid.status === "PENDING" ? "text-amber-800"
-                        : job.myBid.status === "ACCEPTED" ? "text-emerald-800"
-                        : "text-red-800"
-                      }`}>
+                      <p
+                        className={`text-sm font-medium ${
+                          job.myBid.status === "PENDING"
+                            ? "text-amber-800"
+                            : job.myBid.status === "ACCEPTED"
+                              ? "text-emerald-800"
+                              : "text-red-800"
+                        }`}
+                      >
                         Your Bid: {formatPrice(job.myBid.amount)}
                       </p>
-                      <p className={`text-xs ${
-                        job.myBid.status === "PENDING" ? "text-amber-600"
-                        : job.myBid.status === "ACCEPTED" ? "text-emerald-600"
-                        : "text-red-600"
-                      }`}>
+                      <p
+                        className={`text-xs ${
+                          job.myBid.status === "PENDING"
+                            ? "text-amber-600"
+                            : job.myBid.status === "ACCEPTED"
+                              ? "text-emerald-600"
+                              : "text-red-600"
+                        }`}
+                      >
                         {job.myBid.status === "PENDING"
                           ? "Waiting for customer to accept"
                           : job.myBid.status === "ACCEPTED"
-                          ? "Accepted! Start working"
-                          : "Not selected"}
+                            ? "Accepted! Start working"
+                            : "Not selected"}
                       </p>
                     </div>
-                    <span className={`text-lg font-bold ${
-                      job.myBid.status === "PENDING" ? "text-amber-600"
-                      : job.myBid.status === "ACCEPTED" ? "text-emerald-600"
-                      : "text-red-600"
-                    }`}>
+                    <span
+                      className={`text-lg font-bold ${
+                        job.myBid.status === "PENDING"
+                          ? "text-amber-600"
+                          : job.myBid.status === "ACCEPTED"
+                            ? "text-emerald-600"
+                            : "text-red-600"
+                      }`}
+                    >
                       {formatPrice(job.myBid.amount)}
                     </span>
                   </div>
@@ -372,11 +387,7 @@ export default function TaskerJobDetailPage() {
         </Card>
 
         {assignment && currentUserId && (
-          <ChatBox
-            requestId={job.id}
-            currentUserId={currentUserId}
-            otherUserName={job.user.name}
-          />
+          <ChatBox requestId={job.id} currentUserId={currentUserId} otherUserName={job.user.name} />
         )}
       </div>
     </DashboardLayout>

@@ -36,7 +36,6 @@ interface UserItem {
   role: string
   isTasker: boolean
   isActive: boolean
-  wardNo: number | null
   rating: number | null
   createdAt: string
   _count: { requests: number; bids: number }
@@ -78,7 +77,9 @@ export default function AdminUsersPage() {
     }
   }, [page, limit, q, roleFilter])
 
-  useEffect(() => { fetchUsers() }, [fetchUsers])
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
 
   async function toggleActive(user: UserItem) {
     setTogglingId(user.id)
@@ -88,9 +89,7 @@ export default function AdminUsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id, isActive: !user.isActive }),
       })
-      setUsers((prev) =>
-        prev.map((u) => (u.id === user.id ? { ...u, isActive: !u.isActive } : u))
-      )
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? { ...u, isActive: !u.isActive } : u)))
     } catch {
       // silent
     } finally {
@@ -106,7 +105,7 @@ export default function AdminUsersPage() {
         <div>
           <Link
             href="/dashboard/admin"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -118,18 +117,24 @@ export default function AdminUsersPage() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative max-w-sm flex-1">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Search name, email, phone..."
               value={q}
-              onChange={(e) => { setQ(e.target.value); setPage(1) }}
+              onChange={(e) => {
+                setQ(e.target.value)
+                setPage(1)
+              }}
               className="pl-10"
             />
           </div>
           <Select
             value={roleFilter ?? ""}
-            onValueChange={(v) => { setRoleFilter(v || null); setPage(1) }}
+            onValueChange={(v) => {
+              setRoleFilter(v || null)
+              setPage(1)
+            }}
           >
             <SelectTrigger className="w-36">
               <SelectValue placeholder="All roles" />
@@ -149,9 +154,9 @@ export default function AdminUsersPage() {
         <Card>
           {error ? (
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
-              <h3 className="text-lg font-medium mb-1">Failed to load users</h3>
-              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <AlertCircle className="mb-4 h-12 w-12 text-red-400" />
+              <h3 className="mb-1 text-lg font-medium">Failed to load users</h3>
+              <p className="text-muted-foreground mb-4 text-sm">{error}</p>
               <Button variant="outline" onClick={fetchUsers} className="gap-2">
                 <RefreshCw className="h-4 w-4" />
                 Retry
@@ -163,10 +168,12 @@ export default function AdminUsersPage() {
             </CardContent>
           ) : users.length === 0 ? (
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Shield className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium mb-1">No users found</h3>
-              <p className="text-sm text-muted-foreground">
-                {q || roleFilter ? "Try a different search or filter." : "No users have registered yet."}
+              <Shield className="text-muted-foreground/40 mb-4 h-12 w-12" />
+              <h3 className="mb-1 text-lg font-medium">No users found</h3>
+              <p className="text-muted-foreground text-sm">
+                {q || roleFilter
+                  ? "Try a different search or filter."
+                  : "No users have registered yet."}
               </p>
             </CardContent>
           ) : (
@@ -174,58 +181,72 @@ export default function AdminUsersPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b bg-muted/50">
-                      <th className="text-left font-medium text-muted-foreground px-4 py-3">User</th>
-                      <th className="text-left font-medium text-muted-foreground px-4 py-3 hidden sm:table-cell">Contact</th>
-                      <th className="text-left font-medium text-muted-foreground px-4 py-3">Role</th>
-                      <th className="text-center font-medium text-muted-foreground px-4 py-3 hidden sm:table-cell">Tasker</th>
-                      <th className="text-center font-medium text-muted-foreground px-4 py-3 hidden md:table-cell">Activity</th>
-                      <th className="text-center font-medium text-muted-foreground px-4 py-3">Status</th>
-                      <th className="text-right font-medium text-muted-foreground px-4 py-3">Action</th>
+                    <tr className="bg-muted/50 border-b">
+                      <th className="text-muted-foreground px-4 py-3 text-left font-medium">
+                        User
+                      </th>
+                      <th className="text-muted-foreground hidden px-4 py-3 text-left font-medium sm:table-cell">
+                        Contact
+                      </th>
+                      <th className="text-muted-foreground px-4 py-3 text-left font-medium">
+                        Role
+                      </th>
+                      <th className="text-muted-foreground hidden px-4 py-3 text-center font-medium sm:table-cell">
+                        Tasker
+                      </th>
+                      <th className="text-muted-foreground hidden px-4 py-3 text-center font-medium md:table-cell">
+                        Activity
+                      </th>
+                      <th className="text-muted-foreground px-4 py-3 text-center font-medium">
+                        Status
+                      </th>
+                      <th className="text-muted-foreground px-4 py-3 text-right font-medium">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {users.map((user) => (
                       <tr key={user.id} className="hover:bg-muted/30 transition-colors">
                         <td className="px-4 py-3">
-                          <p className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                          <p className="max-w-[120px] truncate font-medium sm:max-w-[200px]">
                             {user.name || "Unnamed"}
                           </p>
-                          <p className="text-xs text-muted-foreground">{user.email || "—"}</p>
+                          <p className="text-muted-foreground text-xs">{user.email || "—"}</p>
                         </td>
-                        <td className="px-4 py-3 hidden sm:table-cell">
+                        <td className="hidden px-4 py-3 sm:table-cell">
                           <p className="text-sm">{user.phone || "—"}</p>
-                          {user.wardNo && (
-                            <p className="text-xs text-muted-foreground">Ward {user.wardNo}</p>
-                          )}
                         </td>
                         <td className="px-4 py-3">
                           <Badge variant="outline" className={roleColors[user.role] || ""}>
                             {user.role}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-center hidden sm:table-cell">
+                        <td className="hidden px-4 py-3 text-center sm:table-cell">
                           {user.isTasker ? (
-                            <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                            <Badge
+                              variant="outline"
+                              className="border-emerald-200 bg-emerald-50 text-emerald-700"
+                            >
                               Yes
                             </Badge>
                           ) : (
                             <span className="text-muted-foreground text-xs">—</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-center hidden md:table-cell">
-                          <p className="text-xs text-muted-foreground">
+                        <td className="hidden px-4 py-3 text-center md:table-cell">
+                          <p className="text-muted-foreground text-xs">
                             {user._count.requests} req • {user._count.bids} bids
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-muted-foreground text-xs">
                             {formatDate(user.createdAt)}
                           </p>
                         </td>
                         <td className="px-4 py-3 text-center">
                           {user.isActive ? (
-                            <ShieldCheck className="h-5 w-5 text-emerald-500 inline-block" />
+                            <ShieldCheck className="inline-block h-5 w-5 text-emerald-500" />
                           ) : (
-                            <ShieldX className="h-5 w-5 text-red-400 inline-block" />
+                            <ShieldX className="inline-block h-5 w-5 text-red-400" />
                           )}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -234,7 +255,11 @@ export default function AdminUsersPage() {
                             size="sm"
                             disabled={togglingId === user.id || user.role === "ADMIN"}
                             onClick={() => toggleActive(user)}
-                            className={user.isActive ? "text-red-500 hover:text-red-600" : "text-emerald-600 hover:text-emerald-700"}
+                            className={
+                              user.isActive
+                                ? "text-red-500 hover:text-red-600"
+                                : "text-emerald-600 hover:text-emerald-700"
+                            }
                           >
                             {togglingId === user.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -252,8 +277,8 @@ export default function AdminUsersPage() {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 border-t px-4 py-3">
-                  <p className="text-sm text-muted-foreground">
+                <div className="flex flex-col items-center justify-between gap-2 border-t px-4 py-3 sm:flex-row">
+                  <p className="text-muted-foreground text-sm">
                     Page {page} of {totalPages}
                   </p>
                   <div className="flex items-center gap-2">

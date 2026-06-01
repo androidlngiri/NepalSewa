@@ -7,8 +7,8 @@ NepalSewa connects people in Butwal, Nepal who need work done with skilled local
 
 ## How it works (for customers):
 1. Sign up as a user (email, phone/OTP, or Google)
-2. Click "Post a Request" — describe what you need (e.g. "Fix leaking pipe in Ward 3")
-3. Set your budget, location (ward), and urgency (normal/urgent)
+2. Click "Post a Request" — describe what you need (e.g. "Fix leaking pipe in my house")
+3. Set your budget and urgency (normal/urgent)
 4. Taskers in your area see your request and send bids with their prices
 5. You compare bids, check tasker ratings/reviews, and pick the best one
 6. Chat with the tasker to coordinate details
@@ -16,7 +16,7 @@ NepalSewa connects people in Butwal, Nepal who need work done with skilled local
 8. Leave a review and rating for the tasker
 
 ## How it works (for taskers):
-1. Sign up as a tasker, complete your profile (bio, skills, ward/area)
+1. Sign up as a tasker, complete your profile (bio, skills, area)
 2. Browse open requests in your area
 3. Send a bid with your price and message
 4. If the customer accepts your bid, you get assigned the job
@@ -42,7 +42,7 @@ NepalSewa connects people in Butwal, Nepal who need work done with skilled local
 ## Key features:
 - **Bidding system** — taskers compete, customers get the best price
 - **Ratings & reviews** — every tasker has a rating, every job can be reviewed
-- **Ward-based search** — find taskers in your specific ward in Butwal
+- **Location-based** — find taskers in your area in Butwal
 - **Real-time chat** — message taskers directly through the platform
 - **Pro taskers** — top-rated taskers get PRO status with lower fees
 - **Categories** — 8 service categories covering home, tech, education, beauty needs
@@ -78,7 +78,8 @@ export async function POST(req: NextRequest) {
 
     if (!apiKey) {
       return NextResponse.json({
-        reply: "I'm sorry, the chat service is not configured yet. Please contact support directly.",
+        reply:
+          "I'm sorry, the chat service is not configured yet. Please contact support directly.",
       })
     }
 

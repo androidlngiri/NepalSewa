@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
@@ -27,7 +26,6 @@ export default function TaskerSettingsPage() {
   const [form, setForm] = useState({
     name: "",
     phone: "",
-    wardNo: "",
     address: "",
     bio: "",
   })
@@ -41,7 +39,6 @@ export default function TaskerSettingsPage() {
           setForm({
             name: user.name || "",
             phone: user.phone || "",
-            wardNo: user.wardNo ? String(user.wardNo) : "",
             address: user.address || "",
             bio: user.bio || "",
           })
@@ -114,11 +111,11 @@ export default function TaskerSettingsPage() {
 
   return (
     <DashboardLayout role="tasker">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <Link
             href="/dashboard/tasker"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -135,35 +132,54 @@ export default function TaskerSettingsPage() {
             <form onSubmit={onSubmit} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" className="h-11" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input
+                  id="name"
+                  className="h-11"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone</Label>
-                <Input id="phone" type="tel" placeholder="98XXXXXXXX" className="h-11" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Your Ward (Butwal)</Label>
-                <Select value={form.wardNo} onValueChange={(v, _details) => { if (v != null) setForm({ ...form, wardNo: v }) }} itemToStringLabel={(value) => { const n = Number(value); return isNaN(n) ? "" : `Ward ${n}` }}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select ward" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 19 }, (_, i) => (
-                      <SelectItem key={`ward-${i + 1}`} value={String(i + 1)}>Ward {i + 1}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="98XXXXXXXX"
+                  className="h-11"
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
-                <Input id="address" placeholder="e.g., Milijuli, near the old bus park" className="h-11" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+                <Input
+                  id="address"
+                  placeholder="e.g., Milijuli, near the old bus park"
+                  className="h-11"
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bio">Bio</Label>
-                <Textarea id="bio" placeholder="Describe your skills and experience..." rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
+                <Textarea
+                  id="bio"
+                  placeholder="Describe your skills and experience..."
+                  rows={3}
+                  value={form.bio}
+                  onChange={(e) => setForm({ ...form, bio: e.target.value })}
+                />
               </div>
-              <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-11" disabled={loading}>
-                {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              <Button
+                type="submit"
+                className="h-11 bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
                 Save Changes
               </Button>
             </form>
@@ -181,20 +197,24 @@ export default function TaskerSettingsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium">Current Plan</p>
-                <p className="text-sm text-muted-foreground">
-                  {tier === "PRO" ? "Pro — 3% commission per job" : "Standard — 5% commission per job"}
+                <p className="text-muted-foreground text-sm">
+                  {tier === "PRO"
+                    ? "Pro — 3% commission per job"
+                    : "Standard — 5% commission per job"}
                 </p>
               </div>
               <Badge
                 variant="outline"
                 className={
                   tier === "PRO"
-                    ? "bg-amber-50 text-amber-700 border-amber-200"
-                    : "bg-slate-50 text-slate-700 border-slate-200"
+                    ? "border-amber-200 bg-amber-50 text-amber-700"
+                    : "border-slate-200 bg-slate-50 text-slate-700"
                 }
               >
                 {tier === "PRO" ? (
-                  <><Crown className="h-3 w-3 mr-1" /> PRO</>
+                  <>
+                    <Crown className="mr-1 h-3 w-3" /> PRO
+                  </>
                 ) : (
                   "STANDARD"
                 )}
@@ -202,21 +222,21 @@ export default function TaskerSettingsPage() {
             </div>
 
             {tier === "PRO" && proExpiresAt && (
-              <div className="text-sm text-muted-foreground">
+              <div className="text-muted-foreground text-sm">
                 Valid until {formatDate(proExpiresAt)}
                 {new Date(proExpiresAt) < new Date() && (
-                  <span className="text-red-500 ml-2">(Expired)</span>
+                  <span className="ml-2 text-red-500">(Expired)</span>
                 )}
               </div>
             )}
 
             {tier === "STANDARD" && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4 space-y-3">
+              <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                  <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
                   <div>
-                    <p className="font-medium text-sm">Go Pro — ₹199/month</p>
-                    <ul className="text-sm text-muted-foreground mt-1 space-y-1">
+                    <p className="text-sm font-medium">Go Pro — ₹199/month</p>
+                    <ul className="text-muted-foreground mt-1 space-y-1 text-sm">
                       <li>• Reduced commission: 3% (vs 5%)</li>
                       <li>• Featured profile badge</li>
                       <li>• Priority in search results</li>

@@ -4,8 +4,18 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import {
-  Loader2, ArrowLeft, MapPin, IndianRupee, Clock, AlertCircle, User,
-  Trash2, Ban, Mail, Phone, Star,
+  Loader2,
+  ArrowLeft,
+  MapPin,
+  IndianRupee,
+  Clock,
+  AlertCircle,
+  User,
+  Trash2,
+  Ban,
+  Mail,
+  Phone,
+  Star,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,27 +31,57 @@ interface RequestDetail {
   status: string
   budget: number | null
   urgency: string | null
-  wardNo: number | null
   location: string | null
   scheduledDate: string | null
   createdAt: string
   images: string[]
-  service: { id: string; name: string; slug: string; price: number | null; priceUnit: string | null }
-  user: { id: string; name: string | null; email: string; image: string | null; phone: string | null; wardNo: number | null }
+  service: {
+    id: string
+    name: string
+    slug: string
+    price: number | null
+    priceUnit: string | null
+  }
+  user: {
+    id: string
+    name: string | null
+    email: string
+    image: string | null
+    phone: string | null
+  }
   bids: {
     id: string
     amount: number
     status: string
     message: string | null
     createdAt: string
-    tasker: { id: string; name: string | null; email: string; image: string | null; phone: string | null; rating: number | null }
+    tasker: {
+      id: string
+      name: string | null
+      email: string
+      image: string | null
+      phone: string | null
+      rating: number | null
+    }
   }[]
   taskerAssignments: {
     id: string
     status: string
-    tasker: { id: string; name: string | null; email: string; image: string | null; phone: string | null }
+    tasker: {
+      id: string
+      name: string | null
+      email: string
+      image: string | null
+      phone: string | null
+    }
   }[]
-  transactions: { id: string; amount: number; status: string; type: string; reference: string | null }[]
+  transactions: {
+    id: string
+    amount: number
+    status: string
+    type: string
+    reference: string | null
+  }[]
 }
 
 const statusColors: Record<string, string> = {
@@ -76,7 +116,9 @@ function AdminRequestDetailPage() {
     }
   }
 
-  useEffect(() => { loadRequest() }, [params.id])
+  useEffect(() => {
+    loadRequest()
+  }, [params.id])
 
   async function handleCancel() {
     if (!confirm("Cancel this request?")) return
@@ -124,10 +166,10 @@ function AdminRequestDetailPage() {
   if (!request) {
     return (
       <DashboardLayout role="admin">
-        <div className="flex flex-col items-center justify-center h-96 text-center">
-          <AlertCircle className="h-12 w-12 text-muted-foreground/40 mb-4" />
+        <div className="flex h-96 flex-col items-center justify-center text-center">
+          <AlertCircle className="text-muted-foreground/40 mb-4 h-12 w-12" />
           <h3 className="text-lg font-medium">Request not found</h3>
-          <p className="text-sm text-muted-foreground">This request may have been deleted.</p>
+          <p className="text-muted-foreground text-sm">This request may have been deleted.</p>
         </div>
       </DashboardLayout>
     )
@@ -138,11 +180,11 @@ function AdminRequestDetailPage() {
 
   return (
     <DashboardLayout role="admin">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         <div>
           <Link
             href="/dashboard/admin/requests"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Requests
@@ -154,14 +196,14 @@ function AdminRequestDetailPage() {
             <h1 className="text-2xl font-bold tracking-tight">{request.title}</h1>
             <p className="text-muted-foreground">{request.service.name}</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex shrink-0 items-center gap-2">
             {canCancel && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleCancel}
                 disabled={!!actionLoading}
-                className="gap-2 text-amber-600 border-amber-200 hover:bg-amber-50"
+                className="gap-2 border-amber-200 text-amber-600 hover:bg-amber-50"
               >
                 <Ban className="h-4 w-4" />
                 {actionLoading === "cancel" ? "Cancelling..." : "Cancel"}
@@ -172,7 +214,7 @@ function AdminRequestDetailPage() {
               size="sm"
               onClick={handleDelete}
               disabled={!!actionLoading}
-              className="gap-2 text-red-600 border-red-200 hover:bg-red-50"
+              className="gap-2 border-red-200 text-red-600 hover:bg-red-50"
             >
               <Trash2 className="h-4 w-4" />
               {actionLoading === "delete" ? "Deleting..." : "Delete"}
@@ -181,7 +223,7 @@ function AdminRequestDetailPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-6 lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>Request Details</CardTitle>
@@ -191,47 +233,46 @@ function AdminRequestDetailPage() {
                   <Badge variant="outline" className={statusColors[request.status] || ""}>
                     {request.status.replace("_", " ")}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">Created {formatDate(request.createdAt)}</span>
+                  <span className="text-muted-foreground text-sm">
+                    Created {formatDate(request.createdAt)}
+                  </span>
                 </div>
 
                 <p className="text-sm leading-relaxed">{request.description}</p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                   {request.budget && (
                     <div className="flex items-center gap-2">
-                      <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                      <span>Budget: <strong>{formatPrice(request.budget)}</strong></span>
+                      <IndianRupee className="text-muted-foreground h-4 w-4" />
+                      <span>
+                        Budget: <strong>{formatPrice(request.budget)}</strong>
+                      </span>
                     </div>
                   )}
                   {request.service.price && (
                     <div className="flex items-center gap-2">
-                      <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                      <span>Service price: <strong>{formatPrice(request.service.price)}</strong>
+                      <IndianRupee className="text-muted-foreground h-4 w-4" />
+                      <span>
+                        Service price: <strong>{formatPrice(request.service.price)}</strong>
                         {request.service.priceUnit ? `/${request.service.priceUnit}` : ""}
                       </span>
                     </div>
                   )}
-                  {request.wardNo && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>Ward {request.wardNo}</span>
-                    </div>
-                  )}
                   {request.urgency && (
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                      <AlertCircle className="text-muted-foreground h-4 w-4" />
                       <span className="capitalize">Urgency: {request.urgency}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="text-muted-foreground h-4 w-4" />
                     <span>{formatDate(request.createdAt)}</span>
                   </div>
                 </div>
 
                 {request.location && (
                   <div className="flex items-center gap-2 text-sm">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <MapPin className="text-muted-foreground h-4 w-4" />
                     <span>{request.location}</span>
                   </div>
                 )}
@@ -243,7 +284,7 @@ function AdminRequestDetailPage() {
                         key={i}
                         src={img}
                         alt={`Image ${i + 1}`}
-                        className="h-24 w-24 rounded-lg object-cover border"
+                        className="h-24 w-24 rounded-lg border object-cover"
                       />
                     ))}
                   </div>
@@ -262,35 +303,46 @@ function AdminRequestDetailPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2">
-                            <User className="h-5 w-5 text-muted-foreground" />
+                            <User className="text-muted-foreground h-5 w-5" />
                             <span className="font-medium">{bid.tasker?.name || "Unknown"}</span>
                             {bid.tasker?.rating && (
                               <span className="text-sm text-amber-500">
-                                <Star className="h-3.5 w-3.5 inline mr-0.5" />
+                                <Star className="mr-0.5 inline h-3.5 w-3.5" />
                                 {bid.tasker.rating.toFixed(1)}
                               </span>
                             )}
                           </div>
                           {bid.message && (
-                            <p className="text-sm text-muted-foreground mt-1">{bid.message}</p>
+                            <p className="text-muted-foreground mt-1 text-sm">{bid.message}</p>
                           )}
-                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{bid.tasker?.email}</span>
+                          <div className="text-muted-foreground mt-2 flex items-center gap-3 text-xs">
+                            <span className="flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {bid.tasker?.email}
+                            </span>
                             {bid.tasker?.phone && (
-                              <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{bid.tasker.phone}</span>
+                              <span className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                {bid.tasker.phone}
+                              </span>
                             )}
                             <span>{formatDate(bid.createdAt)}</span>
                           </div>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
+                        <div className="flex shrink-0 flex-col items-end gap-1">
                           <span className="text-lg font-bold text-emerald-600">
                             {formatPrice(bid.amount)}
                           </span>
-                          <Badge variant="outline" className={
-                            bid.status === "ACCEPTED" ? "bg-emerald-50 text-emerald-700" :
-                            bid.status === "REJECTED" ? "bg-red-50 text-red-700" :
-                            "bg-blue-50 text-blue-700"
-                          }>
+                          <Badge
+                            variant="outline"
+                            className={
+                              bid.status === "ACCEPTED"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : bid.status === "REJECTED"
+                                  ? "bg-red-50 text-red-700"
+                                  : "bg-blue-50 text-blue-700"
+                            }
+                          >
                             {bid.status}
                           </Badge>
                         </div>
@@ -310,13 +362,21 @@ function AdminRequestDetailPage() {
                   <div className="divide-y text-sm">
                     {request.transactions.map((tx) => (
                       <div key={tx.id} className="flex items-center justify-between py-2">
-                        <span>{formatPrice(tx.amount)} {tx.type ? `(${tx.type})` : ""}</span>
-                        <Badge variant="outline" className={
-                          tx.status === "COMPLETED" ? "bg-emerald-50 text-emerald-700" :
-                          tx.status === "PENDING" ? "bg-amber-50 text-amber-700" :
-                          tx.status === "FAILED" ? "bg-red-50 text-red-700" :
-                          "bg-gray-50 text-gray-700"
-                        }>
+                        <span>
+                          {formatPrice(tx.amount)} {tx.type ? `(${tx.type})` : ""}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={
+                            tx.status === "COMPLETED"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : tx.status === "PENDING"
+                                ? "bg-amber-50 text-amber-700"
+                                : tx.status === "FAILED"
+                                  ? "bg-red-50 text-red-700"
+                                  : "bg-gray-50 text-gray-700"
+                          }
+                        >
                           {tx.status}
                         </Badge>
                       </div>
@@ -340,21 +400,15 @@ function AdminRequestDetailPage() {
                     <p className="text-muted-foreground text-xs">Customer</p>
                   </div>
                 </div>
-                <div className="space-y-2 pt-2 border-t">
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="space-y-2 border-t pt-2">
+                  <div className="text-muted-foreground flex items-center gap-2">
                     <Mail className="h-3.5 w-3.5" />
                     <span className="truncate">{request.user.email}</span>
                   </div>
                   {request.user.phone && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                    <div className="text-muted-foreground flex items-center gap-2">
                       <Phone className="h-3.5 w-3.5" />
                       <span>{request.user.phone}</span>
-                    </div>
-                  )}
-                  {request.user.wardNo && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span>Ward {request.user.wardNo}</span>
                     </div>
                   )}
                 </div>
@@ -371,18 +425,21 @@ function AdminRequestDetailPage() {
                     <User className="h-10 w-10 rounded-full bg-amber-100 p-2 text-amber-600" />
                     <div>
                       <p className="font-medium">{activeAssignment.tasker.name || "Unknown"}</p>
-                      <Badge variant="outline" className={statusColors[activeAssignment.status] || ""}>
+                      <Badge
+                        variant="outline"
+                        className={statusColors[activeAssignment.status] || ""}
+                      >
                         {activeAssignment.status.replace("_", " ")}
                       </Badge>
                     </div>
                   </div>
-                  <div className="space-y-2 pt-2 border-t">
-                    <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="space-y-2 border-t pt-2">
+                    <div className="text-muted-foreground flex items-center gap-2">
                       <Mail className="h-3.5 w-3.5" />
                       <span className="truncate">{activeAssignment.tasker.email}</span>
                     </div>
                     {activeAssignment.tasker.phone && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center gap-2">
                         <Phone className="h-3.5 w-3.5" />
                         <span>{activeAssignment.tasker.phone}</span>
                       </div>

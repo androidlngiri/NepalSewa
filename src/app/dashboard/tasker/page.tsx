@@ -2,15 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import {
-  Briefcase,
-  CheckCircle2,
-  DollarSign,
-  Star,
-  Loader2,
-  Clock,
-  ArrowRight,
-} from "lucide-react"
+import { Briefcase, CheckCircle2, DollarSign, Star, Loader2, Clock, ArrowRight } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -31,9 +23,8 @@ interface OpenRequest {
   budget: number | null
   createdAt: string
   status: string
-  wardNo: number | null
   service: { name: string }
-  user: { name: string; wardNo: number | null }
+  user: { name: string }
   bids: { id: string }[]
 }
 
@@ -110,17 +101,15 @@ export default function TaskerDashboardPage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Tasker Dashboard</h1>
-          <p className="text-muted-foreground">
-            Find jobs, bid, and grow your earnings.
-          </p>
+          <p className="text-muted-foreground">Find jobs, bid, and grow your earnings.</p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => (
             <Link key={card.title} href={card.href}>
-              <Card className="border-2 border-transparent hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
+              <Card className="cursor-pointer border-2 border-transparent transition-all hover:border-emerald-200 hover:shadow-md">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-muted-foreground text-sm font-medium">
                     {card.title}
                   </CardTitle>
                   <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
@@ -148,39 +137,41 @@ export default function TaskerDashboardPage() {
           <CardContent>
             {openJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Briefcase className="h-12 w-12 text-muted-foreground/40 mb-4" />
-                <h3 className="text-lg font-medium mb-1">No jobs available</h3>
-                <p className="text-sm text-muted-foreground">
+                <Briefcase className="text-muted-foreground/40 mb-4 h-12 w-12" />
+                <h3 className="mb-1 text-lg font-medium">No jobs available</h3>
+                <p className="text-muted-foreground text-sm">
                   Check back soon for new opportunities.
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {openJobs.filter(j => j.status === "OPEN").slice(0, 5).map((job) => (
-                  <Link
-                    key={job.id}
-                    href={`/dashboard/tasker/jobs/${job.id}`}
-                    className="flex items-center justify-between rounded-xl border p-4 transition-colors hover:border-emerald-200 hover:bg-emerald-50/30"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{job.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {job.service.name} • {job.user.name}
-                        {job.wardNo ? ` • Ward ${job.wardNo}` : ""}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 ml-4">
-                      {job.budget && (
-                        <span className="text-sm font-medium text-emerald-600">
-                          {formatPrice(job.budget)}
-                        </span>
-                      )}
-                      <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
-                        {job.bids.length} bids
-                      </Badge>
-                    </div>
-                  </Link>
-                ))}
+                {openJobs
+                  .filter((j) => j.status === "OPEN")
+                  .slice(0, 5)
+                  .map((job) => (
+                    <Link
+                      key={job.id}
+                      href={`/dashboard/tasker/jobs/${job.id}`}
+                      className="flex items-center justify-between rounded-xl border p-4 transition-colors hover:border-emerald-200 hover:bg-emerald-50/30"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium">{job.title}</p>
+                        <p className="text-muted-foreground text-sm">
+                          {job.service.name} • {job.user.name}
+                        </p>
+                      </div>
+                      <div className="ml-4 flex items-center gap-3">
+                        {job.budget && (
+                          <span className="text-sm font-medium text-emerald-600">
+                            {formatPrice(job.budget)}
+                          </span>
+                        )}
+                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700">
+                          {job.bids.length} bids
+                        </Badge>
+                      </div>
+                    </Link>
+                  ))}
               </div>
             )}
           </CardContent>
@@ -197,9 +188,9 @@ export default function TaskerDashboardPage() {
                   <Link
                     key={`${earning.date}-${earning.amount}`}
                     href="/dashboard/tasker/earnings"
-                    className="flex items-center justify-between rounded-lg border p-3 hover:border-emerald-200 hover:bg-emerald-50/30 transition-colors"
+                    className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:border-emerald-200 hover:bg-emerald-50/30"
                   >
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {formatDate(earning.date)}
                     </span>
                     <span className="font-medium text-emerald-600">

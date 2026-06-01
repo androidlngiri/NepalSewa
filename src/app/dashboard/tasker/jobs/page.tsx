@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  Loader2, ArrowLeft, Briefcase, MapPin, Send, Users, Timer, TrendingUp
-} from "lucide-react"
+import { Loader2, ArrowLeft, Briefcase, Send, Users, Timer, TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
@@ -24,12 +26,11 @@ interface OpenRequest {
   description: string
   budget: number | null
   urgency: string | null
-  wardNo: number | null
   location: string | null
   createdAt: string
   status: string
   service: { id: string; name: string; slug: string }
-  user: { id: string; name: string; image: string | null; wardNo: number | null }
+  user: { id: string; name: string; image: string | null }
   bids: { id: string }[]
 }
 
@@ -39,7 +40,6 @@ export default function TaskerJobsPage() {
   const [filtered, setFiltered] = useState<OpenRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [wardFilter, setWardFilter] = useState("")
   const [bidAmount, setBidAmount] = useState("")
   const [bidMessage, setBidMessage] = useState("")
   const [biddingId, setBiddingId] = useState<string | null>(null)
@@ -64,14 +64,11 @@ export default function TaskerJobsPage() {
         (j) =>
           j.title.toLowerCase().includes(q) ||
           j.description.toLowerCase().includes(q) ||
-          j.service.name.toLowerCase().includes(q)
+          j.service.name.toLowerCase().includes(q),
       )
     }
-    if (wardFilter) {
-      result = result.filter((j) => String(j.wardNo) === wardFilter)
-    }
     setFiltered(result)
-  }, [search, wardFilter, jobs])
+  }, [search, jobs])
 
   async function handleBid(requestId: string) {
     if (!bidAmount) {
@@ -112,20 +109,18 @@ export default function TaskerJobsPage() {
         <div>
           <Link
             href="/dashboard/tasker"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">Available Jobs</h1>
-          <p className="text-muted-foreground">
-            Browse open requests and submit your bids.
-          </p>
+          <p className="text-muted-foreground">Browse open requests and submit your bids.</p>
         </div>
 
-        <div className="flex gap-3 flex-wrap">
-          <div className="relative flex-1 min-w-[200px]">
-            <Briefcase className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-wrap gap-3">
+          <div className="relative min-w-[200px] flex-1">
+            <Briefcase className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <Input
               placeholder="Search jobs by title, description, or service..."
               aria-label="Search jobs"
@@ -134,18 +129,6 @@ export default function TaskerJobsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <select
-            className="h-11 rounded-xl border bg-background px-3 text-sm"
-            value={wardFilter}
-            onChange={(e) => setWardFilter(e.target.value)}
-          >
-            <option value="">All Wards</option>
-            {Array.from({ length: 19 }, (_, i) => (
-              <option key={`ward-${i + 1}`} value={String(i + 1)}>
-                Ward {i + 1}
-              </option>
-            ))}
-          </select>
         </div>
 
         {loading ? (
@@ -155,43 +138,41 @@ export default function TaskerJobsPage() {
         ) : filtered.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Briefcase className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium mb-1">No jobs found</h3>
-              <p className="text-sm text-muted-foreground">
-                {search || wardFilter
-                  ? "Try adjusting your search or filters."
-                  : "Check back soon for new opportunities."}
+              <Briefcase className="text-muted-foreground/40 mb-4 h-12 w-12" />
+              <h3 className="mb-1 text-lg font-medium">No jobs found</h3>
+              <p className="text-muted-foreground text-sm">
+                {search ? "Try adjusting your search." : "Check back soon for new opportunities."}
               </p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-3">
             {filtered.map((job) => (
-              <Card key={job.id} className="group border-2 border-transparent hover:border-emerald-200 hover:shadow-md transition-all">
+              <Card
+                key={job.id}
+                className="group border-2 border-transparent transition-all hover:border-emerald-200 hover:shadow-md"
+              >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <p className="font-semibold text-base">{job.title}</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1.5 flex items-center gap-2">
+                        <p className="text-base font-semibold">{job.title}</p>
                         {job.urgency === "emergency" && (
-                          <Badge className="bg-red-50 text-red-700 border-red-200">Emergency</Badge>
+                          <Badge className="border-red-200 bg-red-50 text-red-700">Emergency</Badge>
                         )}
                         {job.urgency === "urgent" && (
-                          <Badge className="bg-orange-50 text-orange-700 border-orange-200">Urgent</Badge>
+                          <Badge className="border-orange-200 bg-orange-50 text-orange-700">
+                            Urgent
+                          </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                      <p className="text-muted-foreground mb-2 line-clamp-2 text-sm">
                         {job.description}
                       </p>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-                        <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                      <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700">
                           {job.service.name}
                         </span>
-                        {job.wardNo && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" /> Ward {job.wardNo}
-                          </span>
-                        )}
                         <span className="flex items-center gap-1">
                           <Timer className="h-3 w-3" />
                           {formatDate(job.createdAt)}
@@ -200,19 +181,21 @@ export default function TaskerJobsPage() {
 
                       {/* Social proof section */}
                       <div className="mt-3 flex items-center gap-3 text-xs">
-                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 ${
-                          job.bids.length === 0
-                            ? "bg-amber-50 text-amber-700"
-                            : job.bids.length >= 3
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-blue-50 text-blue-700"
-                        }`}>
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 ${
+                            job.bids.length === 0
+                              ? "bg-amber-50 text-amber-700"
+                              : job.bids.length >= 3
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-blue-50 text-blue-700"
+                          }`}
+                        >
                           <Users className="h-3 w-3" />
                           {job.bids.length === 0
                             ? "Be the first to bid"
                             : job.bids.length === 1
-                            ? "1 bid already"
-                            : `${job.bids.length} bids already`}
+                              ? "1 bid already"
+                              : `${job.bids.length} bids already`}
                         </span>
                         {job.bids.length >= 3 && (
                           <span className="inline-flex items-center gap-1 text-emerald-600">
@@ -222,22 +205,20 @@ export default function TaskerJobsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex shrink-0 flex-col items-end gap-2">
                       {job.budget && (
                         <div className="text-right">
                           <span className="block text-lg font-bold text-emerald-600">
                             {formatPrice(job.budget)}
                           </span>
-                          <span className="text-[10px] text-muted-foreground">Suggested budget</span>
+                          <span className="text-muted-foreground text-[10px]">
+                            Suggested budget
+                          </span>
                         </div>
                       )}
                       <div className="flex gap-1.5">
                         <Link href={`/dashboard/tasker/jobs/${job.id}`}>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-9 px-3 text-xs"
-                          >
+                          <Button size="sm" variant="outline" className="h-9 px-3 text-xs">
                             Details
                           </Button>
                         </Link>
@@ -245,7 +226,10 @@ export default function TaskerJobsPage() {
                           open={biddingId === job.id}
                           onOpenChange={(open) => {
                             setBiddingId(open ? job.id : null)
-                            if (!open) { setBidAmount(""); setBidMessage("") }
+                            if (!open) {
+                              setBidAmount("")
+                              setBidMessage("")
+                            }
                           }}
                         >
                           <DialogTrigger
@@ -262,7 +246,7 @@ export default function TaskerJobsPage() {
                           <DialogContent className="sm:max-w-md">
                             <DialogHeader>
                               <DialogTitle className="text-lg">Place a Bid</DialogTitle>
-                              <p className="text-sm text-muted-foreground font-normal">
+                              <p className="text-muted-foreground text-sm font-normal">
                                 {job.title}
                               </p>
                             </DialogHeader>
@@ -293,7 +277,7 @@ export default function TaskerJobsPage() {
                                 />
                               </div>
                               <Button
-                                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white h-12 text-base font-semibold"
+                                className="h-12 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white"
                                 onClick={() => handleBid(job.id)}
                                 disabled={submitting}
                               >

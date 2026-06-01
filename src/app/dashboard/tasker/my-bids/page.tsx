@@ -23,7 +23,7 @@ interface MyBid {
     status: string
     budget: number | null
     service: { name: string }
-    user: { name: string; wardNo: number | null }
+    user: { name: string }
     taskerAssignments: { id: string; status: string }[]
   }
 }
@@ -83,15 +83,13 @@ export default function MyBidsPage() {
         <div>
           <Link
             href="/dashboard/tasker"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
           <h1 className="text-2xl font-bold tracking-tight">My Bids</h1>
-          <p className="text-muted-foreground">
-            Track all your submitted bids.
-          </p>
+          <p className="text-muted-foreground">Track all your submitted bids.</p>
         </div>
 
         {loading ? (
@@ -101,13 +99,13 @@ export default function MyBidsPage() {
         ) : bids.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <MessageSquare className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium mb-1">No bids yet</h3>
-              <p className="text-sm text-muted-foreground">
+              <MessageSquare className="text-muted-foreground/40 mb-4 h-12 w-12" />
+              <h3 className="mb-1 text-lg font-medium">No bids yet</h3>
+              <p className="text-muted-foreground text-sm">
                 Browse available jobs and place your first bid.
               </p>
               <Link href="/dashboard/tasker/jobs" className="mt-4">
-                <span className="text-emerald-600 font-medium hover:underline text-sm">
+                <span className="text-sm font-medium text-emerald-600 hover:underline">
                   Browse Jobs →
                 </span>
               </Link>
@@ -121,18 +119,15 @@ export default function MyBidsPage() {
                 <Card key={bid.id}>
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-medium">{bid.request.title}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {bid.request.service.name} • {bid.request.user.name}
-                          {bid.request.user.wardNo ? ` • Ward ${bid.request.user.wardNo}` : ""}
                         </p>
                         {bid.message && (
-                          <p className="text-sm bg-muted rounded-lg p-3 mt-2">
-                            {bid.message}
-                          </p>
+                          <p className="bg-muted mt-2 rounded-lg p-3 text-sm">{bid.message}</p>
                         )}
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-muted-foreground mt-2 text-xs">
                           {formatDate(bid.createdAt)}
                         </p>
                       </div>
@@ -149,22 +144,29 @@ export default function MyBidsPage() {
                             disabled={markingId === assignment.id}
                           >
                             {markingId === assignment.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
                             ) : (
-                              <CheckCircle2 className="h-4 w-4 mr-1" />
+                              <CheckCircle2 className="mr-1 h-4 w-4" />
                             )}
                             Mark Complete
                           </Button>
                         )}
-                        {bid.status === "ACCEPTED" && assignment?.status === "AWAITING_CONFIRMATION" && (
-                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 mt-2">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Waiting for confirmation
-                          </Badge>
-                        )}
+                        {bid.status === "ACCEPTED" &&
+                          assignment?.status === "AWAITING_CONFIRMATION" && (
+                            <Badge
+                              variant="outline"
+                              className="mt-2 border-purple-200 bg-purple-50 text-purple-700"
+                            >
+                              <Clock className="mr-1 h-3 w-3" />
+                              Waiting for confirmation
+                            </Badge>
+                          )}
                         {bid.status === "ACCEPTED" && assignment?.status === "COMPLETED" && (
-                          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 mt-2">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                          <Badge
+                            variant="outline"
+                            className="mt-2 border-emerald-200 bg-emerald-50 text-emerald-700"
+                          >
+                            <CheckCircle2 className="mr-1 h-3 w-3" />
                             Completed
                           </Badge>
                         )}
