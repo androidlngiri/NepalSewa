@@ -2,16 +2,22 @@ import { defineConfig } from "vitest/config"
 import path from "path"
 
 export default defineConfig({
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    globals: true,
-    include: ["src/**/*.test.{ts,tsx}"],
-    exclude: ["node_modules"],
-  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
+    exclude: ["src/**/*.stories.*", "src/stories/**", ".storybook/**"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json-summary"],
+      include: ["src/lib/**/*.ts", "src/app/api/**/*.ts", "src/components/**/*.tsx"],
+      exclude: ["src/test/**", "src/**/*.d.ts", "src/**/*.stories.*"],
     },
   },
 })

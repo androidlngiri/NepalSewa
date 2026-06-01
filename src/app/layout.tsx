@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Toaster } from "@/components/ui/sonner"
@@ -59,8 +61,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "NepalSewa - Butwal's Trusted Service Marketplace",
-    description:
-      "Find trusted professionals in Butwal, Nepal for all your service needs.",
+    description: "Find trusted professionals in Butwal, Nepal for all your service needs.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -130,10 +131,7 @@ export default function RootLayout({
                   name: "Devdaha",
                 },
               ],
-              sameAs: [
-                "https://facebook.com/nepalsewa",
-                "https://instagram.com/nepalsewa",
-              ],
+              sameAs: ["https://facebook.com/nepalsewa", "https://instagram.com/nepalsewa"],
               founder: {
                 "@type": "Person",
                 name: "NepalSewa Team",
@@ -144,21 +142,25 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="flex min-h-full flex-col font-sans">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-md"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-emerald-600 focus:px-4 focus:py-2 focus:text-white"
         >
           Skip to main content
         </a>
         <TooltipProvider>
           <Providers>
-            <ErrorBoundary><main id="main-content">{children}</main></ErrorBoundary>
+            <ErrorBoundary>
+              <main id="main-content">{children}</main>
+            </ErrorBoundary>
           </Providers>
         </TooltipProvider>
         <PwaWrapper />
         <ChatBot />
         <Toaster richColors position="top-center" />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
