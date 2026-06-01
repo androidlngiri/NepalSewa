@@ -75,9 +75,9 @@ export function FloatingSearch() {
   )
 
   const goToService = useCallback(
-    (slug: string) => {
+    (categorySlug: string) => {
       setOpen(false)
-      router.push(`/services/${slug}`)
+      router.push(`/services/${categorySlug}`)
     },
     [router],
   )
@@ -154,7 +154,7 @@ export function FloatingSearch() {
                       {cat.services.map((svc) => (
                         <button
                           key={svc.id}
-                          onClick={() => goToService(svc.slug)}
+                          onClick={() => goToService(svc.categorySlug)}
                           className="hover:bg-muted/50 flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors"
                         >
                           <div className="min-w-0 flex-1">
