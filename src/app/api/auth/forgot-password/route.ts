@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { Resend } from "resend"
+import { resend, wrapHtml } from "@/lib/email"
 import crypto from "crypto"
 
 export async function POST(req: Request) {
@@ -27,17 +27,24 @@ export async function POST(req: Request) {
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/reset-password/${token}`
 
     if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY)
       await resend.emails.send({
-        from: "onboarding@resend.dev",
+        from: process.env.RESEND_FROM || "onboarding@resend.dev",
         to: email,
         subject: "Reset your NepalSewa password",
-        html: `
-          <h2>Password Reset Request</h2>
-          <p>Click the link below to reset your password. This link expires in 1 hour.</p>
-          <a href="${resetUrl}" style="display:inline-block;padding:12px 24px;background:#059669;color:white;text-decoration:none;border-radius:6px;">Reset Password</a>
-          <p>If you didn't request this, you can ignore this email.</p>
-        `,
+        html: wrapHtml(`
+          <p style="font-size:16px;margin:0 0 16px">Hi there,</p>
+          <p style="font-size:14px;color:#374151;margin:0 0 16px">
+            You requested a password reset. Click the button below to set a new password.
+            This link expires in <strong>1 hour</strong>.
+          </p>
+          <a href="${resetUrl}"
+             style="display:inline-block;background:#059669;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px">
+            Reset Password
+          </a>
+          <p style="font-size:13px;color:#6b7280;margin:24px 0 0">
+            If you didn't request this, you can safely ignore this email.
+          </p>
+        `),
       })
     }
 

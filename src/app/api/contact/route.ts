@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { Resend } from "resend"
+import { resend, wrapHtml } from "@/lib/email"
 
 export async function POST(req: Request) {
   try {
@@ -26,19 +26,21 @@ export async function POST(req: Request) {
       )
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const safeName = name.replace(/[<>&"']/g, "")
+    const safeEmail = email.replace(/[<>&"']/g, "")
+    const safeMessage = message.replace(/[<>&"']/g, "")
 
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: process.env.RESEND_FROM || "onboarding@resend.dev",
       to: process.env.CONTACT_EMAIL || "admin@nepalsewa.com",
-      subject: `Contact form message from ${name}`,
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name.replace(/[<>&"']/g, "")}</p>
-        <p><strong>Email:</strong> ${email.replace(/[<>&"']/g, "")}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message.replace(/[<>&"']/g, "")}</p>
-      `,
+      subject: `Contact form message from ${safeName}`,
+      html: wrapHtml(`
+        <h2 style="font-size:18px;margin:0 0 16px">New Contact Form Submission</h2>
+        <p style="font-size:14px;color:#374151;margin:0 0 8px"><strong>Name:</strong> ${safeName}</p>
+        <p style="font-size:14px;color:#374151;margin:0 0 8px"><strong>Email:</strong> ${safeEmail}</p>
+        <p style="font-size:14px;color:#374151;margin:0 0 8px"><strong>Message:</strong></p>
+        <p style="font-size:14px;color:#374151;margin:0">${safeMessage}</p>
+      `),
     })
 
     return NextResponse.json({ message: "Message sent successfully" }, { status: 200 })

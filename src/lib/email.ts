@@ -1,10 +1,10 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+export const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM_EMAIL = "onboarding@resend.dev"
+const FROM_EMAIL = process.env.RESEND_FROM || "onboarding@resend.dev"
 
-function wrapHtml(body: string): string {
+export function wrapHtml(body: string): string {
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
