@@ -71,7 +71,7 @@ export function FloatingSearch() {
   }, [query])
 
   const allResults = results.flatMap((cat) =>
-    cat.services.map((svc) => ({ ...svc, categoryName: cat.name })),
+    cat.services.map((svc) => ({ ...svc, categoryName: cat.name, categorySlug: cat.slug })),
   )
 
   const goToService = useCallback(
