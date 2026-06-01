@@ -20,8 +20,7 @@ import {
   Bell,
   Mail,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { NotificationBell } from "@/components/notifications/NotificationBell"
 
@@ -102,14 +101,14 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
     <>
       {/* Mobile header */}
       <div className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 lg:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
+        <button
+          type="button"
           onClick={onToggleSidebar}
           aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+          className="inline-flex items-center justify-center size-8 rounded-lg transition-colors outline-none cursor-pointer focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring hover:bg-muted hover:text-foreground"
         >
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        </button>
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600">
             <Wrench className="h-4 w-4 text-white" />
@@ -184,7 +183,7 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
             <NotificationBell />
             <Avatar className="h-9 w-9">
               {userImage ? (
-                <img src={userImage} alt={userName} />
+                <AvatarImage src={userImage} alt={userName} />
               ) : (
                 <AvatarFallback className="bg-emerald-100 text-emerald-700 text-xs font-medium">
                   {initials}
@@ -195,15 +194,14 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
               <p className="text-sm font-medium truncate">{userName}</p>
               <p className="text-xs text-muted-foreground capitalize">{roleBadge}</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-red-500"
+            <button
+              type="button"
               onClick={() => signOut({ callbackUrl: "/" })}
               aria-label="Sign out"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors outline-none cursor-pointer focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring text-muted-foreground hover:text-red-500"
             >
               <LogOut className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
       </aside>

@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
+import Image from "next/image"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -421,7 +422,7 @@ function NewRequestForm() {
                         />
                         {images.map((url) => (
                           <div key={url} className="relative h-20 w-20 rounded-xl overflow-hidden border">
-                            <img src={url} alt="Uploaded photo" className="h-full w-full object-cover" />
+                            <Image src={url} alt="Uploaded photo" fill unoptimized className="object-cover" />
                             <button
                               type="button"
                               onClick={() => removeImage(url)}
