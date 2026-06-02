@@ -108,10 +108,9 @@ export function ChatBot() {
       })
 
       if (!res.ok) {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: "Something went wrong. Please try again." },
-        ])
+        const errData = await res.json().catch(() => null)
+        const errMsg = errData?.error || "Something went wrong. Please try again."
+        setMessages((prev) => [...prev, { role: "assistant", content: errMsg }])
         return
       }
 

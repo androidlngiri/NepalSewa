@@ -1,87 +1,58 @@
 import { prisma } from "./prisma"
 
-export const SYSTEM_PROMPT = `You are NepalSewa — the friendly, expert assistant for Butwal's #1 local service marketplace at nepal-sewa.vercel.app.
+export const SYSTEM_PROMPT = `You are NepalSewa — a friendly local service marketplace assistant for Butwal, Nepal.
 
-## What is NepalSewa?
-NepalSewa connects people in Butwal, Nepal who need work done with skilled local taskers. Think of it like a bidding marketplace — you post what you need, taskers compete for the job, you pick the best one.
+NepalSewa connects customers with skilled local taskers. Users post requests, taskers bid with prices, users pick the best one. Payment via eSewa or cash. Commission: 5% standard, 3% PRO taskers.
 
-## How it works (for customers):
-1. Sign up as a user (email, phone/OTP, or Google)
-2. Click "Post a Request" — describe what you need (e.g. "Fix leaking pipe in my house")
-3. Set your budget and urgency (normal/urgent)
-4. Taskers in your area see your request and send bids with their prices
-5. You compare bids, check tasker ratings/reviews, and pick the best one
-6. Chat with the tasker to coordinate details
-7. After the job is done, you can pay via eSewa (online payment) or cash
-8. Leave a review and rating for the tasker
+8 service categories: Plumbing, Electrical, Painting, Cleaning, Moving/Delivery, Tech Support, Tutoring, Salon/Spa.
 
-## How it works (for taskers):
-1. Sign up as a tasker, complete your profile (bio, skills, area)
-2. Browse open requests in your area
-3. Send a bid with your price and message
-4. If the customer accepts your bid, you get assigned the job
-5. Complete the work, get paid
-6. Build your reputation through reviews and ratings
-7. Taskers can upgrade to PRO status for lower commission rates (3% vs 5%)
+## When to use tools:
+- Greetings or general questions: answer directly. No tools.
+- User wants a service or mentions booking: call search_services.
+- User is ready to book (has service + address): call create_booking_request.
 
-## CRITICAL — When to use tools:
-- Greetings (hello, hi, namaste, k cha): answer directly as a friendly assistant. Do NOT call any tools. Do NOT ask them to log in.
-- General questions (how does bidding work, what services, how to pay): answer directly from the info above. Do NOT call any tools.
-- Searching for services (plumber, AC repair, cleaning, tutor): call ONLY search_services. Do NOT call check_auth_status yet.
-- check_auth_status: ONLY call this when you ALREADY have the serviceId from search_services AND the user has given their address AND you are about to call create_booking_request. Not before.
-- create_booking_request: ONLY call this after search_services found a service AND you have the address AND check_auth_status confirmed logged in.
+## Examples of correct behavior:
 
-## Booking Flow:
-When a user wants to book or post a request:
-1. Call search_services to find matching services
-2. Present the matching services with their prices
-3. Ask for missing info: address/location (required), urgency, budget (optional)
-4. ONLY when you have serviceId + address: call check_auth_status
-5. If NOT logged in: say "Please log in first to post this request" and include this EXACT markdown link: [Login](/auth/signin) — the word Login must be in square brackets with /auth/signin in parentheses. This makes it clickable.
-6. If logged in AND you have all required info: call create_booking_request
-7. After successful booking: congratulate them and provide: [View Request](/dashboard/user/requests)
+User: hello
+Assistant: Namaste! I'm the NepalSewa assistant. How can I help you today?
 
-## Rules for booking:
-- NEVER call check_auth_status for greetings or general questions — only for bookings
-- NEVER call create_booking_request without a valid serviceId from search_services
-- NEVER call create_booking_request if check_auth_status returns isLoggedIn: false
-- If user gives partial info (e.g., just "plumber"), search first, then ask for address
-- If user gives everything at once, search + check auth + create in sequence
-- Always confirm with user before creating the booking
-- If multiple services match, let user pick one
-- Title should be short and clear (e.g., "Need pipe repair service")
-- Description should include what the user told you about the problem
+User: how does bidding work?
+Assistant: You post a request describing what you need. Taskers in your area see it and send bids with their prices. You compare bids, check ratings, and pick the best one. Simple!
 
-## Payments:
-- eSewa online payment (secure digital wallet)
-- Cash payment (pay tasker directly after job)
-- NepalSewa charges a small commission (3% for PRO taskers, 5% for standard taskers)
+User: I need a plumber
+Assistant: [calls search_services("plumber")]
+I found these plumbing services:
+1. Pipe Repair Service — Rs 500/visit
+2. Faucet Installation — Rs 300/piece
+Where is the problem? I need your address to post the request.
 
-## Key features:
-- **Bidding system** — taskers compete, customers get the best price
-- **Ratings & reviews** — every tasker has a rating, every job can be reviewed
-- **Location-based** — find taskers in your area in Butwal
-- **Real-time chat** — message taskers directly through the platform
-- **Pro taskers** — top-rated taskers get PRO status with lower fees
-- **Categories** — 8 service categories covering home, tech, education, beauty needs
+User: can you book service?
+Assistant: Of course! What kind of service do you need? For example: Plumbing, Electrical, Cleaning, Tutoring, Salon, and more. Just tell me what you need done.
 
-## Your personality:
-- Speak warmly and confidently, like a helpful local friend from Butwal
-- **Reply in Romanized Nepali** (Nepali written in English/Roman script) — e.g. "Tapai le request post garnus, tasker haru le bid pathaunxan, tapai le best choose garnus"
-- Match the language of the user — if they write in English, reply in English; if they write in Nepali (Roman or Devanagari), reply in Romanized Nepali
-- Be encouraging — help them feel good about using NepalSewa
-- Give step-by-step instructions when explaining processes
-- Use short paragraphs, bullet points when listing things
-- Always try to be helpful rather than deflecting
+User: book a plumber at Ward 5, Milijuli
+Assistant: [calls search_services("plumber")]
+Found: Pipe Repair Service (Rs 500/visit). You are not logged in. Please log in first: [Login](/auth/signin)
+
+User: I want cleaning service, near bus park, normal urgency
+Assistant: [calls search_services("cleaning")]
+Found: Deep Cleaning (Rs 400/session). You are not logged in. Please log in first: [Login](/auth/signin)
+
+User: how much for painting?
+Assistant: [calls search_services("painting")]
+Painting services are available. Final price depends on what taskers bid. Want me to help you post a request?
+
+User: what is the weather?
+Assistant: I can only help with NepalSewa services. Is there a service you need help with?
 
 ## Rules:
-- If asked about specific pricing, say prices are set by individual taskers through bidding
-- If asked about specific tasker availability, direct them to browse the services page
-- If asked about refunds or disputes, say to contact support
-- Never make up numbers for tasker counts, completed jobs, or satisfaction rates
-- Never give legal or financial advice
-- If asked something completely outside NepalSewa scope, politely redirect to the platform
-- Keep replies concise — under 4 sentences for simple questions, under 2 short paragraphs for complex ones`
+- Reply in the same language the user writes in (English or Romanized Nepali)
+- Be warm and helpful, like a local friend from Butwal
+- Keep replies short — under 4 sentences for simple questions
+- When showing services, always include price if available
+- When the user wants to book, ask for address (required), urgency, and budget (optional)
+- For login links use exactly: [Login](/auth/signin)
+- For tracking links use exactly: [View Request](/dashboard/user/requests)
+- Never make up numbers for tasker counts or completed jobs`
 
 export const TOOLS = [
   {
@@ -89,14 +60,14 @@ export const TOOLS = [
     function: {
       name: "search_services",
       description:
-        "Search for available services in NepalSewa. Use this when the user needs to find a service, asks about pricing, wants to book something, or describes a problem they need fixed.",
+        "Search for available services. Call this when the user wants to find, book, or ask about a service. Returns matching services with prices and the user's login status.",
       parameters: {
         type: "object",
         properties: {
           query: {
             type: "string",
             description:
-              "Search terms based on what the user described. Use keywords like 'plumber', 'AC repair', 'cleaning', 'painting', 'tutor', 'haircut', etc.",
+              "Search keywords based on what the user needs, e.g. 'plumber', 'cleaning', 'painting', 'tutor'",
           },
         },
         required: ["query"],
@@ -106,45 +77,31 @@ export const TOOLS = [
   {
     type: "function" as const,
     function: {
-      name: "check_auth_status",
-      description:
-        "Check if the current user is logged in. Use this before creating a booking to know if the user needs to sign in first.",
-      parameters: {
-        type: "object",
-        properties: {},
-      },
-    },
-  },
-  {
-    type: "function" as const,
-    function: {
       name: "create_booking_request",
       description:
-        "Create a new service request/booking on NepalSewa. Only call this when you have ALL required information: serviceId (from search_services), title, description, and address. NEVER call this if the user is not logged in.",
+        "Create a service request on NepalSewa. Only call this when you have ALL required info: a valid serviceId from search_services, a title, a description, and the user's address. The user MUST be logged in.",
       parameters: {
         type: "object",
         properties: {
           serviceId: {
             type: "string",
-            description: "The ID of the service. Must come from a search_services result.",
+            description: "The service ID from search_services results",
           },
           title: {
             type: "string",
-            description: "Short title for the request, e.g. 'Need pipe repair service'",
+            description: "Short title, e.g. 'Need pipe repair service'",
           },
           description: {
             type: "string",
-            description:
-              "Detailed description of what needs to be done, based on what the user told you.",
+            description: "What the user told you about the problem",
           },
           address: {
             type: "string",
-            description:
-              "The user's address or location in Butwal, e.g. 'Ward 5, Milijuli, near bus park'",
+            description: "The user's address or location in Butwal",
           },
           budget: {
             type: "number",
-            description: "Budget in NPR (optional, user may not provide)",
+            description: "Budget in NPR (optional)",
           },
           urgency: {
             type: "string",
@@ -158,22 +115,12 @@ export const TOOLS = [
   },
 ]
 
-const TEXT_FUNC_CALL_RE = /<function=(\w+)>\s*(\{[\s\S]*?\})\s*<\/function>/
-
-function parseTextFunctionCall(text: string): { name: string; args: string } | null {
-  const match = text.match(TEXT_FUNC_CALL_RE)
-  if (!match) return null
-  return { name: match[1], args: match[2] }
-}
-
-type SessionUser = {
-  id?: string
-  name?: string | null
-  role?: string
-}
-
 type Session = {
-  user?: SessionUser
+  user?: {
+    id?: string
+    name?: string | null
+    role?: string
+  }
 } | null
 
 interface ToolCall {
@@ -186,11 +133,23 @@ interface ToolCall {
 }
 
 async function executeTool(name: string, argsStr: string, session: Session): Promise<any> {
-  const args = JSON.parse(argsStr)
+  let args: any
+  try {
+    args = JSON.parse(argsStr)
+  } catch {
+    return { error: "Invalid arguments format" }
+  }
 
   switch (name) {
     case "search_services": {
       const query = args.query as string
+      if (!query || !query.trim()) {
+        return {
+          services: [],
+          isLoggedIn: !!session?.user?.id,
+          userName: session?.user?.name,
+        }
+      }
       const results = await prisma.service.findMany({
         where: {
           isActive: true,
@@ -204,24 +163,17 @@ async function executeTool(name: string, argsStr: string, session: Session): Pro
         },
         take: 5,
       })
-      return results.map((s) => ({
-        id: s.id,
-        name: s.name,
-        description: s.description,
-        price: s.price,
-        priceUnit: s.priceUnit,
-        category: s.category.name,
-        categorySlug: s.category.slug,
-      }))
-    }
-
-    case "check_auth_status": {
       return {
+        services: results.map((s) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          price: s.price,
+          priceUnit: s.priceUnit,
+          category: s.category.name,
+        })),
         isLoggedIn: !!session?.user?.id,
-        userId: session?.user?.id,
         userName: session?.user?.name,
-        role: session?.user?.role,
-        hint: "Only tell the user to login if you are about to call create_booking_request right after this. For greetings, questions, and searches — do NOT mention login at all. Just help them with what they asked.",
       }
     }
 
@@ -262,30 +214,34 @@ export async function* chatLoop(
   session: Session,
   apiKey: string,
 ): AsyncGenerator<string, void, unknown> {
-  const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+  const API_URL = "https://agentrouter.org/v1/chat/completions"
   const messages = [...initialMessages]
 
-  for (let turn = 0; turn < 5; turn++) {
-    const res = await fetch(GROQ_URL, {
+  for (let turn = 0; turn < 3; turn++) {
+    const res = await fetch(API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "gpt-4o-mini",
         messages,
         tools: TOOLS,
         tool_choice: "auto",
         max_tokens: 1024,
-        temperature: 0.7,
+        temperature: 0.4,
       }),
     })
 
     if (!res.ok) {
       const err = await res.text()
-      console.error("Groq API error:", res.status, err)
-      yield "I'm sorry, I couldn't process that. Please try again."
+      console.error("AI API error:", res.status, err)
+      if (res.status === 429) {
+        yield "I'm getting a lot of requests right now. Please wait a moment and try again."
+      } else {
+        yield "I'm sorry, I couldn't process that. Please try again."
+      }
       return
     }
 
@@ -299,32 +255,12 @@ export async function* chatLoop(
 
     const { finish_reason, message } = choice
 
-    // Normal text response — done
     if (finish_reason === "stop" && message?.content) {
-      // Check if the model wrote a function call as text instead of using tool_calls
-      const textCall = parseTextFunctionCall(message.content)
-      if (textCall) {
-        const validTool = TOOLS.some((t) => t.function.name === textCall.name)
-        if (validTool) {
-          messages.push({ role: "assistant", content: message.content })
-          yield `__TOOL_START__:${textCall.name}`
-          const result = await executeTool(textCall.name, textCall.args, session)
-          yield `__TOOL_END__:${textCall.name}`
-          messages.push({
-            role: "tool",
-            tool_call_id: `text_${Date.now()}`,
-            content: JSON.stringify(result),
-          })
-          continue
-        }
-      }
       yield message.content
       return
     }
 
-    // Tool calls — execute and loop
     if (finish_reason === "tool_calls" && message?.tool_calls) {
-      // Push assistant message with tool_calls
       messages.push(message)
 
       for (const tc of message.tool_calls as ToolCall[]) {
@@ -337,17 +273,21 @@ export async function* chatLoop(
 
         messages.push({
           role: "tool",
-          tool_call_id: tc.id,
+          tool_call_id: tc.id || `tool_${Date.now()}`,
           content: JSON.stringify(result),
         })
       }
       continue
     }
 
-    // Fallback — no content, no tool calls
+    if (message?.content) {
+      yield message.content
+      return
+    }
+
     yield "I'm sorry, something went wrong. Please try again."
     return
   }
 
-  yield "I'm sorry, I took too long. Please try again with a shorter message."
+  yield "I'm sorry, that took too long. Please try with a shorter message."
 }

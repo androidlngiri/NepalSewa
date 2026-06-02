@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const apiKey = process.env.GROQ_API_KEY
+    const apiKey = process.env.AGENTROUTER_API_KEY
     if (!apiKey) {
       return new Response(
         JSON.stringify({
