@@ -36,9 +36,7 @@ function TypingDots() {
 
 function ToolStatus({ tool, done }: { tool: string; done: boolean }) {
   const labels: Record<string, string> = {
-    search_services: "Searching services",
-    check_auth_status: "Checking login",
-    create_booking_request: "Creating request",
+    find_and_book_service: "Finding services",
   }
   return (
     <div className="text-muted-foreground flex items-center gap-2 px-3 py-1.5 text-xs">
@@ -52,15 +50,27 @@ function ToolStatus({ tool, done }: { tool: string; done: boolean }) {
   )
 }
 
+const CHAT_STORAGE_KEY = "nepalsewa-chat-history"
+const CHAT_GREETING =
+  "Hi! I'm the NepalSewa assistant. Ask me anything about our services, or just tell me what you need done and I'll help you book a service."
+const MAX_STORED_MESSAGES = 50
+
+function loadChatHistory(): Message[] {
+  if (typeof window === "undefined") return [{ role: "assistant", content: CHAT_GREETING }]
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {}
+  return [{ role: "assistant", content: CHAT_GREETING }]
+}
+
 export function ChatBot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "assistant",
-      content:
-        "Hi! I'm the NepalSewa assistant. Ask me anything about our services, or just tell me what you need done and I'll help you book a service.",
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loaded, setLoaded] = useState(false)
   const [input, setInput] = useState("")
   const [streaming, setStreaming] = useState(false)
   const [activeTools, setActiveTools] = useState<Record<string, boolean>>({})
@@ -72,6 +82,18 @@ export function ChatBot() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, streaming, activeTools])
+
+  useEffect(() => {
+    setMessages(loadChatHistory())
+    setLoaded(true)
+  }, [])
+
+  useEffect(() => {
+    if (loaded && typeof window !== "undefined") {
+      const toStore = messages.slice(-MAX_STORED_MESSAGES)
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toStore))
+    }
+  }, [messages, loaded])
 
   useEffect(() => {
     return () => abortRef.current?.abort()
