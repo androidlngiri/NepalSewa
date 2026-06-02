@@ -66,6 +66,7 @@ export function ChatBot() {
   const [activeTools, setActiveTools] = useState<Record<string, boolean>>({})
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const speech = useSpeech()
 
   useEffect(() => {
@@ -179,6 +180,7 @@ export function ChatBot() {
       setStreaming(false)
       setActiveTools({})
       abortRef.current = null
+      setTimeout(() => inputRef.current?.focus(), 50)
     }
   }
 
@@ -289,6 +291,7 @@ export function ChatBot() {
               </button>
             )}
             <input
+              ref={inputRef}
               autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}

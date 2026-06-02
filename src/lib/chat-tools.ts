@@ -73,7 +73,14 @@ When a user wants to book or post a request:
 - Never make up numbers for tasker counts, completed jobs, or satisfaction rates
 - Never give legal or financial advice
 - If asked something completely outside NepalSewa scope, politely redirect to the platform
-- Keep replies concise — under 4 sentences for simple questions, under 2 short paragraphs for complex ones`
+- Keep replies concise — under 4 sentences for simple questions, under 2 short paragraphs for complex ones
+
+## CRITICAL — Tool Calling Rules:
+- You have access to tools (search_services, check_auth_status, create_booking_request).
+- When you need to search, check login, or create a booking, you MUST call the tool using the tool_calls mechanism provided by the API.
+- NEVER write function calls as text like <function=name>... or function... . If you write them as text, they will NOT be executed and the user will see broken output.
+- If the user wants to book a service, call search_services first, then ask for details, then check_auth_status, then create_booking_request.
+- If the user just has a question, answer directly without calling tools.`
 
 export const TOOLS = [
   {
@@ -149,6 +156,14 @@ export const TOOLS = [
     },
   },
 ]
+
+const TEXT_FUNC_CALL_RE = /<function=(\w+)>\s*(\{[\s\S]*?\})\s*<\/function>/
+
+function parseTextFunctionCall(text: string): { name: string; args: string } | null {
+  const match = text.match(TEXT_FUNC_CALL_RE)
+  if (!match) return null
+  return { name: match[1], args: match[2] }
+}
 
 type SessionUser = {
   id?: string
@@ -284,6 +299,23 @@ export async function* chatLoop(
 
     // Normal text response — done
     if (finish_reason === "stop" && message?.content) {
+      // Check if the model wrote a function call as text instead of using tool_calls
+      const textCall = parseTextFunctionCall(message.content)
+      if (textCall) {
+        const validTool = TOOLS.some((t) => t.function.name === textCall.name)
+        if (validTool) {
+          messages.push({ role: "assistant", content: message.content })
+          yield `__TOOL_START__:${textCall.name}`
+          const result = await executeTool(textCall.name, textCall.args, session)
+          yield `__TOOL_END__:${textCall.name}`
+          messages.push({
+            role: "tool",
+            tool_call_id: `text_${Date.now()}`,
+            content: JSON.stringify(result),
+          })
+          continue
+        }
+      }
       yield message.content
       return
     }
