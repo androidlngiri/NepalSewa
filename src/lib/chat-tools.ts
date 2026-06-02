@@ -6,110 +6,78 @@ NepalSewa connects customers with skilled local taskers. Users post requests, ta
 
 8 service categories: Plumbing, Electrical, Painting, Cleaning, Moving/Delivery, Tech Support, Tutoring, Salon/Spa.
 
-## When to use tools:
-- Greetings or general questions: answer directly. No tools.
-- User wants a service or mentions booking: call search_services.
-- User is ready to book (has service + address): call create_booking_request.
+## CRITICAL RULES:
+1. For greetings or general questions: answer directly. Do NOT call any tool.
+2. When user wants a service or mentions booking: call find_and_book_service with ONLY query (no address). It returns matching services + login status.
+3. If user is NOT logged in, show the services and tell them to log in: [Login](/auth/signin). Do NOT call find_and_book_service with address.
+4. If user IS logged in AND has provided address: call find_and_book_service with query AND address/urgency/budget. It will create the booking automatically.
+5. NEVER call find_and_book_service for greetings, questions, or non-service topics.
 
-## Examples of correct behavior:
+## Examples:
 
 User: hello
 Assistant: Namaste! I'm the NepalSewa assistant. How can I help you today?
 
 User: how does bidding work?
-Assistant: You post a request describing what you need. Taskers in your area see it and send bids with their prices. You compare bids, check ratings, and pick the best one. Simple!
+Assistant: You post a request describing what you need. Taskers see it and send bids. You compare, check ratings, pick the best one!
 
 User: I need a plumber
-Assistant: [calls search_services("plumber")]
+Assistant: [calls find_and_book_service(query="plumber")]
 I found these plumbing services:
 1. Pipe Repair Service — Rs 500/visit
 2. Faucet Installation — Rs 300/piece
 Where is the problem? I need your address to post the request.
 
-User: can you book service?
-Assistant: Of course! What kind of service do you need? For example: Plumbing, Electrical, Cleaning, Tutoring, Salon, and more. Just tell me what you need done.
+User: deepnagar, normal, 1000
+Assistant: [calls find_and_book_service(query="plumber", address="deepnagar", urgency="normal", budget=1000)]
+Your request has been posted! Taskers in your area will start bidding soon. You can track it here: [View Request](/dashboard/user/requests)
 
-User: book a plumber at Ward 5, Milijuli
-Assistant: [calls search_services("plumber")]
-Found: Pipe Repair Service (Rs 500/visit). You are not logged in. Please log in first: [Login](/auth/signin)
-
-User: I want cleaning service, near bus park, normal urgency
-Assistant: [calls search_services("cleaning")]
-Found: Deep Cleaning (Rs 400/session). You are not logged in. Please log in first: [Login](/auth/signin)
-
-User: how much for painting?
-Assistant: [calls search_services("painting")]
-Painting services are available. Final price depends on what taskers bid. Want me to help you post a request?
+User: I want cleaning, near bus park, urgent
+Assistant: [calls find_and_book_service(query="cleaning", address="near bus park", urgency="urgent")]
+Your cleaning request is live! Taskers will bid shortly. Track here: [View Request](/dashboard/user/requests)
 
 User: what is the weather?
 Assistant: I can only help with NepalSewa services. Is there a service you need help with?
 
-## Rules:
+## Style:
 - Reply in the same language the user writes in (English or Romanized Nepali)
-- Be warm and helpful, like a local friend from Butwal
-- Keep replies short — under 4 sentences for simple questions
-- When showing services, always include price if available
-- When the user wants to book, ask for address (required), urgency, and budget (optional)
-- For login links use exactly: [Login](/auth/signin)
-- For tracking links use exactly: [View Request](/dashboard/user/requests)
-- Never make up numbers for tasker counts or completed jobs`
+- Be warm, like a local friend from Butwal
+- Keep replies short — under 4 sentences
+- When showing services, include price if available
+- For login links: [Login](/auth/signin)
+- For tracking links: [View Request](/dashboard/user/requests)
+- Never invent numbers for tasker counts or completed jobs`
 
 export const TOOLS = [
   {
     type: "function" as const,
     function: {
-      name: "search_services",
+      name: "find_and_book_service",
       description:
-        "Search for available services. Call this when the user wants to find, book, or ask about a service. Returns matching services with prices and the user's login status.",
+        "Search for services AND optionally create a booking in one call. When called with only query, it returns matching services and the user's login status. When called with query AND address, it creates a booking request automatically (user must be logged in).",
       parameters: {
         type: "object",
         properties: {
           query: {
             type: "string",
-            description:
-              "Search keywords based on what the user needs, e.g. 'plumber', 'cleaning', 'painting', 'tutor'",
-          },
-        },
-        required: ["query"],
-      },
-    },
-  },
-  {
-    type: "function" as const,
-    function: {
-      name: "create_booking_request",
-      description:
-        "Create a service request on NepalSewa. Only call this when you have ALL required info: a valid serviceId from search_services, a title, a description, and the user's address. The user MUST be logged in.",
-      parameters: {
-        type: "object",
-        properties: {
-          serviceId: {
-            type: "string",
-            description: "The service ID from search_services results",
-          },
-          title: {
-            type: "string",
-            description: "Short title, e.g. 'Need pipe repair service'",
-          },
-          description: {
-            type: "string",
-            description: "What the user told you about the problem",
+            description: "Search keywords: 'plumber', 'cleaning', 'painting', 'tutor', etc.",
           },
           address: {
             type: "string",
-            description: "The user's address or location in Butwal",
+            description:
+              "User's address or location in Butwal. ONLY include if the user has provided it AND is logged in.",
+          },
+          urgency: {
+            type: "string",
+            enum: ["low", "normal", "urgent", "emergency"],
+            description: "How urgent the job is (optional)",
           },
           budget: {
             type: "number",
             description: "Budget in NPR (optional)",
           },
-          urgency: {
-            type: "string",
-            enum: ["low", "normal", "urgent", "emergency"],
-            description: "How urgent the job is",
-          },
         },
-        required: ["serviceId", "title", "description", "address"],
+        required: ["query"],
       },
     },
   },
@@ -140,73 +108,75 @@ async function executeTool(name: string, argsStr: string, session: Session): Pro
     return { error: "Invalid arguments format" }
   }
 
-  switch (name) {
-    case "search_services": {
-      const query = args.query as string
-      if (!query || !query.trim()) {
-        return {
-          services: [],
-          isLoggedIn: !!session?.user?.id,
-          userName: session?.user?.name,
-        }
-      }
-      const results = await prisma.service.findMany({
-        where: {
-          isActive: true,
-          OR: [
-            { name: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-          ],
-        },
-        include: {
-          category: { select: { name: true, slug: true } },
-        },
-        take: 5,
-      })
+  if (name === "find_and_book_service") {
+    const query = args.query as string
+    if (!query || !query.trim()) {
       return {
-        services: results.map((s) => ({
-          id: s.id,
-          name: s.name,
-          description: s.description,
-          price: s.price,
-          priceUnit: s.priceUnit,
-          category: s.category.name,
-        })),
+        services: [],
         isLoggedIn: !!session?.user?.id,
         userName: session?.user?.name,
       }
     }
 
-    case "create_booking_request": {
-      if (!session?.user?.id) {
-        return { success: false, error: "User not logged in" }
-      }
+    // Always search for matching services
+    const results = await prisma.service.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      include: { category: { select: { name: true, slug: true } } },
+      take: 5,
+    })
 
-      const service = await prisma.service.findUnique({
-        where: { id: args.serviceId },
-      })
-      if (!service) {
-        return { success: false, error: "Service not found" }
-      }
+    const services = results.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      price: s.price,
+      priceUnit: s.priceUnit,
+      category: s.category.name,
+    }))
 
+    // If address provided and user is logged in → create booking
+    const address = args.address as string | undefined
+    if (address && session?.user?.id) {
+      if (results.length === 0) {
+        return { services, isLoggedIn: true, booked: false, error: "No matching services found" }
+      }
+      const service = results[0]
       const request = await prisma.request.create({
         data: {
           userId: session.user.id,
-          serviceId: args.serviceId,
-          title: args.title,
-          description: args.description,
-          location: args.address,
+          serviceId: service.id,
+          title: `Need ${service.name.toLowerCase()} service`,
+          description: `Booked via chatbot: ${query}`,
+          location: address,
           budget: args.budget ? Number(args.budget) : null,
           urgency: args.urgency || "normal",
         },
       })
-
-      return { success: true, requestId: request.id }
+      return {
+        services,
+        isLoggedIn: true,
+        booked: true,
+        requestId: request.id,
+        serviceName: service.name,
+      }
     }
 
-    default:
-      return { error: `Unknown tool: ${name}` }
+    // No address or not logged in → just return search results
+    return {
+      services,
+      isLoggedIn: !!session?.user?.id,
+      userName: session?.user?.name,
+      booked: false,
+    }
   }
+
+  return { error: `Unknown tool: ${name}` }
 }
 
 export async function* chatLoop(
@@ -217,7 +187,7 @@ export async function* chatLoop(
   const API_URL = "https://openrouter.ai/api/v1/chat/completions"
   const messages = [...initialMessages]
 
-  for (let turn = 0; turn < 3; turn++) {
+  for (let turn = 0; turn < 5; turn++) {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -289,5 +259,5 @@ export async function* chatLoop(
     return
   }
 
-  yield "I'm sorry, that took too long. Please try with a shorter message."
+  yield "I'm sorry, that took too long. Please try again."
 }
