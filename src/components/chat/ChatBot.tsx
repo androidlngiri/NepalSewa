@@ -1,9 +1,23 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { MessageSquare, X, Send, Loader2, Bot, User, Search, CheckCircle2 } from "lucide-react"
+import {
+  MessageSquare,
+  X,
+  Send,
+  Loader2,
+  Bot,
+  User,
+  Search,
+  CheckCircle2,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ReactMarkdown from "react-markdown"
+import { useSpeech } from "@/hooks/use-speech"
 
 interface Message {
   role: "user" | "assistant"
@@ -52,6 +66,7 @@ export function ChatBot() {
   const [activeTools, setActiveTools] = useState<Record<string, boolean>>({})
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const speech = useSpeech()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -61,10 +76,19 @@ export function ChatBot() {
     return () => abortRef.current?.abort()
   }, [])
 
+  useEffect(() => {
+    if (speech.transcript) {
+      setInput(speech.transcript)
+      speech.setTranscript("")
+    }
+  }, [speech.transcript])
+
   async function sendMessage() {
     if (!input.trim() || streaming) return
     const userMsg = input.trim()
     setInput("")
+    speech.stopListening()
+    speech.stopSpeaking()
     setMessages((prev) => [...prev, { role: "user", content: userMsg }])
     setStreaming(true)
 
@@ -140,6 +164,10 @@ export function ChatBot() {
           }
         }
       }
+
+      if (speech.voiceEnabled && assistantContent) {
+        setTimeout(() => speech.speak(assistantContent), 300)
+      }
     } catch (err: any) {
       if (err.name !== "AbortError") {
         setMessages((prev) => [
@@ -151,6 +179,14 @@ export function ChatBot() {
       setStreaming(false)
       setActiveTools({})
       abortRef.current = null
+    }
+  }
+
+  function toggleMic() {
+    if (speech.listening) {
+      speech.stopListening()
+    } else {
+      speech.startListening()
     }
   }
 
@@ -173,9 +209,24 @@ export function ChatBot() {
               <Bot className="h-5 w-5" />
               <span className="text-sm font-semibold">NepalSewa Assistant</span>
             </div>
-            <button onClick={() => setOpen(false)} aria-label="Close chat">
-              <X className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-1">
+              {speech.speechSupported && (
+                <button
+                  onClick={() => speech.setVoiceEnabled(!speech.voiceEnabled)}
+                  className="rounded-md p-1.5 transition-colors hover:bg-white/20"
+                  aria-label={speech.voiceEnabled ? "Mute voice" : "Enable voice"}
+                >
+                  {speech.voiceEnabled ? (
+                    <Volume2 className="h-4 w-4" />
+                  ) : (
+                    <VolumeX className="h-4 w-4 opacity-60" />
+                  )}
+                </button>
+              )}
+              <button onClick={() => setOpen(false)} aria-label="Close chat">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           <div className="flex h-80 flex-col gap-3 overflow-y-auto p-4">
@@ -224,12 +275,27 @@ export function ChatBot() {
           </div>
 
           <div className="flex items-center gap-2 border-t p-3">
+            {speech.speechSupported && (
+              <button
+                onClick={toggleMic}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
+                  speech.listening
+                    ? "animate-pulse bg-red-500 text-white"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                }`}
+                aria-label={speech.listening ? "Stop listening" : "Start voice input"}
+              >
+                {speech.listening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+              </button>
+            )}
             <input
               autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              placeholder="Type your question..."
+              placeholder={
+                speech.listening ? "Listening... speak now..." : "Type or tap mic to speak..."
+              }
               className="bg-muted/50 flex-1 rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500"
               disabled={streaming}
             />

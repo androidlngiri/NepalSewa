@@ -18,6 +18,15 @@ vi.stubGlobal(
   }),
 )
 
+vi.stubGlobal("speechSynthesis", {
+  cancel: vi.fn(),
+  speak: vi.fn(),
+  getVoices: vi.fn().mockReturnValue([]),
+})
+
+vi.stubGlobal("SpeechRecognition", undefined)
+vi.stubGlobal("webkitSpeechRecognition", undefined)
+
 import { ChatBot } from "@/components/chat/ChatBot"
 
 describe("ChatBot", () => {
@@ -50,7 +59,7 @@ describe("ChatBot", () => {
   it("has an input field", () => {
     render(<ChatBot />)
     fireEvent.click(screen.getByLabelText("Open chat"))
-    expect(screen.getByPlaceholderText("Type your question...")).toBeInTheDocument()
+    expect(screen.getByPlaceholderText("Type or tap mic to speak...")).toBeInTheDocument()
   })
 
   it("has a send button", () => {
