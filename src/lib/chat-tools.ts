@@ -214,7 +214,7 @@ export async function* chatLoop(
   session: Session,
   apiKey: string,
 ): AsyncGenerator<string, void, unknown> {
-  const API_URL = "https://agentrouter.org/v1/chat/completions"
+  const API_URL = "https://openrouter.ai/api/v1/chat/completions"
   const messages = [...initialMessages]
 
   for (let turn = 0; turn < 3; turn++) {
@@ -225,7 +225,7 @@ export async function* chatLoop(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "openrouter/owl-alpha",
         messages,
         tools: TOOLS,
         tool_choice: "auto",
