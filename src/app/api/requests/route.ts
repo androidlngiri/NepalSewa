@@ -27,7 +27,10 @@ export async function GET(req: Request) {
     if (role === "admin" || isAdmin) {
       // admins see all requests (optional status filter still applies)
     } else if (role === "tasker") {
-      where.taskerAssignments = { some: { taskerId: session.user.id } }
+      // Taskers see all OPEN requests (excluding their own and ones they already bid on)
+      where.status = "OPEN"
+      where.userId = { not: session.user.id }
+      where.bids = { none: { taskerId: session.user.id } }
     } else {
       where.userId = session.user.id
     }
@@ -101,10 +104,7 @@ export async function GET(req: Request) {
     }
     return NextResponse.json(requests)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch requests" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch requests" }, { status: 500 })
   }
 }
 
@@ -129,10 +129,7 @@ export async function POST(req: Request) {
     } = body
 
     if (!serviceId || !title || !description) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     const request = await prisma.request.create({
@@ -152,9 +149,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to create request" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create request" }, { status: 500 })
   }
 }

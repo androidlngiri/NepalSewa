@@ -38,7 +38,7 @@ export default function TaskerDashboardPage() {
       try {
         const [dashRes, jobsRes] = await Promise.all([
           fetch("/api/dashboard"),
-          fetch("/api/requests"),
+          fetch("/api/requests?role=tasker"),
         ])
         if (dashRes.ok) setData(await dashRes.json())
         if (jobsRes.ok) setOpenJobs(await jobsRes.json())

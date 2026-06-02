@@ -46,7 +46,7 @@ export default function TaskerJobsPage() {
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    fetch("/api/requests")
+    fetch("/api/requests?role=tasker")
       .then((r) => r.json())
       .then((data) => {
         setJobs(data)
