@@ -22,6 +22,17 @@ export function formatDate(date: Date | string): string {
   }).format(new Date(date))
 }
 
+export function formatDateTime(date: Date | string): string {
+  return new Intl.DateTimeFormat("ne-NP", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(date))
+}
+
 export function slugify(str: string): string {
   return str
     .toLowerCase()
