@@ -58,7 +58,7 @@ export async function PATCH(req: Request) {
       data: {
         ...(name !== undefined && { name: sanitize(name) }),
         ...(email !== undefined && { email: email || null }),
-        ...(phone !== undefined && { phone }),
+        ...(phone !== undefined && { phone: phone || null }),
         ...(wardNo !== undefined && { wardNo: wardNo ? parseInt(wardNo) : null }),
         ...(address !== undefined && { address }),
         ...(bio !== undefined && { bio: sanitize(bio) }),
