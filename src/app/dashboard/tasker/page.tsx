@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import {
   Briefcase,
   CheckCircle2,
+  CheckCircle,
   DollarSign,
   Star,
   Loader2,
@@ -62,6 +63,7 @@ export default function TaskerDashboardPage() {
   const [bidMessage, setBidMessage] = useState("")
   const [biddingId, setBiddingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [bidsPlaced, setBidsPlaced] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     async function load() {
@@ -106,7 +108,7 @@ export default function TaskerDashboardPage() {
       setBiddingId(null)
       setBidAmount("")
       setBidMessage("")
-      setOpenJobs((prev) => prev.filter((j) => j.id !== requestId))
+      setBidsPlaced((prev) => new Set(prev).add(requestId))
       router.refresh()
     } catch {
       toast.error("Something went wrong")
@@ -276,79 +278,86 @@ export default function TaskerDashboardPage() {
                                 Details
                               </Button>
                             </Link>
-                            <Dialog
-                              open={biddingId === job.id}
-                              onOpenChange={(open) => {
-                                setBiddingId(open ? job.id : null)
-                                if (!open) {
-                                  setBidAmount("")
-                                  setBidMessage("")
-                                }
-                              }}
-                            >
-                              <DialogTrigger
-                                render={
-                                  <Button
-                                    size="sm"
-                                    className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
-                                  >
-                                    <Send className="mr-1 h-4 w-4" />
-                                    Bid
-                                  </Button>
-                                }
-                              />
-                              <DialogContent className="sm:max-w-md">
-                                <DialogHeader>
-                                  <DialogTitle className="text-lg">Place a Bid</DialogTitle>
-                                  <p className="text-muted-foreground text-sm font-normal">
-                                    {job.title}
-                                  </p>
-                                </DialogHeader>
-                                <div className="space-y-4 pt-2">
-                                  <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-3 text-sm">
-                                    <span className="text-emerald-700">Suggested budget</span>
-                                    <span className="font-bold text-emerald-700">
-                                      {job.budget ? formatPrice(job.budget) : "Not specified"}
-                                    </span>
+                            {bidsPlaced.has(job.id) ? (
+                              <Badge className="h-9 gap-1 bg-emerald-100 px-3 text-emerald-700">
+                                <CheckCircle className="h-3.5 w-3.5" />
+                                Bid Placed
+                              </Badge>
+                            ) : (
+                              <Dialog
+                                open={biddingId === job.id}
+                                onOpenChange={(open) => {
+                                  setBiddingId(open ? job.id : null)
+                                  if (!open) {
+                                    setBidAmount("")
+                                    setBidMessage("")
+                                  }
+                                }}
+                              >
+                                <DialogTrigger
+                                  render={
+                                    <Button
+                                      size="sm"
+                                      className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700"
+                                    >
+                                      <Send className="mr-1 h-4 w-4" />
+                                      Bid
+                                    </Button>
+                                  }
+                                />
+                                <DialogContent className="sm:max-w-md">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-lg">Place a Bid</DialogTitle>
+                                    <p className="text-muted-foreground text-sm font-normal">
+                                      {job.title}
+                                    </p>
+                                  </DialogHeader>
+                                  <div className="space-y-4 pt-2">
+                                    <div className="flex items-center justify-between rounded-lg bg-emerald-50 p-3 text-sm">
+                                      <span className="text-emerald-700">Suggested budget</span>
+                                      <span className="font-bold text-emerald-700">
+                                        {job.budget ? formatPrice(job.budget) : "Not specified"}
+                                      </span>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <label className="text-sm font-medium">
+                                        Your Price (NPR) *
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        placeholder="e.g., 5000"
+                                        className="h-12 text-base"
+                                        value={biddingId === job.id ? bidAmount : ""}
+                                        onChange={(e) => setBidAmount(e.target.value)}
+                                      />
+                                    </div>
+                                    <div className="space-y-2">
+                                      <label className="text-sm font-medium">
+                                        Why you? (optional)
+                                      </label>
+                                      <Textarea
+                                        placeholder="Tell the customer why you're the best fit..."
+                                        rows={2}
+                                        value={biddingId === job.id ? bidMessage : ""}
+                                        onChange={(e) => setBidMessage(e.target.value)}
+                                      />
+                                    </div>
+                                    <Button
+                                      className="h-12 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white"
+                                      onClick={() => handleBid(job.id)}
+                                      disabled={submitting}
+                                    >
+                                      {submitting ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Send className="mr-2 h-4 w-4" />
+                                      )}
+                                      Submit Bid
+                                    </Button>
                                   </div>
-                                  <div className="space-y-2">
-                                    <label className="text-sm font-medium">
-                                      Your Price (NPR) *
-                                    </label>
-                                    <Input
-                                      type="number"
-                                      placeholder="e.g., 5000"
-                                      className="h-12 text-base"
-                                      value={biddingId === job.id ? bidAmount : ""}
-                                      onChange={(e) => setBidAmount(e.target.value)}
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <label className="text-sm font-medium">
-                                      Why you? (optional)
-                                    </label>
-                                    <Textarea
-                                      placeholder="Tell the customer why you're the best fit..."
-                                      rows={2}
-                                      value={biddingId === job.id ? bidMessage : ""}
-                                      onChange={(e) => setBidMessage(e.target.value)}
-                                    />
-                                  </div>
-                                  <Button
-                                    className="h-12 w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white"
-                                    onClick={() => handleBid(job.id)}
-                                    disabled={submitting}
-                                  >
-                                    {submitting ? (
-                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                      <Send className="mr-2 h-4 w-4" />
-                                    )}
-                                    Submit Bid
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                                </DialogContent>
+                              </Dialog>
+                            )}
                           </div>
                         </div>
                       </div>
