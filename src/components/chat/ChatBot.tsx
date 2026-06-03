@@ -55,7 +55,7 @@ const CHAT_GREETING =
   "Hi! I'm the NepalSewa assistant. Ask me anything about our services, or just tell me what you need done and I'll help you book a service."
 const MAX_STORED_MESSAGES = 50
 
-function loadChatHistory(): Message[] {
+function getInitialMessages(): Message[] {
   if (typeof window === "undefined") return [{ role: "assistant", content: CHAT_GREETING }]
   try {
     const stored = localStorage.getItem(CHAT_STORAGE_KEY)
@@ -69,8 +69,7 @@ function loadChatHistory(): Message[] {
 
 export function ChatBot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [loaded, setLoaded] = useState(false)
+  const [messages, setMessages] = useState<Message[]>(getInitialMessages)
   const [input, setInput] = useState("")
   const [streaming, setStreaming] = useState(false)
   const [activeTools, setActiveTools] = useState<Record<string, boolean>>({})
@@ -84,16 +83,11 @@ export function ChatBot() {
   }, [messages, streaming, activeTools])
 
   useEffect(() => {
-    setMessages(loadChatHistory())
-    setLoaded(true)
-  }, [])
-
-  useEffect(() => {
-    if (loaded && typeof window !== "undefined") {
+    if (typeof window !== "undefined" && messages.length > 0) {
       const toStore = messages.slice(-MAX_STORED_MESSAGES)
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toStore))
     }
-  }, [messages, loaded])
+  }, [messages])
 
   useEffect(() => {
     return () => abortRef.current?.abort()
