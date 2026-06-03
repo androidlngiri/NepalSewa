@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut } from "next-auth/react"
@@ -19,6 +20,7 @@ import {
   Percent,
   Bell,
   Mail,
+  ChevronDown,
 } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -77,6 +79,9 @@ export function DashboardNav({
   onToggleSidebar,
 }: DashboardNavProps) {
   const pathname = usePathname()
+  const isUserPage = pathname.startsWith("/dashboard/user")
+  const [customerExpanded, setCustomerExpanded] = useState(isUserPage)
+  const [taskerExpanded, setTaskerExpanded] = useState(!isUserPage)
 
   const initials =
     userName
@@ -163,21 +168,41 @@ export function DashboardNav({
             </div>
           ) : isTasker ? (
             <div className="space-y-1">
-              <p className="text-muted-foreground px-4 py-2 text-xs font-semibold tracking-wider uppercase">
-                <User className="mr-1 inline h-3 w-3" />
-                Customer
-              </p>
-              {userNav.map((item) => (
-                <NavItem key={item.href} {...item} />
-              ))}
+              <button
+                type="button"
+                onClick={() => setCustomerExpanded(!customerExpanded)}
+                className="text-muted-foreground hover:text-foreground flex w-full items-center justify-between px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors"
+              >
+                <span className="flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  Customer
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    customerExpanded && "rotate-180",
+                  )}
+                />
+              </button>
+              {customerExpanded && userNav.map((item) => <NavItem key={item.href} {...item} />)}
               <div className="my-3 border-t" />
-              <p className="text-muted-foreground px-4 py-2 text-xs font-semibold tracking-wider uppercase">
-                <Briefcase className="mr-1 inline h-3 w-3" />
-                Tasker
-              </p>
-              {taskerNav.map((item) => (
-                <NavItem key={item.href} {...item} />
-              ))}
+              <button
+                type="button"
+                onClick={() => setTaskerExpanded(!taskerExpanded)}
+                className="text-muted-foreground hover:text-foreground flex w-full items-center justify-between px-4 py-2 text-xs font-semibold tracking-wider uppercase transition-colors"
+              >
+                <span className="flex items-center gap-1">
+                  <Briefcase className="h-3 w-3" />
+                  Tasker
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 transition-transform duration-200",
+                    taskerExpanded && "rotate-180",
+                  )}
+                />
+              </button>
+              {taskerExpanded && taskerNav.map((item) => <NavItem key={item.href} {...item} />)}
             </div>
           ) : role === "user" ? (
             <div className="space-y-1">

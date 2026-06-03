@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, MessageSquare, CheckCircle2, Clock } from "lucide-react"
+import { Loader2, ArrowLeft, MessageSquare, CheckCircle2, Clock, XCircle } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,6 +33,7 @@ export default function MyBidsPage() {
   const [bids, setBids] = useState<MyBid[]>([])
   const [loading, setLoading] = useState(true)
   const [markingId, setMarkingId] = useState<string | null>(null)
+  const [cancellingId, setCancellingId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/bids")
@@ -74,6 +75,25 @@ export default function MyBidsPage() {
       toast.error("Something went wrong")
     } finally {
       setMarkingId(null)
+    }
+  }
+
+  async function handleCancelBid(bidId: string, jobTitle: string) {
+    if (!confirm(`Cancel your bid on "${jobTitle}"? This cannot be undone.`)) return
+    setCancellingId(bidId)
+    try {
+      const res = await fetch(`/api/bids/${bidId}`, { method: "DELETE" })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "Failed to cancel bid")
+        return
+      }
+      toast.success("Bid cancelled")
+      setBids((prev) => prev.filter((b) => b.id !== bidId))
+    } catch {
+      toast.error("Something went wrong")
+    } finally {
+      setCancellingId(null)
     }
   }
 
@@ -136,6 +156,22 @@ export default function MyBidsPage() {
                           {formatPrice(bid.amount)}
                         </span>
                         {badgeForStatus(bid.status)}
+                        {bid.status === "PENDING" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                            onClick={() => handleCancelBid(bid.id, bid.request.title)}
+                            disabled={cancellingId === bid.id}
+                          >
+                            {cancellingId === bid.id ? (
+                              <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <XCircle className="mr-1 h-3.5 w-3.5" />
+                            )}
+                            Cancel Bid
+                          </Button>
+                        )}
                         {bid.status === "ACCEPTED" && assignment?.status === "IN_PROGRESS" && (
                           <Button
                             variant="outline"
