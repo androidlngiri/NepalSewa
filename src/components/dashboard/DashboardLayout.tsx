@@ -15,11 +15,12 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const { data: session, status } = useSession()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (status === "loading") {
     return (
       <div className="flex min-h-screen flex-col lg:flex-row">
-        <div className="hidden w-64 border-r bg-background lg:block" />
+        <div className="bg-background hidden w-64 border-r lg:block" />
         <main className="flex-1 bg-gray-50/50">
           <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
             <DashboardSkeleton />
@@ -41,8 +42,6 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     }
   }
 
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       <Suspense fallback={null}>
@@ -57,9 +56,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       </Suspense>
       <main className="flex-1 bg-gray-50/50 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:overflow-y-auto lg:pb-0">
         <div className="container mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-          <DashboardErrorBoundary>
-            {children}
-          </DashboardErrorBoundary>
+          <DashboardErrorBoundary>{children}</DashboardErrorBoundary>
         </div>
       </main>
       <Suspense fallback={null}>

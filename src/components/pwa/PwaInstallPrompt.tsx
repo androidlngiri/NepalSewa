@@ -12,12 +12,17 @@ export default function PwaInstallPrompt() {
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>
     function check() {
-      setIsMobile(window.innerWidth < 1024)
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => setIsMobile(window.innerWidth < 1024), 150)
     }
     check()
     window.addEventListener("resize", check)
-    return () => window.removeEventListener("resize", check)
+    return () => {
+      clearTimeout(timeoutId)
+      window.removeEventListener("resize", check)
+    }
   }, [])
 
   useEffect(() => {
@@ -59,22 +64,22 @@ export default function PwaInstallPrompt() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-20 left-4 right-4 z-50 max-w-md mx-auto"
+          className="fixed right-4 bottom-20 left-4 z-50 mx-auto max-w-md"
         >
-          <div className="rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl shadow-black/20 p-4 flex items-center gap-3">
+          <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20">
               <Download className="h-6 w-6 text-emerald-400" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-white">Install NepalSewa</p>
-              <p className="text-xs text-emerald-200/60 truncate">
+              <p className="truncate text-xs text-emerald-200/60">
                 Add to your homescreen for a faster experience
               </p>
             </div>
             <Button
               size="sm"
               onClick={handleInstall}
-              className="shrink-0 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl text-xs h-9 px-4"
+              className="h-9 shrink-0 rounded-xl bg-emerald-500 px-4 text-xs text-white hover:bg-emerald-400"
             >
               Install
             </Button>

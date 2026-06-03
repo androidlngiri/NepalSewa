@@ -14,12 +14,15 @@ import PwaInstallPrompt from "@/components/pwa/PwaInstallPrompt"
 
 describe("PwaInstallPrompt", () => {
   beforeEach(() => {
+    vi.useFakeTimers()
     Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: 375 })
     window.dispatchEvent(new Event("resize"))
+    act(() => vi.advanceTimersByTime(200))
     localStorage.clear()
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     Object.defineProperty(window, "innerWidth", { writable: true, configurable: true, value: 1024 })
   })
 
@@ -30,6 +33,7 @@ describe("PwaInstallPrompt", () => {
 
   it("renders install banner after beforeinstallprompt event", () => {
     render(<PwaInstallPrompt />)
+    act(() => vi.advanceTimersByTime(200))
 
     act(() => {
       const installEvent = new Event("beforeinstallprompt") as any
@@ -43,6 +47,7 @@ describe("PwaInstallPrompt", () => {
 
   it("hides after dismiss button clicked", () => {
     render(<PwaInstallPrompt />)
+    act(() => vi.advanceTimersByTime(200))
 
     act(() => {
       const installEvent = new Event("beforeinstallprompt") as any

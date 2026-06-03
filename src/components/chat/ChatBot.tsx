@@ -55,27 +55,18 @@ const CHAT_GREETING =
   "Hi! I'm the NepalSewa assistant. Ask me anything about our services, or just tell me what you need done and I'll help you book a service."
 const MAX_STORED_MESSAGES = 50
 
-function getInitialMessages(): Message[] {
-  if (typeof window === "undefined") return [{ role: "assistant", content: CHAT_GREETING }]
-  try {
-    const stored = localStorage.getItem(CHAT_STORAGE_KEY)
-    if (stored) {
-      const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    }
-  } catch {}
-  return [{ role: "assistant", content: CHAT_GREETING }]
-}
-
 export function ChatBot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>(getInitialMessages)
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "assistant", content: CHAT_GREETING },
+  ])
   const [input, setInput] = useState("")
   const [streaming, setStreaming] = useState(false)
   const [activeTools, setActiveTools] = useState<Record<string, boolean>>({})
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastTranscriptRef = useRef("")
   const speech = useSpeech()
 
   useEffect(() => {
@@ -83,7 +74,17 @@ export function ChatBot() {
   }, [messages, streaming, activeTools])
 
   useEffect(() => {
-    if (typeof window !== "undefined" && messages.length > 0) {
+    try {
+      const stored = localStorage.getItem(CHAT_STORAGE_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    if (messages.length > 0) {
       const toStore = messages.slice(-MAX_STORED_MESSAGES)
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(toStore))
     }
@@ -94,7 +95,8 @@ export function ChatBot() {
   }, [])
 
   useEffect(() => {
-    if (speech.transcript) {
+    if (speech.transcript && speech.transcript !== lastTranscriptRef.current) {
+      lastTranscriptRef.current = speech.transcript
       setInput(speech.transcript)
       speech.setTranscript("")
     }
