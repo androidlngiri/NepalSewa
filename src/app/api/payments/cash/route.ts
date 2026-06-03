@@ -62,35 +62,46 @@ export async function POST(req: Request) {
       include: { tasker: { select: { id: true, tier: true, proExpiresAt: true } } },
     })
 
-    let commission: number | null = null
-    let commissionRate: number | null = null
-    if (taskerAssignment) {
-      commissionRate =
-        taskerAssignment.tasker.tier === "PRO" &&
-        taskerAssignment.tasker.proExpiresAt &&
-        new Date(taskerAssignment.tasker.proExpiresAt) > new Date()
-          ? 0.03
-          : 0.05
-      commission = Math.round(amount * commissionRate * 100) / 100
-    }
+    const commission = 0
+    const commissionRate = 0
 
-    await prisma.transaction.create({
-      data: {
-        userId: session.user.id,
-        amount,
-        type: "cash",
-        status: "COMPLETED",
-        requestId: request.id,
-        description: `Cash payment for request: ${request.title}`,
-        commission,
-        commissionRate,
-        taskerId: taskerAssignment?.tasker.id || null,
-      },
-    })
+    await prisma.$transaction(async (tx: any) => {
+      await tx.transaction.create({
+        data: {
+          userId: session.user.id,
+          amount,
+          type: "cash",
+          status: "COMPLETED",
+          requestId: request.id,
+          description: `Cash payment for request: ${request.title}`,
+          commission,
+          commissionRate,
+          taskerId: taskerAssignment?.tasker.id || null,
+        },
+      })
 
-    await prisma.request.update({
-      where: { id: request.id },
-      data: { status: "COMPLETED" },
+      await tx.request.update({
+        where: { id: request.id },
+        data: { status: "COMPLETED" },
+      })
+
+      if (taskerAssignment) {
+        await tx.taskerAssignment.updateMany({
+          where: {
+            requestId: request.id,
+            status: { in: ["IN_PROGRESS", "AWAITING_CONFIRMATION"] },
+          },
+          data: { status: "COMPLETED" },
+        })
+
+        if (taskerAssignment.tasker.id && commission !== null) {
+          const netAmount = Math.round((amount - commission) * 100) / 100
+          await tx.user.update({
+            where: { id: taskerAssignment.tasker.id },
+            data: { balance: { increment: netAmount } },
+          })
+        }
+      }
     })
 
     if (session.user.email) {

@@ -3,8 +3,19 @@
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import {
-  Loader2, ArrowLeft, DollarSign, TrendingUp, TrendingDown, Briefcase,
-  AlertCircle, RefreshCw, ChevronLeft, ChevronRight, Calendar, Percent, BadgeCheck,
+  Loader2,
+  ArrowLeft,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Briefcase,
+  AlertCircle,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Percent,
+  BadgeCheck,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -75,7 +86,9 @@ export default function TaskerEarningsPage() {
     }
   }, [page])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / LIMIT)) : 1
   const isPro = data?.tier === "PRO"
@@ -88,7 +101,7 @@ export default function TaskerEarningsPage() {
           <div>
             <Link
               href="/dashboard/tasker"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+              className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -106,9 +119,9 @@ export default function TaskerEarningsPage() {
         {error ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
-              <h3 className="text-lg font-medium mb-1">Failed to load earnings</h3>
-              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <AlertCircle className="mb-4 h-12 w-12 text-red-400" />
+              <h3 className="mb-1 text-lg font-medium">Failed to load earnings</h3>
+              <p className="text-muted-foreground mb-4 text-sm">{error}</p>
               <Button variant="outline" onClick={fetchData} className="gap-2">
                 <RefreshCw className="h-4 w-4" />
                 Retry
@@ -124,63 +137,65 @@ export default function TaskerEarningsPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Gross Earnings</CardTitle>
+                  <CardTitle className="text-muted-foreground text-sm">Gross Earnings</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-emerald-600">
                     {formatPrice(data.summary.grossEarned)}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     From {data.summary.completedJobs} jobs
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Platform Commission</CardTitle>
+                  <CardTitle className="text-muted-foreground text-sm">
+                    Platform Commission
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-amber-600">
                     {formatPrice(data.summary.totalCommission)}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Avg {rateDisplay}% rate
-                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">Avg {rateDisplay}% rate</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">Net Earnings</CardTitle>
+                  <CardTitle className="text-muted-foreground text-sm">Net Earnings</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatPrice(data.summary.netEarned)}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    After commission
-                  </p>
+                  <div className="text-2xl font-bold">{formatPrice(data.summary.netEarned)}</div>
+                  <p className="text-muted-foreground mt-1 text-xs">After commission</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm text-muted-foreground">This Month</CardTitle>
+                  <CardTitle className="text-muted-foreground text-sm">This Month</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-bold text-emerald-600">
                       {formatPrice(data.summary.thisMonthNet)}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      net
-                    </span>
+                    <span className="text-muted-foreground text-xs">net</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="text-muted-foreground mt-1 flex items-center gap-3 text-xs">
                     <span>{formatPrice(data.summary.thisMonthGross)} gross</span>
                     <span>•</span>
                     <span>{data.summary.thisMonthJobs} jobs</span>
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            <div className="flex justify-end">
+              <Link href="/dashboard/tasker/payouts">
+                <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white">
+                  Withdraw Funds
+                </Button>
+              </Link>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -194,29 +209,36 @@ export default function TaskerEarningsPage() {
                 <CardContent>
                   {data.monthlyBreakdown.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <TrendingUp className="h-8 w-8 text-muted-foreground/40 mb-2" />
-                      <p className="text-sm text-muted-foreground">No earnings data yet.</p>
+                      <TrendingUp className="text-muted-foreground/40 mb-2 h-8 w-8" />
+                      <p className="text-muted-foreground text-sm">No earnings data yet.</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
                       {data.monthlyBreakdown.map((m) => (
-                        <div key={m.month} className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted/30 transition-colors">
+                        <div
+                          key={m.month}
+                          className="hover:bg-muted/30 flex items-center justify-between rounded-lg border p-3 transition-colors"
+                        >
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-medium">{m.month}</p>
-                            <p className="text-xs text-muted-foreground">{m.jobs} jobs</p>
+                            <p className="text-muted-foreground text-xs">{m.jobs} jobs</p>
                           </div>
-                          <div className="flex items-center gap-3 ml-4 text-right flex-wrap">
+                          <div className="ml-4 flex flex-wrap items-center gap-3 text-right">
                             <div>
-                              <p className="text-xs text-muted-foreground">Gross</p>
+                              <p className="text-muted-foreground text-xs">Gross</p>
                               <p className="text-sm font-medium">{formatPrice(m.gross)}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-muted-foreground">Fee</p>
-                              <p className="text-sm font-medium text-amber-600">-{formatPrice(m.commission)}</p>
+                              <p className="text-muted-foreground text-xs">Fee</p>
+                              <p className="text-sm font-medium text-amber-600">
+                                -{formatPrice(m.commission)}
+                              </p>
                             </div>
-                            <div className="pl-2 border-l">
-                              <p className="text-xs text-muted-foreground">Net</p>
-                              <p className="text-sm font-bold text-emerald-600">{formatPrice(m.net)}</p>
+                            <div className="border-l pl-2">
+                              <p className="text-muted-foreground text-xs">Net</p>
+                              <p className="text-sm font-bold text-emerald-600">
+                                {formatPrice(m.net)}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -236,7 +258,12 @@ export default function TaskerEarningsPage() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Your Tier</span>
-                    <Badge variant="outline" className={isPro ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}>
+                    <Badge
+                      variant="outline"
+                      className={
+                        isPro ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"
+                      }
+                    >
                       {isPro ? (
                         <span className="flex items-center gap-1">
                           <BadgeCheck className="h-3 w-3" />
@@ -253,18 +280,20 @@ export default function TaskerEarningsPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Total Paid in Fees</span>
-                    <span className="font-medium text-amber-600">{formatPrice(data.summary.totalCommission)}</span>
+                    <span className="font-medium text-amber-600">
+                      {formatPrice(data.summary.totalCommission)}
+                    </span>
                   </div>
                   {isPro && data.proExpiresAt && (
-                    <div className="text-xs text-muted-foreground pt-2 border-t">
+                    <div className="text-muted-foreground border-t pt-2 text-xs">
                       Pro expires {formatDate(data.proExpiresAt)}
                     </div>
                   )}
                   {!isPro && (
-                    <div className="pt-2 border-t">
+                    <div className="border-t pt-2">
                       <Link
                         href="/dashboard/tasker/settings"
-                        className="text-xs text-emerald-600 hover:underline font-medium"
+                        className="text-xs font-medium text-emerald-600 hover:underline"
                       >
                         Upgrade to Pro for 3% rate →
                       </Link>
@@ -281,9 +310,9 @@ export default function TaskerEarningsPage() {
               <CardContent className="p-0">
                 {data.transactions.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
-                    <DollarSign className="h-12 w-12 text-muted-foreground/40 mb-4" />
-                    <h3 className="text-lg font-medium mb-1">No transactions yet</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <DollarSign className="text-muted-foreground/40 mb-4 h-12 w-12" />
+                    <h3 className="mb-1 text-lg font-medium">No transactions yet</h3>
+                    <p className="text-muted-foreground text-sm">
                       Complete your first job to see earnings here.
                     </p>
                   </div>
@@ -292,35 +321,33 @@ export default function TaskerEarningsPage() {
                     {data.transactions.map((tx) => (
                       <div
                         key={tx.id}
-                        className="flex items-center justify-between p-4 sm:px-6 hover:bg-muted/30 transition-colors"
+                        className="hover:bg-muted/30 flex items-center justify-between p-4 transition-colors sm:px-6"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-sm truncate">
+                          <p className="truncate text-sm font-medium">
                             {tx.jobTitle || tx.description || "Job"}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-muted-foreground text-xs">
                             {tx.customer?.name ? `for ${tx.customer.name}` : ""}
                             {tx.serviceName ? ` • ${tx.serviceName}` : ""}
                             {` • ${formatDate(tx.createdAt)}`}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3 ml-4 text-right flex-wrap">
+                        <div className="ml-4 flex flex-wrap items-center gap-3 text-right">
                           <div>
-                            <p className="text-xs text-muted-foreground">Earned</p>
-                            <p className="font-medium text-emerald-600">
-                              {formatPrice(tx.amount)}
-                            </p>
+                            <p className="text-muted-foreground text-xs">Earned</p>
+                            <p className="font-medium text-emerald-600">{formatPrice(tx.amount)}</p>
                           </div>
                           {tx.commission != null && tx.commission > 0 && (
                             <div>
-                              <p className="text-xs text-muted-foreground">Fee</p>
+                              <p className="text-muted-foreground text-xs">Fee</p>
                               <p className="text-sm font-medium text-amber-600">
                                 -{formatPrice(tx.commission)}
                               </p>
                             </div>
                           )}
-                          <div className="pl-2 border-l">
-                            <p className="text-xs text-muted-foreground">Net</p>
+                          <div className="border-l pl-2">
+                            <p className="text-muted-foreground text-xs">Net</p>
                             <p className="text-sm font-bold">
                               {formatPrice((tx.amount || 0) - (tx.commission || 0))}
                             </p>
@@ -334,8 +361,8 @@ export default function TaskerEarningsPage() {
             </Card>
 
             {totalPages > 1 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+                <p className="text-muted-foreground text-sm">
                   Page {data.page} of {totalPages} ({data.total} total)
                 </p>
                 <div className="flex items-center gap-2">

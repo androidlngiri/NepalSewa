@@ -10,9 +10,24 @@ const mockTransactionCreate = vi.hoisted(() => vi.fn())
 const mockBidFindFirst = vi.hoisted(() => vi.fn())
 const mockRequestUpdate = vi.hoisted(() => vi.fn())
 const mockAssignmentFindFirst = vi.hoisted(() => vi.fn())
+const mockAssignmentUpdateMany = vi.hoisted(() => vi.fn())
+const mockUserUpdate = vi.hoisted(() => vi.fn())
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
+    $transaction: vi.fn(async (fns: any) => {
+      if (Array.isArray(fns)) {
+        for (const fn of fns) await fn()
+        return
+      }
+      const tx = {
+        transaction: { create: mockTransactionCreate },
+        request: { update: mockRequestUpdate },
+        taskerAssignment: { updateMany: mockAssignmentUpdateMany },
+        user: { update: mockUserUpdate },
+      }
+      return fns(tx)
+    }),
     request: {
       findUnique: mockRequestFindUnique,
       update: mockRequestUpdate,
@@ -26,6 +41,10 @@ vi.mock("@/lib/prisma", () => ({
     },
     taskerAssignment: {
       findFirst: mockAssignmentFindFirst,
+      updateMany: mockAssignmentUpdateMany,
+    },
+    user: {
+      update: mockUserUpdate,
     },
   },
 }))
@@ -75,7 +94,7 @@ describe("POST /api/payments/cash", () => {
     expect(body.success).toBe(true)
     expect(mockTransactionCreate).toHaveBeenCalled()
     expect(mockRequestUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { status: "COMPLETED" } })
+      expect.objectContaining({ data: { status: "COMPLETED" } }),
     )
   })
 
@@ -165,7 +184,7 @@ describe("POST /api/payments/cash", () => {
     expect(mockTransactionCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ amount: 3500 }),
-      })
+      }),
     )
   })
 })

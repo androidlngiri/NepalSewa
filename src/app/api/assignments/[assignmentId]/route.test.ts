@@ -30,12 +30,14 @@ const mockTxUpdateRequest = vi.hoisted(() => vi.fn())
 const mockTxFindTransaction = vi.hoisted(() => vi.fn())
 const mockTxCreateTransaction = vi.hoisted(() => vi.fn())
 const mockTxFindBid = vi.hoisted(() => vi.fn())
+const mockTxUserUpdate = vi.hoisted(() => vi.fn())
 
 const mockTx = {
   taskerAssignment: { update: mockTxUpdateAssignment },
   request: { update: mockTxUpdateRequest },
   transaction: { findFirst: mockTxFindTransaction, create: mockTxCreateTransaction },
   bid: { findFirst: mockTxFindBid },
+  user: { update: mockTxUserUpdate },
 }
 
 const mockFindUnique = vi.hoisted(() => vi.fn())
@@ -119,7 +121,7 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "IN_PROGRESS", taskerId: testTaskerId },
       { id: testTaskerId, role: "TASKER" },
-      "AWAITING_CONFIRMATION"
+      "AWAITING_CONFIRMATION",
     )
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -130,7 +132,7 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "IN_PROGRESS", taskerId: testTaskerId },
       { id: testUserId, role: "USER" },
-      "AWAITING_CONFIRMATION"
+      "AWAITING_CONFIRMATION",
     )
     expect(res.status).toBe(403)
   })
@@ -142,11 +144,11 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "AWAITING_CONFIRMATION", taskerId: testTaskerId },
       { id: testUserId, role: "USER" },
-      "COMPLETED"
+      "COMPLETED",
     )
     expect(res.status).toBe(200)
     expect(mockTxUpdateRequest).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { status: "COMPLETED" } })
+      expect.objectContaining({ data: { status: "COMPLETED" } }),
     )
     expect(mockTxCreateTransaction).toHaveBeenCalled()
   })
@@ -155,7 +157,7 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "AWAITING_CONFIRMATION", taskerId: testTaskerId },
       { id: testTaskerId, role: "TASKER" },
-      "COMPLETED"
+      "COMPLETED",
     )
     expect(res.status).toBe(403)
   })
@@ -164,7 +166,7 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "COMPLETED", taskerId: testTaskerId },
       { id: testAdminId, role: "ADMIN" },
-      "IN_PROGRESS"
+      "IN_PROGRESS",
     )
     expect(res.status).toBe(400)
   })
@@ -182,7 +184,7 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     const res = await callPatch(
       { status: "IN_PROGRESS", taskerId: testTaskerId, request: { user: { isActive: false } } },
       { id: testTaskerId, role: "TASKER" },
-      "AWAITING_CONFIRMATION"
+      "AWAITING_CONFIRMATION",
     )
     expect(res.status).toBe(400)
   })
@@ -194,12 +196,12 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     await callPatch(
       { status: "AWAITING_CONFIRMATION", taskerId: testTaskerId },
       { id: testUserId, role: "USER" },
-      "COMPLETED"
+      "COMPLETED",
     )
     expect(mockTxCreateTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ amount: 4500, type: "cash", status: "COMPLETED" }),
-      })
+      }),
     )
   })
 
@@ -209,13 +211,13 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
     await callPatch(
       { status: "AWAITING_CONFIRMATION", taskerId: testTaskerId },
       { id: testUserId, role: "USER" },
-      "COMPLETED"
+      "COMPLETED",
     )
     expect(mockTxCreateTransaction).not.toHaveBeenCalled()
   })
 
   describe("commission calculation", () => {
-    it("charges 5% for Standard tier", async () => {
+    it("cash transactions have 0 commission", async () => {
       mockTxFindBid.mockResolvedValue({ id: "bid-1", amount: 1000 })
       mockTxFindTransaction.mockResolvedValue(null)
       mockTxUpdateAssignment.mockResolvedValue({ status: "COMPLETED" })
@@ -227,21 +229,21 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
           tasker: { tier: "STANDARD", proExpiresAt: null },
         },
         { id: testUserId, role: "USER" },
-        "COMPLETED"
+        "COMPLETED",
       )
 
       expect(mockTxCreateTransaction).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            commissionRate: 0.05,
-            commission: 50,
+            commissionRate: 0,
+            commission: 0,
             taskerId: testTaskerId,
           }),
-        })
+        }),
       )
     })
 
-    it("charges 3% for Pro tier with active subscription", async () => {
+    it("cash transactions have 0 commission for Pro tier too", async () => {
       const futureDate = new Date(Date.now() + 86400000 * 15).toISOString()
       mockTxFindBid.mockResolvedValue({ id: "bid-1", amount: 1000 })
       mockTxFindTransaction.mockResolvedValue(null)
@@ -254,21 +256,20 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
           tasker: { tier: "PRO", proExpiresAt: futureDate },
         },
         { id: testUserId, role: "USER" },
-        "COMPLETED"
+        "COMPLETED",
       )
 
       expect(mockTxCreateTransaction).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            commissionRate: 0.03,
-            commission: 30,
+            commissionRate: 0,
+            commission: 0,
           }),
-        })
+        }),
       )
     })
 
-    it("charges 5% for Pro tier with expired subscription", async () => {
-      const pastDate = new Date(Date.now() - 86400000).toISOString()
+    it("credits full amount to tasker balance", async () => {
       mockTxFindBid.mockResolvedValue({ id: "bid-1", amount: 1000 })
       mockTxFindTransaction.mockResolvedValue(null)
       mockTxUpdateAssignment.mockResolvedValue({ status: "COMPLETED" })
@@ -277,19 +278,17 @@ describe("PATCH /api/assignments/[assignmentId]", () => {
         {
           status: "AWAITING_CONFIRMATION",
           taskerId: testTaskerId,
-          tasker: { tier: "PRO", proExpiresAt: pastDate },
+          tasker: { tier: "STANDARD", proExpiresAt: null },
         },
         { id: testUserId, role: "USER" },
-        "COMPLETED"
+        "COMPLETED",
       )
 
-      expect(mockTxCreateTransaction).toHaveBeenCalledWith(
+      expect(mockTxUserUpdate).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: expect.objectContaining({
-            commissionRate: 0.05,
-            commission: 50,
-          }),
-        })
+          where: { id: testTaskerId },
+          data: { balance: { increment: 1000 } },
+        }),
       )
     })
   })

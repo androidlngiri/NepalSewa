@@ -6,7 +6,7 @@ import { createNotification } from "@/lib/notification"
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ assignmentId: string }> }
+  { params }: { params: Promise<{ assignmentId: string }> },
 ) {
   try {
     const session = await auth()
@@ -22,7 +22,7 @@ export async function PATCH(
     if (!status || !validStatuses.includes(status)) {
       return NextResponse.json(
         { error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -35,7 +35,16 @@ export async function PATCH(
             service: { select: { name: true } },
           },
         },
-        tasker: { select: { id: true, name: true, email: true, isActive: true, tier: true, proExpiresAt: true } },
+        tasker: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+            tier: true,
+            proExpiresAt: true,
+          },
+        },
       },
     })
 
@@ -48,11 +57,17 @@ export async function PATCH(
     const isAdmin = session.user.role === "ADMIN"
 
     if (!isTasker && !isCustomer && !isAdmin) {
-      return NextResponse.json({ error: "Not authorized to update this assignment" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Not authorized to update this assignment" },
+        { status: 403 },
+      )
     }
 
     if (!assignment.request.user.isActive || !assignment.tasker.isActive) {
-      return NextResponse.json({ error: "Cannot update assignment for inactive user" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Cannot update assignment for inactive user" },
+        { status: 400 },
+      )
     }
 
     const validTransitions: Record<string, string[]> = {
@@ -67,21 +82,21 @@ export async function PATCH(
     if (!allowed.includes(status)) {
       return NextResponse.json(
         { error: `Cannot transition from ${assignment.status} to ${status}` },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
     if (status === "AWAITING_CONFIRMATION" && !isTasker) {
       return NextResponse.json(
         { error: "Only the assigned tasker can mark as complete" },
-        { status: 403 }
+        { status: 403 },
       )
     }
 
     if (status === "COMPLETED" && !isCustomer && !isAdmin) {
       return NextResponse.json(
         { error: "Only the customer can confirm completion" },
-        { status: 403 }
+        { status: 403 },
       )
     }
 
@@ -134,13 +149,8 @@ export async function PATCH(
           })
           const amount = acceptedBid?.amount ?? assignment.request.budget
           if (amount) {
-            const commissionRate = 
-              assignment.tasker.tier === "PRO" && 
-              assignment.tasker.proExpiresAt && 
-              new Date(assignment.tasker.proExpiresAt) > new Date()
-                ? 0.03
-                : 0.05
-            const commission = Math.round(amount * commissionRate * 100) / 100
+            const commission = 0
+            const commissionRate = 0
 
             await tx.transaction.create({
               data: {
@@ -154,6 +164,11 @@ export async function PATCH(
                 commissionRate,
                 taskerId: assignment.tasker.id,
               },
+            })
+
+            await tx.user.update({
+              where: { id: assignment.tasker.id },
+              data: { balance: { increment: amount } },
             })
           }
         }
@@ -193,16 +208,13 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid transition" }, { status: 400 })
   } catch (error) {
     console.error("Assignment PATCH error:", error)
-    return NextResponse.json(
-      { error: "Failed to update assignment" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to update assignment" }, { status: 500 })
   }
 }
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ assignmentId: string }> }
+  { params }: { params: Promise<{ assignmentId: string }> },
 ) {
   try {
     const session = await auth()
@@ -217,7 +229,11 @@ export async function GET(
       include: {
         tasker: {
           select: {
-            id: true, name: true, image: true, rating: true, phone: true,
+            id: true,
+            name: true,
+            image: true,
+            rating: true,
+            phone: true,
           },
         },
         request: {
@@ -245,9 +261,6 @@ export async function GET(
 
     return NextResponse.json(assignment)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch assignment" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch assignment" }, { status: 500 })
   }
 }

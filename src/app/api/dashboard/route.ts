@@ -59,13 +59,8 @@ export async function GET() {
       })
     }
 
-    if (role === "TASKER") {
-      const [
-        activeBids,
-        completedJobs,
-        earnings,
-        reviews,
-      ] = await Promise.all([
+    if (role === "TASKER" || session.user.isTasker) {
+      const [activeBids, completedJobs, earnings, reviews] = await Promise.all([
         prisma.bid.count({
           where: { taskerId: session.user.id, status: "PENDING" },
         }),
@@ -84,7 +79,8 @@ export async function GET() {
 
       const avgRating =
         reviews.length > 0
-          ? reviews.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0) / reviews.length
+          ? reviews.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0) /
+            reviews.length
           : 0
 
       const recentEarnings = await prisma.transaction.findMany({
@@ -100,20 +96,17 @@ export async function GET() {
         totalCommission: earnings._sum.commission || 0,
         netEarnings: (earnings._sum.amount || 0) - (earnings._sum.commission || 0),
         rating: avgRating,
-        recentEarnings: recentEarnings.map((t: { createdAt: Date; amount: number; commission: number | null }) => ({
-          date: t.createdAt.toISOString(),
-          amount: t.amount,
-          commission: t.commission,
-        })),
+        recentEarnings: recentEarnings.map(
+          (t: { createdAt: Date; amount: number; commission: number | null }) => ({
+            date: t.createdAt.toISOString(),
+            amount: t.amount,
+            commission: t.commission,
+          }),
+        ),
       })
     }
 
-    const [
-      activeRequests,
-      completedJobs,
-      pendingBids,
-      transactions,
-    ] = await Promise.all([
+    const [activeRequests, completedJobs, pendingBids, transactions] = await Promise.all([
       prisma.request.count({
         where: { userId: session.user.id, status: "OPEN" },
       }),
@@ -139,9 +132,6 @@ export async function GET() {
       totalSpent: transactions._sum.amount || 0,
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to load dashboard" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 })
   }
 }

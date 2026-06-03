@@ -297,92 +297,90 @@ export default function UserRequestDetailPage() {
           />
         )}
 
-        {activeAssignment &&
-          (request.status === "IN_PROGRESS" || request.status === "AWAITING_CONFIRMATION") && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Wallet className="h-5 w-5 text-emerald-500" />
-                  {activeAssignment.status === "AWAITING_CONFIRMATION"
-                    ? "Confirm Completion"
-                    : "Payment"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {activeAssignment.status === "AWAITING_CONFIRMATION" ? (
-                  <div className="space-y-4">
-                    <p className="text-muted-foreground text-sm">
-                      The tasker has marked this job as complete. Please review the work and
-                      confirm.
-                    </p>
-                    <Button
-                      onClick={() => handleConfirmCompletion(activeAssignment.id)}
-                      className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-                    >
-                      <ThumbsUp className="mr-2 h-4 w-4" />
-                      Confirm Completion
-                    </Button>
-                  </div>
-                ) : (
-                  (() => {
-                    const paymentTx = request.transactions?.find((t) => t.status === "COMPLETED")
-                    const pendingTx = request.transactions?.find((t) => t.status === "PENDING")
-                    if (paymentTx) {
-                      return (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-emerald-600">Payment Completed</p>
-                            <p className="text-muted-foreground text-sm">
-                              {formatPrice(request.budget || 0)}
-                            </p>
-                          </div>
-                          <PaymentStatus transactionId={paymentTx.id} initialStatus="COMPLETED" />
+        {activeAssignment && request.status === "IN_PROGRESS" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wallet className="h-5 w-5 text-emerald-500" />
+                {activeAssignment.status === "AWAITING_CONFIRMATION"
+                  ? "Confirm Completion"
+                  : "Payment"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {activeAssignment.status === "AWAITING_CONFIRMATION" ? (
+                <div className="space-y-4">
+                  <p className="text-muted-foreground text-sm">
+                    The tasker has marked this job as complete. Please review the work and confirm.
+                  </p>
+                  <Button
+                    onClick={() => handleConfirmCompletion(activeAssignment.id)}
+                    className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+                  >
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                    Confirm Completion
+                  </Button>
+                </div>
+              ) : (
+                (() => {
+                  const paymentTx = request.transactions?.find((t) => t.status === "COMPLETED")
+                  const pendingTx = request.transactions?.find((t) => t.status === "PENDING")
+                  if (paymentTx) {
+                    return (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-emerald-600">Payment Completed</p>
+                          <p className="text-muted-foreground text-sm">
+                            {formatPrice(request.budget || 0)}
+                          </p>
                         </div>
-                      )
-                    }
-                    if (pendingTx) {
-                      return (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-medium">Payment Pending</p>
-                              <p className="text-muted-foreground text-sm">
-                                {formatPrice(request.budget || 0)}
-                              </p>
-                            </div>
-                            <PaymentStatus transactionId={pendingTx.id} initialStatus="PENDING" />
-                          </div>
-                          <EsewaPayButton requestId={request.id} amount={request.budget || 0} />
-                        </div>
-                      )
-                    }
+                        <PaymentStatus transactionId={paymentTx.id} initialStatus="COMPLETED" />
+                      </div>
+                    )
+                  }
+                  if (pendingTx) {
                     return (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium">Pay for this service</p>
+                            <p className="font-medium">Payment Pending</p>
                             <p className="text-muted-foreground text-sm">
-                              Amount: {formatPrice(request.budget || 0)}
+                              {formatPrice(request.budget || 0)}
                             </p>
                           </div>
+                          <PaymentStatus transactionId={pendingTx.id} initialStatus="PENDING" />
                         </div>
                         <EsewaPayButton requestId={request.id} amount={request.budget || 0} />
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card text-muted-foreground px-2">or</span>
-                          </div>
-                        </div>
-                        <CashPayButton requestId={request.id} amount={request.budget || 0} />
                       </div>
                     )
-                  })()
-                )}
-              </CardContent>
-            </Card>
-          )}
+                  }
+                  return (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">Pay for this service</p>
+                          <p className="text-muted-foreground text-sm">
+                            Amount: {formatPrice(request.budget || 0)}
+                          </p>
+                        </div>
+                      </div>
+                      <EsewaPayButton requestId={request.id} amount={request.budget || 0} />
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-card text-muted-foreground px-2">or</span>
+                        </div>
+                      </div>
+                      <CashPayButton requestId={request.id} amount={request.budget || 0} />
+                    </div>
+                  )
+                })()
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {request.status === "COMPLETED" &&
           activeAssignment &&

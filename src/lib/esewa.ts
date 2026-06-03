@@ -7,8 +7,10 @@ function getConfig() {
   if (!merchantCode || !secretKey) {
     throw new Error("ESEWA_MERCHANT_CODE and ESEWA_SECRET_KEY must be set")
   }
-  const successUrl = process.env.ESEWA_SUCCESS_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/success`
-  const failureUrl = process.env.ESEWA_FAILURE_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/failure`
+  const successUrl =
+    process.env.ESEWA_SUCCESS_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/success`
+  const failureUrl =
+    process.env.ESEWA_FAILURE_URL || `${process.env.NEXT_PUBLIC_APP_URL}/api/payments/failure`
   const isTest = process.env.ESEWA_MODE !== "production"
 
   return { merchantCode, secretKey, successUrl, failureUrl, isTest }
@@ -36,7 +38,11 @@ export function generateTransactionUuid(): string {
   return `NPS-${datePart}-${timePart}-${random}`
 }
 
-export function generateEpaySignature(totalAmount: string, transactionUuid: string, productCode: string): string {
+export function generateEpaySignature(
+  totalAmount: string,
+  transactionUuid: string,
+  productCode: string,
+): string {
   const { secretKey } = getConfig()
   const message = `total_amount=${totalAmount},transaction_uuid=${transactionUuid},product_code=${productCode}`
   const hmac = crypto.createHmac("sha256", secretKey)
@@ -48,14 +54,22 @@ export function verifyEpaySignature(
   totalAmount: string,
   transactionUuid: string,
   productCode: string,
-  signature: string
+  signature: string,
 ): boolean {
   const expected = generateEpaySignature(totalAmount, transactionUuid, productCode)
   return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature))
 }
 
-export function getEpayFormFields(amount: number, transactionUuid: string, productCode: string) {
-  const { successUrl, failureUrl } = getConfig()
+export function getEpayFormFields(
+  amount: number,
+  transactionUuid: string,
+  productCode: string,
+  customSuccessUrl?: string,
+  customFailureUrl?: string,
+) {
+  const config = getConfig()
+  const successUrl = customSuccessUrl || config.successUrl
+  const failureUrl = customFailureUrl || config.failureUrl
   const totalAmount = amount.toFixed(2)
   const sig = generateEpaySignature(totalAmount, transactionUuid, productCode)
 
@@ -77,7 +91,7 @@ export function getEpayFormFields(amount: number, transactionUuid: string, produ
 export async function checkEpayTransactionStatus(
   productCode: string,
   transactionUuid: string,
-  totalAmount: number
+  totalAmount: number,
 ): Promise<{ status: string; refId: string | null }> {
   const baseUrl = getStatusUrl()
   const url = `${baseUrl}?product_code=${encodeURIComponent(productCode)}&total_amount=${totalAmount}&transaction_uuid=${encodeURIComponent(transactionUuid)}`

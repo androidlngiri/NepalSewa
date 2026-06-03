@@ -33,6 +33,13 @@ enum PaymentStatus {
   FAILED
 }
 
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
 enum TaskerTier {
   STANDARD
   PRO
@@ -52,6 +59,7 @@ model User {
   isActive       Boolean     @default(true)
   tier           TaskerTier  @default(STANDARD)
   proExpiresAt   DateTime?
+  balance        Float       @default(0)
   wardNo         Int?
   address        String?
   bio            String?
@@ -70,6 +78,7 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   transactions   Transaction[]
   taskerPayouts  Transaction[]  @relation("TaskerPayouts")
+  payoutRequests PayoutRequest[]
   notifications  Notification[]
 
   @@map("users")
@@ -328,4 +337,22 @@ model Transaction {
   @@index([taskerId])
   @@index([transactionUuid])
   @@map("transactions")
+}
+
+model PayoutRequest {
+  id             String       @id @default(cuid())
+  taskerId       String
+  amount         Float
+  status         PayoutStatus @default(PENDING)
+  method         String       @default("ESEWA")
+  accountDetails String?
+  notes          String?
+  processedAt    DateTime?
+  createdAt      DateTime     @default(now())
+
+  tasker User @relation(fields: [taskerId], references: [id])
+
+  @@index([taskerId])
+  @@index([status])
+  @@map("payout_requests")
 }

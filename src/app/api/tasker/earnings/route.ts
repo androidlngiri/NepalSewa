@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 export async function GET(req: Request) {
   try {
     const session = await auth()
-    if (!session?.user?.id || session.user.role !== "TASKER") {
+    if (!session?.user?.id || (session.user.role !== "TASKER" && !session.user.isTasker)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -15,14 +15,7 @@ export async function GET(req: Request) {
 
     const taskerId = session.user.id
 
-    const [
-      totals,
-      thisMonth,
-      monthlyBreakdown,
-      transactions,
-      total,
-      tierInfo,
-    ] = await Promise.all([
+    const [totals, thisMonth, monthlyBreakdown, transactions, total, tierInfo] = await Promise.all([
       prisma.transaction.aggregate({
         where: { taskerId, status: "COMPLETED" },
         _sum: { amount: true, commission: true },

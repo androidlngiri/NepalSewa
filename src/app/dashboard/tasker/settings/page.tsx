@@ -31,6 +31,25 @@ export default function TaskerSettingsPage() {
   })
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const proStatus = params.get("pro")
+    if (proStatus === "success") {
+      toast.success("Pro subscription activated!")
+      setTier("PRO")
+      router.replace("/dashboard/tasker/settings")
+    } else if (proStatus === "failed") {
+      toast.error("Payment failed. Please try again.")
+      router.replace("/dashboard/tasker/settings")
+    } else if (proStatus === "already") {
+      toast.info("Payment already processed.")
+      router.replace("/dashboard/tasker/settings")
+    } else if (proStatus === "invalid") {
+      toast.error("Invalid payment response.")
+      router.replace("/dashboard/tasker/settings")
+    }
+  }, [router])
+
+  useEffect(() => {
     async function load() {
       try {
         const res = await fetch("/api/users")
@@ -88,9 +107,26 @@ export default function TaskerSettingsPage() {
         return
       }
       const data = await res.json()
+
+      if (data.formFields && data.action) {
+        const form = document.createElement("form")
+        form.method = "POST"
+        form.action = data.action
+        for (const [key, value] of Object.entries(data.formFields)) {
+          const input = document.createElement("input")
+          input.type = "hidden"
+          input.name = key
+          input.value = String(value)
+          form.appendChild(input)
+        }
+        document.body.appendChild(form)
+        form.submit()
+        return
+      }
+
       setTier("PRO")
       setProExpiresAt(data.expiresAt)
-      toast.success("Upgraded to Pro! 🎉")
+      toast.success("Upgraded to Pro!")
       router.refresh()
     } catch {
       toast.error("Something went wrong")

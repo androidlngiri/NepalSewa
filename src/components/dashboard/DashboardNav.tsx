@@ -50,6 +50,7 @@ const taskerNav = [
   { href: "/dashboard/chat", label: "Messages", icon: Mail },
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
+  { href: "/dashboard/tasker/payouts", label: "Withdraw", icon: IndianRupee },
   { href: "/dashboard/tasker/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
 ]
@@ -63,18 +64,27 @@ const adminNav = [
   { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
   { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },
+  { href: "/dashboard/admin/payouts", label: "Payouts", icon: IndianRupee },
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ]
 
-export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen = false, onToggleSidebar }: DashboardNavProps) {
+export function DashboardNav({
+  role,
+  userName,
+  userImage,
+  isTasker,
+  sidebarOpen = false,
+  onToggleSidebar,
+}: DashboardNavProps) {
   const pathname = usePathname()
 
-  const initials = userName
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U"
+  const initials =
+    userName
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U"
 
   function NavItem({ href, label, icon: Icon }: { href: string; label: string; icon: any }) {
     const isActive = pathname === href || pathname.startsWith(href + "/")
@@ -86,7 +96,7 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
           "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all",
           isActive
             ? "bg-emerald-50 text-emerald-700 shadow-sm"
-            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >
         <Icon className="h-5 w-5 flex-shrink-0" />
@@ -100,12 +110,12 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
   return (
     <>
       {/* Mobile header */}
-      <div className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 lg:hidden">
+      <div className="bg-background sticky top-0 z-40 flex h-16 items-center gap-4 border-b px-4 lg:hidden">
         <button
           type="button"
           onClick={onToggleSidebar}
           aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
-          className="inline-flex items-center justify-center size-8 rounded-lg transition-colors outline-none cursor-pointer focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring hover:bg-muted hover:text-foreground"
+          className="focus-visible:ring-ring/50 focus-visible:border-ring hover:bg-muted hover:text-foreground inline-flex size-8 cursor-pointer items-center justify-center rounded-lg transition-colors outline-none focus-visible:ring-3"
         >
           {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
@@ -113,7 +123,7 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600">
             <Wrench className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold text-sm">
+          <span className="text-sm font-bold">
             <span className="text-emerald-600">Nepal</span>Sewa
           </span>
         </Link>
@@ -121,17 +131,14 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
 
       {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
-          onClick={onToggleSidebar}
-        />
+        <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={onToggleSidebar} />
       )}
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-background transition-transform duration-200 lg:static lg:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "bg-background fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r transition-transform duration-200 lg:static lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         {/* Logo */}
@@ -150,29 +157,39 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
         <nav className="flex-1 overflow-y-auto p-4">
           {role === "admin" ? (
             <div className="space-y-1">
-              {adminNav.map((item) => <NavItem key={item.href} {...item} />)}
+              {adminNav.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
             </div>
           ) : isTasker ? (
             <div className="space-y-1">
-              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <User className="inline h-3 w-3 mr-1" />
+              <p className="text-muted-foreground px-4 py-2 text-xs font-semibold tracking-wider uppercase">
+                <User className="mr-1 inline h-3 w-3" />
                 Customer
               </p>
-              {userNav.map((item) => <NavItem key={item.href} {...item} />)}
+              {userNav.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
               <div className="my-3 border-t" />
-              <p className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                <Briefcase className="inline h-3 w-3 mr-1" />
+              <p className="text-muted-foreground px-4 py-2 text-xs font-semibold tracking-wider uppercase">
+                <Briefcase className="mr-1 inline h-3 w-3" />
                 Tasker
               </p>
-              {taskerNav.map((item) => <NavItem key={item.href} {...item} />)}
+              {taskerNav.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
             </div>
           ) : role === "user" ? (
             <div className="space-y-1">
-              {userNav.map((item) => <NavItem key={item.href} {...item} />)}
+              {userNav.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
             </div>
           ) : (
             <div className="space-y-1">
-              {taskerNav.map((item) => <NavItem key={item.href} {...item} />)}
+              {taskerNav.map((item) => (
+                <NavItem key={item.href} {...item} />
+              ))}
             </div>
           )}
         </nav>
@@ -185,20 +202,20 @@ export function DashboardNav({ role, userName, userImage, isTasker, sidebarOpen 
               {userImage ? (
                 <AvatarImage src={userImage} alt={userName} />
               ) : (
-                <AvatarFallback className="bg-emerald-100 text-emerald-700 text-xs font-medium">
+                <AvatarFallback className="bg-emerald-100 text-xs font-medium text-emerald-700">
                   {initials}
                 </AvatarFallback>
               )}
             </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{userName}</p>
-              <p className="text-xs text-muted-foreground capitalize">{roleBadge}</p>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium">{userName}</p>
+              <p className="text-muted-foreground text-xs capitalize">{roleBadge}</p>
             </div>
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/" })}
               aria-label="Sign out"
-              className="inline-flex items-center justify-center h-8 w-8 rounded-lg transition-colors outline-none cursor-pointer focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring text-muted-foreground hover:text-red-500"
+              className="focus-visible:ring-ring/50 focus-visible:border-ring text-muted-foreground inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg transition-colors outline-none hover:text-red-500 focus-visible:ring-3"
             >
               <LogOut className="h-4 w-4" />
             </button>

@@ -30,7 +30,7 @@ export async function GET(req: Request) {
       String(total_amount),
       transaction_uuid,
       product_code,
-      signature
+      signature,
     )
 
     if (!isValid) {
@@ -66,9 +66,35 @@ export async function GET(req: Request) {
     }
 
     if (isComplete && transaction.requestId) {
-      await prisma.request.update({
-        where: { id: transaction.requestId },
-        data: { status: "COMPLETED" },
+      await prisma.$transaction(async (tx: any) => {
+        await tx.request.update({
+          where: { id: transaction.requestId },
+          data: { status: "COMPLETED" },
+        })
+
+        const assignment = await tx.taskerAssignment.findFirst({
+          where: {
+            requestId: transaction.requestId,
+            status: { in: ["IN_PROGRESS", "AWAITING_CONFIRMATION"] },
+          },
+          include: { tasker: { select: { id: true, tier: true, proExpiresAt: true } } },
+        })
+
+        if (assignment) {
+          await tx.taskerAssignment.update({
+            where: { id: assignment.id },
+            data: { status: "COMPLETED" },
+          })
+
+          if (assignment.tasker.id && transaction.commission !== null) {
+            const netAmount =
+              Math.round((transaction.amount - (transaction.commission || 0)) * 100) / 100
+            await tx.user.update({
+              where: { id: assignment.tasker.id },
+              data: { balance: { increment: netAmount } },
+            })
+          }
+        }
       })
 
       const fullTx = await prisma.transaction.findUnique({

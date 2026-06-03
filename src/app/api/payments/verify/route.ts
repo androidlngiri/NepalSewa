@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const result = await checkEpayTransactionStatus(
       transaction.productCode || merchantCode,
       transaction.transactionUuid || "",
-      transaction.amount
+      transaction.amount,
     )
 
     if (result.status === "COMPLETE") {
@@ -46,9 +46,34 @@ export async function POST(req: Request) {
       })
 
       if (transaction.requestId) {
-        await prisma.request.update({
-          where: { id: transaction.requestId },
-          data: { status: "COMPLETED" },
+        await prisma.$transaction(async (tx: any) => {
+          await tx.request.update({
+            where: { id: transaction.requestId },
+            data: { status: "COMPLETED" },
+          })
+
+          const assignment = await tx.taskerAssignment.findFirst({
+            where: {
+              requestId: transaction.requestId,
+              status: { in: ["IN_PROGRESS", "AWAITING_CONFIRMATION"] },
+            },
+          })
+
+          if (assignment) {
+            await tx.taskerAssignment.update({
+              where: { id: assignment.id },
+              data: { status: "COMPLETED" },
+            })
+          }
+
+          if (transaction.taskerId && transaction.commission !== null) {
+            const netAmount =
+              Math.round((transaction.amount - (transaction.commission || 0)) * 100) / 100
+            await tx.user.update({
+              where: { id: transaction.taskerId },
+              data: { balance: { increment: netAmount } },
+            })
+          }
         })
       }
 
