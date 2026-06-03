@@ -1,8 +1,8 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { DashboardNav } from "./DashboardNav"
 import { DashboardBottomNav } from "./DashboardBottomNav"
 import { DashboardErrorBoundary } from "@/components/ui/error-boundary"
@@ -16,8 +16,32 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, role }: DashboardLayoutProps) {
   const { data: session, status } = useSession()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const router = useRouter()
+  const [authorized, setAuthorized] = useState(false)
 
-  if (status === "loading") {
+  useEffect(() => {
+    if (status === "loading") return
+
+    if (!session?.user) {
+      router.push(`/auth/signin?callbackUrl=/dashboard/${role}`)
+      return
+    }
+
+    if (role !== "admin" && session.user.role !== role.toUpperCase()) {
+      if (role === "tasker" && session.user.isTasker) {
+        setAuthorized(true)
+      } else if (role === "user" && session.user.isTasker) {
+        setAuthorized(true)
+      } else {
+        router.push(`/dashboard/${(session.user.role as string)?.toLowerCase() || "user"}`)
+        return
+      }
+    } else {
+      setAuthorized(true)
+    }
+  }, [status, session, role, router])
+
+  if (status === "loading" || !authorized) {
     return (
       <div className="flex min-h-screen flex-col lg:flex-row">
         <div className="bg-background hidden w-64 border-r lg:block" />
@@ -30,26 +54,14 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     )
   }
 
-  if (!session?.user) {
-    redirect(`/auth/signin?callbackUrl=/dashboard/${role}`)
-  }
-
-  if (role !== "admin" && session.user.role !== role.toUpperCase()) {
-    if (role === "tasker" && session.user.isTasker) {
-    } else if (role === "user" && session.user.isTasker) {
-    } else {
-      redirect(`/dashboard/${(session.user.role as string)?.toLowerCase() || "user"}`)
-    }
-  }
-
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
       <Suspense fallback={null}>
         <DashboardNav
           role={role}
-          userName={session.user.name || "User"}
-          userImage={session.user.image}
-          isTasker={session.user.isTasker}
+          userName={session!.user.name || "User"}
+          userImage={session!.user.image}
+          isTasker={session!.user.isTasker}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
@@ -62,7 +74,7 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       <Suspense fallback={null}>
         <DashboardBottomNav
           role={role}
-          isTasker={session.user.isTasker}
+          isTasker={session!.user.isTasker}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
       </Suspense>
