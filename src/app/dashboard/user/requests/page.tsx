@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatDateTime, formatPrice } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface Request {
   id: string
@@ -34,7 +35,7 @@ export default function UserRequestsPage() {
     fetch("/api/requests?role=user")
       .then((r) => r.json())
       .then(setRequests)
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load requests"))
       .finally(() => setLoading(false))
   }, [])
 

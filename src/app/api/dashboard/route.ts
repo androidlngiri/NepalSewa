@@ -2,14 +2,20 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const role = session.user.role
+    const { searchParams } = new URL(req.url)
+    const roleParam = searchParams.get("role")
+    const role = roleParam || session.user.role
+
+    if (role === "ADMIN" && session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
 
     if (role === "ADMIN") {
       const [
@@ -59,7 +65,7 @@ export async function GET() {
       })
     }
 
-    if (role === "TASKER" || session.user.isTasker) {
+    if (role === "TASKER") {
       const [activeBids, completedJobs, earnings, reviews] = await Promise.all([
         prisma.bid.count({
           where: { taskerId: session.user.id, status: "PENDING" },

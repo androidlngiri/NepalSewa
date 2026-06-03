@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Loader2, ArrowLeft, CheckCircle2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,15 +21,14 @@ interface Bid {
 }
 
 export default function UserBidsPage() {
-  const router = useRouter()
   const [bids, setBids] = useState<Bid[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch("/api/bids")
+    fetch("/api/bids?role=customer")
       .then((r) => r.json())
       .then(setBids)
-      .catch(() => {})
+      .catch(() => toast.error("Failed to load bids"))
       .finally(() => setLoading(false))
   }, [])
 
@@ -56,7 +54,8 @@ export default function UserBidsPage() {
         return
       }
       toast.success("Bid accepted! Tasker has been assigned.")
-      router.refresh()
+      const refreshed = await fetch("/api/bids?role=customer")
+      if (refreshed.ok) setBids(await refreshed.json())
     } catch {
       toast.error("Something went wrong")
     }
@@ -68,15 +67,13 @@ export default function UserBidsPage() {
         <div>
           <Link
             href="/dashboard/user"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+            className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">Bids Received</h1>
-          <p className="text-muted-foreground">
-            Review and accept bids from taskers.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Bids on Your Requests</h1>
+          <p className="text-muted-foreground">Review and accept bids from taskers.</p>
         </div>
 
         {loading ? (
@@ -86,9 +83,9 @@ export default function UserBidsPage() {
         ) : bids.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <Clock className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium mb-1">No bids yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <Clock className="text-muted-foreground/40 mb-4 h-12 w-12" />
+              <h3 className="mb-1 text-lg font-medium">No bids yet</h3>
+              <p className="text-muted-foreground mb-4 text-sm">
                 Taskers will send you bids when you post a request.
               </p>
               <Link href="/dashboard/user/requests/new">
@@ -104,8 +101,8 @@ export default function UserBidsPage() {
               <Card key={bid.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
                         <p className="font-medium">{bid.tasker.name}</p>
                         {bid.tasker.rating && (
                           <span className="text-sm text-amber-500">
@@ -113,15 +110,19 @@ export default function UserBidsPage() {
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
-                        For: <Link href={`/dashboard/user/requests/${bid.request.id}`} className="text-emerald-600 hover:underline">{bid.request.title}</Link>
+                      <p className="text-muted-foreground mb-2 text-sm">
+                        For:{" "}
+                        <Link
+                          href={`/dashboard/user/requests/${bid.request.id}`}
+                          className="text-emerald-600 hover:underline"
+                        >
+                          {bid.request.title}
+                        </Link>
                       </p>
                       {bid.message && (
-                        <p className="text-sm bg-muted rounded-lg p-3 mb-3">
-                          {bid.message}
-                        </p>
+                        <p className="bg-muted mb-3 rounded-lg p-3 text-sm">{bid.message}</p>
                       )}
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <div className="text-muted-foreground flex items-center gap-3 text-xs">
                         <span>{bid.request.service.name}</span>
                         <span>•</span>
                         <span>{formatDate(bid.createdAt)}</span>

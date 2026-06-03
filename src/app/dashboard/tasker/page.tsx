@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface DashboardData {
   activeBids: number
@@ -37,13 +38,13 @@ export default function TaskerDashboardPage() {
     async function load() {
       try {
         const [dashRes, jobsRes] = await Promise.all([
-          fetch("/api/dashboard"),
+          fetch("/api/dashboard?role=tasker"),
           fetch("/api/requests?role=tasker"),
         ])
         if (dashRes.ok) setData(await dashRes.json())
         if (jobsRes.ok) setOpenJobs(await jobsRes.json())
       } catch (e) {
-        // console.error(e)
+        toast.error("Failed to load dashboard data")
       } finally {
         setLoading(false)
       }

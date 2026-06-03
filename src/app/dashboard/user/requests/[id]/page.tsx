@@ -88,26 +88,20 @@ export default function UserRequestDetailPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [reqRes, txRes, sessionRes] = await Promise.all([
-          fetch(`/api/requests?role=user`),
-          fetch(`/api/payments`),
+        const [detailRes, sessionRes] = await Promise.all([
+          fetch(`/api/requests/${params.id}`),
           fetch("/api/auth/session"),
         ])
         if (sessionRes.ok) {
           const sess = await sessionRes.json()
           setCurrentUserId(sess?.user?.id || null)
         }
-        if (reqRes.ok) {
-          const requests = await reqRes.json()
-          const list: RequestDetail[] = Array.isArray(requests) ? requests : []
-          const found: RequestDetail | null = list.find((r: any) => r.id === params.id) || null
-          if (found && txRes.ok) {
-            const transactions = await txRes.json()
-            found.transactions = (Array.isArray(transactions) ? transactions : []).filter(
-              (t: any) => t.requestId === params.id,
-            )
-          }
-          setRequest(found)
+        if (detailRes.ok) {
+          setRequest(await detailRes.json())
+        } else if (detailRes.status === 403) {
+          toast.error("You don't have access to this request")
+        } else if (detailRes.status === 404) {
+          setRequest(null)
         }
       } catch {
         toast.error("Failed to load request")
@@ -118,6 +112,15 @@ export default function UserRequestDetailPage() {
     load()
   }, [params.id])
 
+  async function refreshData() {
+    try {
+      const res = await fetch(`/api/requests/${params.id}`)
+      if (res.ok) setRequest(await res.json())
+    } catch {
+      // silent
+    }
+  }
+
   async function handleAcceptBid(bidId: string) {
     try {
       const res = await fetch(`/api/bids/${bidId}/accept`, { method: "POST" })
@@ -127,7 +130,7 @@ export default function UserRequestDetailPage() {
         return
       }
       toast.success("Tasker assigned!")
-      router.refresh()
+      await refreshData()
     } catch {
       toast.error("Something went wrong")
     }
@@ -158,7 +161,7 @@ export default function UserRequestDetailPage() {
       toast.success("Review submitted!")
       setReviewRating(0)
       setReviewComment("")
-      router.refresh()
+      await refreshData()
     } catch {
       toast.error("Something went wrong")
     } finally {
@@ -179,7 +182,27 @@ export default function UserRequestDetailPage() {
         return
       }
       toast.success("Job confirmed as complete!")
-      router.refresh()
+      await refreshData()
+    } catch {
+      toast.error("Something went wrong")
+    }
+  }
+
+  async function handleCancelRequest() {
+    if (!confirm("Are you sure you want to cancel this request?")) return
+    try {
+      const res = await fetch(`/api/requests/${params.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "CANCELLED" }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || "Failed to cancel request")
+        return
+      }
+      toast.success("Request cancelled")
+      await refreshData()
     } catch {
       toast.error("Something went wrong")
     }
@@ -267,6 +290,18 @@ export default function UserRequestDetailPage() {
             )}
           </CardContent>
         </Card>
+
+        {["OPEN", "IN_PROGRESS"].includes(request.status) && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              className="text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={handleCancelRequest}
+            >
+              Cancel Request
+            </Button>
+          </div>
+        )}
 
         {activeAssignment && (
           <Card>

@@ -4,10 +4,7 @@ import { auth } from "@/lib/auth"
 import { sendBidAcceptedNotification } from "@/lib/email"
 import { createNotification } from "@/lib/notification"
 
-export async function POST(
-  _req: Request,
-  { params }: { params: Promise<{ bidId: string }> }
-) {
+export async function POST(_req: Request, { params }: { params: Promise<{ bidId: string }> }) {
   try {
     const session = await auth()
     if (!session?.user?.id) {
@@ -20,7 +17,7 @@ export async function POST(
       where: { id: bidId },
       include: {
         request: { include: { user: { select: { isActive: true } } } },
-        tasker: { select: { id: true, name: true, email: true } },
+        tasker: { select: { id: true, name: true, email: true, isActive: true } },
       },
     })
 
@@ -29,31 +26,23 @@ export async function POST(
     }
 
     if (bid.status !== "PENDING") {
-      return NextResponse.json(
-        { error: "Bid is no longer available" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Bid is no longer available" }, { status: 400 })
     }
 
     if (bid.request.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "Only the request owner can accept bids" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "Only the request owner can accept bids" }, { status: 403 })
     }
 
     if (bid.request.status !== "OPEN") {
-      return NextResponse.json(
-        { error: "This request is no longer open" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "This request is no longer open" }, { status: 400 })
     }
 
     if (!bid.request.user.isActive) {
-      return NextResponse.json(
-        { error: "Cannot accept bids on this request" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot accept bids on this request" }, { status: 400 })
+    }
+
+    if (!bid.tasker.isActive) {
+      return NextResponse.json({ error: "This tasker is no longer active" }, { status: 400 })
     }
 
     const existingAssignment = await prisma.taskerAssignment.findFirst({
@@ -63,7 +52,7 @@ export async function POST(
     if (existingAssignment) {
       return NextResponse.json(
         { error: "An assignment already exists for this request" },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -73,10 +62,7 @@ export async function POST(
     })
 
     if (accepted.count === 0) {
-      return NextResponse.json(
-        { error: "Bid could not be accepted" },
-        { status: 409 }
-      )
+      return NextResponse.json({ error: "Bid could not be accepted" }, { status: 409 })
     }
 
     const [assignment] = await prisma.$transaction([
@@ -120,9 +106,6 @@ export async function POST(
 
     return NextResponse.json(assignment, { status: 201 })
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to accept bid" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to accept bid" }, { status: 500 })
   }
 }

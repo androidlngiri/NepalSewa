@@ -3,14 +3,28 @@
 import { useState, useEffect, useRef, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import {
-  Loader2, Send, ArrowLeft, ImagePlus, X, Search, MapPin,
-  ChevronDown, ChevronUp, Zap,
+  Loader2,
+  Send,
+  ArrowLeft,
+  ImagePlus,
+  X,
+  Search,
+  MapPin,
+  ChevronDown,
+  ChevronUp,
+  Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import Image from "next/image"
@@ -103,7 +117,7 @@ function NewRequestForm() {
     ? allServices.filter(
         (s) =>
           s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          s.categoryName.toLowerCase().includes(searchQuery.toLowerCase())
+          s.categoryName.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : []
 
@@ -166,6 +180,14 @@ function NewRequestForm() {
       toast.error("Please enter your address or area")
       return
     }
+    if (form.budget && parseFloat(form.budget) < 0) {
+      toast.error("Budget cannot be negative")
+      return
+    }
+    if (images.length > 5) {
+      toast.error("Maximum 5 images allowed")
+      return
+    }
 
     setIsLoading(true)
     try {
@@ -175,7 +197,9 @@ function NewRequestForm() {
         body: JSON.stringify({
           serviceId: form.serviceId,
           title: form.title,
-          description: form.description || `I need ${selectedService?.name.toLowerCase() || "a service"} in ${form.address}.`,
+          description:
+            form.description ||
+            `I need ${selectedService?.name.toLowerCase() || "a service"} in ${form.address}.`,
           location: form.address,
           wardNo: null,
           budget: form.budget || null,
@@ -200,11 +224,11 @@ function NewRequestForm() {
 
   return (
     <DashboardLayout role="user">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="mx-auto max-w-2xl space-y-6">
         <div>
           <Link
             href="/dashboard/user"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+            className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Dashboard
@@ -222,10 +246,10 @@ function NewRequestForm() {
               <div ref={searchRef} className="space-y-1.5">
                 <Label className="text-sm font-medium">What do you need done? *</Label>
                 <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <Search className="text-muted-foreground absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2" />
                   <Input
                     placeholder='e.g., "plumber", "electrician", "house cleaning"...'
-                    className="h-12 pl-10 pr-4 text-base rounded-xl"
+                    className="h-12 rounded-xl pr-4 pl-10 text-base"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value)
@@ -239,46 +263,49 @@ function NewRequestForm() {
                     disabled={loadingSvcs}
                   />
                   {loadingSvcs && (
-                    <Loader2 className="absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+                    <Loader2 className="text-muted-foreground absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 animate-spin" />
                   )}
                 </div>
 
                 {/* Autocomplete dropdown */}
                 {showResults && filteredResults.length > 0 && (
-                  <div className="absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border bg-card shadow-xl overflow-hidden">
+                  <div className="bg-card absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] overflow-hidden rounded-xl border shadow-xl">
                     {filteredResults.slice(0, 8).map((svc) => (
                       <button
                         key={svc.id}
                         type="button"
                         onClick={() => handleSelectService(svc)}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors hover:bg-emerald-50 border-b last:border-0"
+                        className="flex w-full items-center gap-3 border-b px-4 py-3 text-left text-sm transition-colors last:border-0 hover:bg-emerald-50"
                       >
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
                           <Zap className="h-4 w-4" />
                         </div>
                         <div>
                           <p className="font-medium">{svc.name}</p>
-                          <p className="text-xs text-muted-foreground">{svc.categoryName}</p>
+                          <p className="text-muted-foreground text-xs">{svc.categoryName}</p>
                         </div>
                       </button>
                     ))}
                     {filteredResults.length > 8 && (
-                      <p className="px-4 py-2 text-xs text-muted-foreground text-center border-t">
+                      <p className="text-muted-foreground border-t px-4 py-2 text-center text-xs">
                         {filteredResults.length - 8} more — type to narrow down
                       </p>
                     )}
                   </div>
                 )}
-                {showResults && searchQuery.trim() && filteredResults.length === 0 && !loadingSvcs && (
-                  <div className="absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border bg-card shadow-xl p-4 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No matching services found. Try a different word.
-                    </p>
-                  </div>
-                )}
+                {showResults &&
+                  searchQuery.trim() &&
+                  filteredResults.length === 0 &&
+                  !loadingSvcs && (
+                    <div className="bg-card absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border p-4 text-center shadow-xl">
+                      <p className="text-muted-foreground text-sm">
+                        No matching services found. Try a different word.
+                      </p>
+                    </div>
+                  )}
 
                 {selectedService && (
-                  <p className="text-xs text-emerald-600 flex items-center gap-1 pt-1">
+                  <p className="flex items-center gap-1 pt-1 text-xs text-emerald-600">
                     <Zap className="h-3 w-3" />
                     Selected: {selectedService.name} ({selectedService.categoryName})
                   </p>
@@ -287,13 +314,15 @@ function NewRequestForm() {
 
               {/* Step 2: Address */}
               <div className="space-y-1.5">
-                <Label htmlFor="address" className="text-sm font-medium">Your location *</Label>
+                <Label htmlFor="address" className="text-sm font-medium">
+                  Your location *
+                </Label>
                 <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                  <MapPin className="text-muted-foreground absolute top-1/2 left-3.5 h-5 w-5 -translate-y-1/2" />
                   <Input
                     id="address"
                     placeholder="e.g., Ward 5, Milijuli, near the bus park"
-                    className="h-12 pl-10 pr-4 text-base rounded-xl"
+                    className="h-12 rounded-xl pr-4 pl-10 text-base"
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
                   />
@@ -303,7 +332,7 @@ function NewRequestForm() {
               {/* Post button */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 text-base font-semibold rounded-xl"
+                className="h-12 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white hover:from-emerald-600 hover:to-teal-700"
                 disabled={isLoading || !form.serviceId}
               >
                 {isLoading ? (
@@ -319,7 +348,7 @@ function NewRequestForm() {
                 <button
                   type="button"
                   onClick={() => setShowDetails(!showDetails)}
-                  className="flex w-full items-center justify-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                  className="text-muted-foreground hover:text-foreground flex w-full items-center justify-center gap-1 py-1 text-sm transition-colors"
                 >
                   {showDetails ? (
                     <ChevronUp className="h-4 w-4" />
@@ -330,7 +359,7 @@ function NewRequestForm() {
                 </button>
 
                 {showDetails && (
-                  <div className="space-y-4 pt-3 animate-in">
+                  <div className="animate-in space-y-4 pt-3">
                     <div className="space-y-1.5">
                       <Label htmlFor="description">Description</Label>
                       <Textarea
@@ -349,12 +378,13 @@ function NewRequestForm() {
                         <Input
                           id="budget"
                           type="number"
+                          min="0"
                           placeholder="e.g., 5000"
                           className="h-11 rounded-xl"
                           value={form.budget}
                           onChange={(e) => setForm({ ...form, budget: e.target.value })}
                         />
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-muted-foreground text-xs">
                           Just a hint — taskers bid their own price
                         </p>
                       </div>
@@ -398,19 +428,19 @@ function NewRequestForm() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <Label>Photos (optional)</Label>
-                      <div className="flex items-center gap-3 flex-wrap">
+                      <Label>Photos (optional) — {images.length}/5</Label>
+                      <div className="flex flex-wrap items-center gap-3">
                         <Button
                           type="button"
                           variant="outline"
                           className="h-20 w-20 rounded-xl border-2 border-dashed"
                           onClick={() => fileInputRef.current?.click()}
-                          disabled={uploading}
+                          disabled={uploading || images.length >= 5}
                         >
                           {uploading ? (
-                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                            <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
                           ) : (
-                            <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                            <ImagePlus className="text-muted-foreground h-5 w-5" />
                           )}
                         </Button>
                         <input
@@ -421,8 +451,17 @@ function NewRequestForm() {
                           onChange={handleUpload}
                         />
                         {images.map((url) => (
-                          <div key={url} className="relative h-20 w-20 rounded-xl overflow-hidden border">
-                            <Image src={url} alt="Uploaded photo" fill unoptimized className="object-cover" />
+                          <div
+                            key={url}
+                            className="relative h-20 w-20 overflow-hidden rounded-xl border"
+                          >
+                            <Image
+                              src={url}
+                              alt="Uploaded photo"
+                              fill
+                              unoptimized
+                              className="object-cover"
+                            />
                             <button
                               type="button"
                               onClick={() => removeImage(url)}
@@ -434,9 +473,7 @@ function NewRequestForm() {
                           </div>
                         ))}
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Max 5MB per image
-                      </p>
+                      <p className="text-muted-foreground text-xs">Max 5MB per image</p>
                     </div>
                   </div>
                 )}
@@ -451,11 +488,13 @@ function NewRequestForm() {
 
 export default function NewRequestPage() {
   return (
-    <Suspense fallback={
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex h-96 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+        </div>
+      }
+    >
       <NewRequestForm />
     </Suspense>
   )

@@ -24,7 +24,7 @@ export async function GET(req: Request) {
     const where: any = {}
 
     const isAdmin = session.user.role === "ADMIN"
-    if (role === "admin" || isAdmin) {
+    if (isAdmin) {
       // admins see all requests (optional status filter still applies)
     } else if (role === "tasker") {
       // Taskers see all OPEN requests (excluding their own and ones they already bid on)
@@ -35,7 +35,7 @@ export async function GET(req: Request) {
       where.userId = session.user.id
     }
 
-    if (status) where.status = status
+    if (status && !(role === "tasker" && where.status)) where.status = status
     if (wardNo) where.wardNo = parseInt(wardNo)
     if (serviceId) where.serviceId = serviceId
     if (urgency) where.urgency = urgency

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout"
 import { formatDate, formatPrice } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface DashboardData {
   activeRequests: number
@@ -44,13 +45,13 @@ export default function UserDashboardPage() {
     async function load() {
       try {
         const [dashRes, reqRes] = await Promise.all([
-          fetch("/api/dashboard"),
+          fetch("/api/dashboard?role=user"),
           fetch("/api/requests?role=user"),
         ])
         if (dashRes.ok) setData(await dashRes.json())
         if (reqRes.ok) setRequests(await reqRes.json())
       } catch (e) {
-        // console.error(e)
+        toast.error("Failed to load dashboard data")
       } finally {
         setLoading(false)
       }
@@ -116,9 +117,7 @@ export default function UserDashboardPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">My Dashboard</h1>
-            <p className="text-muted-foreground">
-              Manage your service requests and taskers.
-            </p>
+            <p className="text-muted-foreground">Manage your service requests and taskers.</p>
           </div>
           <Link href="/dashboard/user/requests/new">
             <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-md hover:from-emerald-600 hover:to-teal-700">
@@ -131,9 +130,9 @@ export default function UserDashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((card) => (
             <Link key={card.title} href={card.href}>
-              <Card className="border-2 border-transparent hover:border-emerald-200 hover:shadow-md transition-all cursor-pointer">
+              <Card className="cursor-pointer border-2 border-transparent transition-all hover:border-emerald-200 hover:shadow-md">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                  <CardTitle className="text-muted-foreground text-sm font-medium">
                     {card.title}
                   </CardTitle>
                   <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${card.bg}`}>
@@ -161,9 +160,9 @@ export default function UserDashboardPage() {
           <CardContent>
             {requests.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <ClipboardList className="h-12 w-12 text-muted-foreground/40 mb-4" />
-                <h3 className="text-lg font-medium mb-1">No requests yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <ClipboardList className="text-muted-foreground/40 mb-4 h-12 w-12" />
+                <h3 className="mb-1 text-lg font-medium">No requests yet</h3>
+                <p className="text-muted-foreground mb-4 text-sm">
                   Post your first service request to get started.
                 </p>
                 <Link href="/dashboard/user/requests/new">
@@ -182,21 +181,18 @@ export default function UserDashboardPage() {
                     className="flex items-center justify-between rounded-xl border p-4 transition-colors hover:border-emerald-200 hover:bg-emerald-50/30"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium truncate">{req.title}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="truncate font-medium">{req.title}</p>
+                      <p className="text-muted-foreground text-sm">
                         {req.service.name} • {formatDate(req.createdAt)}
                       </p>
                     </div>
-                    <div className="flex items-center gap-3 ml-4">
+                    <div className="ml-4 flex items-center gap-3">
                       {req.budget && (
                         <span className="text-sm font-medium text-emerald-600">
                           {formatPrice(req.budget)}
                         </span>
                       )}
-                      <Badge
-                        variant="outline"
-                        className={statusColors[req.status] || ""}
-                      >
+                      <Badge variant="outline" className={statusColors[req.status] || ""}>
                         {req.status.replace("_", " ")}
                       </Badge>
                     </div>
@@ -214,19 +210,28 @@ export default function UserDashboardPage() {
           <CardContent>
             <div className="grid gap-3 sm:grid-cols-3">
               <Link href="/dashboard/user/requests/new">
-                <Button variant="outline" className="w-full h-20 flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30">
+                <Button
+                  variant="outline"
+                  className="h-20 w-full flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30"
+                >
                   <Plus className="h-5 w-5 text-emerald-600" />
                   <span className="text-xs font-normal">Post a Request</span>
                 </Button>
               </Link>
               <Link href="/dashboard/user/bids">
-                <Button variant="outline" className="w-full h-20 flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30">
+                <Button
+                  variant="outline"
+                  className="h-20 w-full flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30"
+                >
                   <TrendingUp className="h-5 w-5 text-emerald-600" />
                   <span className="text-xs font-normal">Review Bids</span>
                 </Button>
               </Link>
               <Link href="/services">
-                <Button variant="outline" className="w-full h-20 flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30">
+                <Button
+                  variant="outline"
+                  className="h-20 w-full flex-col gap-1 border-2 hover:border-emerald-200 hover:bg-emerald-50/30"
+                >
                   <ClipboardList className="h-5 w-5 text-emerald-600" />
                   <span className="text-xs font-normal">Browse Services</span>
                 </Button>

@@ -16,22 +16,16 @@ export async function POST(req: Request) {
     if (!revieweeId || !rating) {
       return NextResponse.json(
         { error: "Missing required fields: revieweeId, rating" },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
     if (rating < 1 || rating > 5) {
-      return NextResponse.json(
-        { error: "Rating must be between 1 and 5" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Rating must be between 1 and 5" }, { status: 400 })
     }
 
     if (session.user.id === revieweeId) {
-      return NextResponse.json(
-        { error: "Cannot review yourself" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot review yourself" }, { status: 400 })
     }
 
     if (requestId) {
@@ -46,24 +40,18 @@ export async function POST(req: Request) {
       })
 
       if (!request) {
-        return NextResponse.json(
-          { error: "Request not found" },
-          { status: 404 }
-        )
+        return NextResponse.json({ error: "Request not found" }, { status: 404 })
       }
 
       if (request.status !== "COMPLETED") {
-        return NextResponse.json(
-          { error: "Can only review completed requests" },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: "Can only review completed requests" }, { status: 400 })
       }
 
       const assignedTaskerIds = request.taskerAssignments.map((a: any) => a.taskerId)
       if (assignedTaskerIds.length > 0 && !assignedTaskerIds.includes(revieweeId)) {
         return NextResponse.json(
           { error: "Reviewee does not match the assigned tasker for this request" },
-          { status: 400 }
+          { status: 400 },
         )
       }
 
@@ -76,7 +64,7 @@ export async function POST(req: Request) {
       if (!isParticipant) {
         return NextResponse.json(
           { error: "Only request participants can leave a review" },
-          { status: 403 }
+          { status: 403 },
         )
       }
     }
@@ -92,7 +80,7 @@ export async function POST(req: Request) {
     if (existing) {
       return NextResponse.json(
         { error: "You have already reviewed this user for this request" },
-        { status: 409 }
+        { status: 409 },
       )
     }
 
@@ -131,13 +119,10 @@ export async function POST(req: Request) {
         averageRating: aggregation._avg.rating,
         totalReviews: aggregation._count.rating,
       },
-      { status: 201 }
+      { status: 201 },
     )
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to submit review" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to submit review" }, { status: 500 })
   }
 }
 
@@ -150,11 +135,18 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const userId = searchParams.get("userId") || session.user.id
+    const filter = searchParams.get("filter")
+
+    const where: any =
+      filter === "written" ? { reviewerId: session.user.id } : { revieweeId: userId }
 
     const reviews = await prisma.review.findMany({
-      where: { revieweeId: userId },
+      where,
       include: {
         reviewer: {
+          select: { id: true, name: true, image: true },
+        },
+        reviewee: {
           select: { id: true, name: true, image: true },
         },
       },
@@ -163,9 +155,6 @@ export async function GET(req: Request) {
 
     return NextResponse.json(reviews)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch reviews" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch reviews" }, { status: 500 })
   }
 }

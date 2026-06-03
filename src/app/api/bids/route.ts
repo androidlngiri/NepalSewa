@@ -13,8 +13,14 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const requestId = searchParams.get("requestId")
+    const role = searchParams.get("role")
 
-    const where: any = { taskerId: session.user.id }
+    const where: any = {}
+    if (role === "customer") {
+      where.request = { userId: session.user.id }
+    } else {
+      where.taskerId = session.user.id
+    }
     if (requestId) where.requestId = requestId
 
     const bids = await prisma.bid.findMany({
@@ -40,10 +46,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(bids)
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch bids" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch bids" }, { status: 500 })
   }
 }
 
@@ -55,20 +58,14 @@ export async function POST(req: Request) {
     }
 
     if (session.user.role !== "TASKER" && !session.user.isTasker) {
-      return NextResponse.json(
-        { error: "Only taskers can place bids" },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "Only taskers can place bids" }, { status: 403 })
     }
 
     const body = await req.json()
     const { requestId, amount, message } = body
 
     if (!requestId || !amount) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
     const request = await prisma.request.findUnique({
@@ -81,24 +78,15 @@ export async function POST(req: Request) {
     }
 
     if (request.userId === session.user.id) {
-      return NextResponse.json(
-        { error: "Cannot bid on your own request" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot bid on your own request" }, { status: 400 })
     }
 
     if (!request.user.isActive) {
-      return NextResponse.json(
-        { error: "Cannot bid on this request" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Cannot bid on this request" }, { status: 400 })
     }
 
     if (request.status !== "OPEN") {
-      return NextResponse.json(
-        { error: "Can only bid on open requests" },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: "Can only bid on open requests" }, { status: 400 })
     }
 
     const existingBid = await prisma.bid.findUnique({
@@ -111,10 +99,7 @@ export async function POST(req: Request) {
     })
 
     if (existingBid) {
-      return NextResponse.json(
-        { error: "You have already bid on this request" },
-        { status: 409 }
-      )
+      return NextResponse.json({ error: "You have already bid on this request" }, { status: 409 })
     }
 
     const bid = await prisma.bid.create({
@@ -154,9 +139,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(bid, { status: 201 })
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to create bid" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create bid" }, { status: 500 })
   }
 }
