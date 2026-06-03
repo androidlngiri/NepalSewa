@@ -179,3 +179,37 @@ export async function sendJobConfirmedNotification(params: {
     `),
   })
 }
+
+export async function sendNewRequestNotification(params: {
+  to: string
+  taskerName: string
+  serviceName: string
+  requestTitle: string
+  requestId: string
+  urgency: string
+}) {
+  const { to, taskerName, serviceName, requestTitle, requestId, urgency } = params
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  const urgencyLabel =
+    urgency === "emergency" ? " (EMERGENCY)" : urgency === "urgent" ? " (Urgent)" : ""
+
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to,
+    subject: `New job posted: "${requestTitle}"${urgencyLabel}`,
+    html: wrapHtml(`
+      <p style="font-size:16px;margin:0 0 16px">Hi ${taskerName},</p>
+      <p style="font-size:14px;color:#374151;margin:0 0 16px">
+        A new <strong>${serviceName}</strong> request has been posted${urgencyLabel}:
+        <strong>"${requestTitle}"</strong>.
+      </p>
+      <p style="font-size:14px;color:#374151;margin:0 0 16px">
+        Be the first to place your bid and win the job!
+      </p>
+      <a href="${appUrl}/dashboard/tasker/jobs/${requestId}"
+         style="display:inline-block;background:#059669;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-size:14px">
+        View &amp; Bid Now
+      </a>
+    `),
+  })
+}

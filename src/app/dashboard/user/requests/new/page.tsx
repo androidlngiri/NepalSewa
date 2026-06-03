@@ -71,6 +71,8 @@ function NewRequestForm() {
   const [searchQuery, setSearchQuery] = useState("")
   const [showResults, setShowResults] = useState(false)
   const [selectedService, setSelectedService] = useState<FlatService | null>(null)
+  const [customMode, setCustomMode] = useState(false)
+  const [customServiceName, setCustomServiceName] = useState("")
 
   useEffect(() => {
     fetch("/api/services")
@@ -124,6 +126,8 @@ function NewRequestForm() {
   function handleSelectService(svc: FlatService) {
     setSelectedService(svc)
     setSearchQuery(svc.name)
+    setCustomMode(false)
+    setCustomServiceName("")
     setForm((prev) => ({
       ...prev,
       serviceId: svc.id,
@@ -172,8 +176,12 @@ function NewRequestForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.serviceId) {
+    if (!form.serviceId && !customMode) {
       toast.error("Please select a service from the list")
+      return
+    }
+    if (customMode && !customServiceName.trim()) {
+      toast.error("Please enter a service name")
       return
     }
     if (!form.address?.trim()) {
@@ -195,11 +203,12 @@ function NewRequestForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          serviceId: form.serviceId,
+          serviceId: form.serviceId || undefined,
+          customServiceName: customMode ? customServiceName.trim() : undefined,
           title: form.title,
           description:
             form.description ||
-            `I need ${selectedService?.name.toLowerCase() || "a service"} in ${form.address}.`,
+            `I need ${customMode ? customServiceName : selectedService?.name || "a service"} in ${form.address}.`,
           location: form.address,
           wardNo: null,
           budget: form.budget || null,
@@ -296,11 +305,28 @@ function NewRequestForm() {
                 {showResults &&
                   searchQuery.trim() &&
                   filteredResults.length === 0 &&
-                  !loadingSvcs && (
+                  !loadingSvcs &&
+                  !customMode && (
                     <div className="bg-card absolute z-50 mt-1 w-full max-w-[calc(100%-3rem)] rounded-xl border p-4 text-center shadow-xl">
-                      <p className="text-muted-foreground text-sm">
-                        No matching services found. Try a different word.
+                      <p className="text-muted-foreground mb-2 text-sm">
+                        No matching services found.
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCustomMode(true)
+                          setCustomServiceName(searchQuery)
+                          setShowResults(false)
+                          setForm((prev) => ({
+                            ...prev,
+                            serviceId: "",
+                            title: `Need ${searchQuery.toLowerCase()} service`,
+                          }))
+                        }}
+                        className="text-sm font-medium text-emerald-600 hover:underline"
+                      >
+                        Enter &quot;{searchQuery}&quot; as a custom service
+                      </button>
                     </div>
                   )}
 
@@ -309,6 +335,41 @@ function NewRequestForm() {
                     <Zap className="h-3 w-3" />
                     Selected: {selectedService.name} ({selectedService.categoryName})
                   </p>
+                )}
+                {customMode && (
+                  <div className="space-y-2 pt-1">
+                    <p className="flex items-center gap-1 text-xs text-emerald-600">
+                      <Zap className="h-3 w-3" />
+                      Custom service: {customServiceName}
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Service name"
+                        className="h-9 text-sm"
+                        value={customServiceName}
+                        onChange={(e) => {
+                          setCustomServiceName(e.target.value)
+                          setForm((prev) => ({
+                            ...prev,
+                            title: `Need ${e.target.value.toLowerCase()} service`,
+                          }))
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => {
+                          setCustomMode(false)
+                          setCustomServiceName("")
+                          setForm((prev) => ({ ...prev, serviceId: "", title: "" }))
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -333,7 +394,7 @@ function NewRequestForm() {
               <Button
                 type="submit"
                 className="h-12 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-base font-semibold text-white hover:from-emerald-600 hover:to-teal-700"
-                disabled={isLoading || !form.serviceId}
+                disabled={isLoading || (!form.serviceId && !customMode)}
               >
                 {isLoading ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

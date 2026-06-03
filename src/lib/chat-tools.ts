@@ -8,14 +8,16 @@ NepalSewa connects customers with skilled local taskers. Users post requests, ta
 
 ## CRITICAL RULES:
 1. For greetings or general questions: answer directly. Do NOT call any tool.
-2. When user wants a service or mentions booking: call find_and_book_service with ONLY query (no address). It returns matching services + login status.
-3. If user is NOT logged in (tool returns isLoggedIn: false), show the services and tell them to log in: [Login](/auth/signin). Do NOT call find_and_book_service with address.
-4. If user IS logged in AND has provided address: call find_and_book_service with query AND address/urgency/budget.
-5. AFTER calling find_and_book_service, you MUST read the tool result carefully:
+2. When user asks about available services (e.g., "what services do you have?", "what can I book?", "list services"): call list_services tool. It returns all categories and services. Format them nicely for the user.
+3. When user wants a service or mentions booking: call find_and_book_service with ONLY query (no address). It returns matching services + login status.
+4. If user is NOT logged in (tool returns isLoggedIn: false), show the services and tell them to log in: [Login](/auth/signin). Do NOT call find_and_book_service with address.
+5. If user IS logged in AND has provided address: call find_and_book_service with query AND address/urgency/budget.
+6. AFTER calling find_and_book_service, you MUST read the tool result carefully:
    - If tool result has "booked": true → confirm booking with the requestId and say "Track here: [View Request](/dashboard/user/requests)"
    - If tool result has "booked": false → tell the user the booking was NOT created and explain why (not logged in, no address, etc.)
    - NEVER say "your request has been posted" or "booking confirmed" unless the tool result literally says "booked": true
-6. NEVER call find_and_book_service for greetings, questions, or non-service topics.
+7. NEVER call find_and_book_service for greetings, questions, or non-service topics.
+8. If no services match what the user wants, tell them they can still post a custom request from the request form — any service can be requested.
 
 ## Examples:
 
@@ -84,6 +86,19 @@ export const TOOLS = [
           },
         },
         required: ["query"],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "list_services",
+      description:
+        "List all available service categories and services on NepalSewa. Use this when the user asks 'what services do you have?', 'what can I book?', 'list all services', or similar questions about available services.",
+      parameters: {
+        type: "object",
+        properties: {},
+        required: [],
       },
     },
   },
@@ -179,6 +194,31 @@ async function executeTool(name: string, argsStr: string, session: Session): Pro
       isLoggedIn: !!session?.user?.id,
       userName: session?.user?.name,
       booked: false,
+    }
+  }
+
+  if (name === "list_services") {
+    const categories = await prisma.category.findMany({
+      where: { isActive: true },
+      include: {
+        services: {
+          where: { isActive: true },
+          select: { name: true, description: true, price: true, priceUnit: true },
+        },
+      },
+      orderBy: { sortOrder: "asc" },
+    })
+
+    return {
+      categories: categories.map((cat) => ({
+        name: cat.name,
+        services: cat.services.map((s) => ({
+          name: s.name,
+          description: s.description,
+          price: s.price,
+          priceUnit: s.priceUnit,
+        })),
+      })),
     }
   }
 

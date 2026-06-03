@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
+import { createNotification } from "@/lib/notification"
+import { sendNewRequestNotification } from "@/lib/email"
 
 export async function GET(req: Request) {
   try {
@@ -118,6 +120,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     const {
       serviceId,
+      customServiceName,
       title,
       description,
       location,
@@ -128,14 +131,49 @@ export async function POST(req: Request) {
       images,
     } = body
 
-    if (!serviceId || !title || !description) {
+    if (!title || !description) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    let finalServiceId = serviceId
+
+    // Handle custom service: find-or-create a "General" category + "Other" service
+    if (!finalServiceId && customServiceName) {
+      const generalCategory = await prisma.category.upsert({
+        where: { slug: "general" },
+        update: {},
+        create: {
+          name: "General",
+          slug: "general",
+          description: "General and custom services",
+          isActive: true,
+          sortOrder: 999,
+        },
+      })
+
+      const otherService = await prisma.service.upsert({
+        where: { categoryId_slug: { categoryId: generalCategory.id, slug: "other" } },
+        update: {},
+        create: {
+          categoryId: generalCategory.id,
+          name: "Other",
+          slug: "other",
+          description: "Custom service requests",
+          isActive: true,
+        },
+      })
+
+      finalServiceId = otherService.id
+    }
+
+    if (!finalServiceId) {
+      return NextResponse.json({ error: "Please select or enter a service" }, { status: 400 })
     }
 
     const request = await prisma.request.create({
       data: {
         userId: session.user.id,
-        serviceId,
+        serviceId: finalServiceId,
         title,
         description,
         location,
@@ -145,7 +183,41 @@ export async function POST(req: Request) {
         scheduledDate: scheduledDate ? new Date(scheduledDate) : null,
         images: images || [],
       },
+      include: { service: { select: { name: true } } },
     })
+
+    // Notify all active taskers (fire-and-forget, don't block response)
+    prisma.user
+      .findMany({
+        where: {
+          isTasker: true,
+          isActive: true,
+          id: { not: session.user.id },
+        },
+        select: { id: true, name: true, email: true },
+      })
+      .then((taskers) => {
+        for (const tasker of taskers) {
+          createNotification({
+            userId: tasker.id,
+            type: "new_request",
+            title: "New Job Available",
+            message: `A new ${request.service.name} request: "${title}"`,
+            link: `/dashboard/tasker/jobs/${request.id}`,
+          })
+          if (tasker.email) {
+            sendNewRequestNotification({
+              to: tasker.email,
+              taskerName: tasker.name || "Tasker",
+              serviceName: request.service.name,
+              requestTitle: title,
+              requestId: request.id,
+              urgency: urgency || "normal",
+            }).catch(() => {})
+          }
+        }
+      })
+      .catch(() => {})
 
     return NextResponse.json(request, { status: 201 })
   } catch (error) {
