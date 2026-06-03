@@ -179,7 +179,31 @@ export default function UserSettingsPage() {
           </CardContent>
         </Card>
 
-        <TaskerStatusCard isTasker={isTasker} onCheckedChange={setIsTasker} />
+        <TaskerStatusCard
+          isTasker={isTasker}
+          onCheckedChange={async (checked) => {
+            setIsTasker(checked)
+            try {
+              const res = await fetch("/api/users", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...form, isTasker: checked }),
+              })
+              if (!res.ok) {
+                const data = await res.json()
+                toast.error(data.error || "Failed to update")
+                setIsTasker(!checked)
+                return
+              }
+              toast.success(checked ? "Tasker mode enabled!" : "Tasker mode disabled")
+              await update()
+              router.refresh()
+            } catch {
+              toast.error("Something went wrong")
+              setIsTasker(!checked)
+            }
+          }}
+        />
 
         <div className="flex justify-end">
           <Button

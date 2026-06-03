@@ -78,7 +78,17 @@ export async function PATCH(req: Request) {
     })
 
     return NextResponse.json(user)
-  } catch (error) {
+  } catch (error: any) {
+    console.error("User update error:", error?.message, error?.code, error?.meta)
+
+    if (error?.code === "P2002") {
+      const field = error?.meta?.target?.[0] || "field"
+      return NextResponse.json(
+        { error: `This ${field} is already taken by another user` },
+        { status: 409 },
+      )
+    }
+
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
   }
 }
