@@ -81,10 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user || !user.passwordHash) return null
 
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        )
+        const isValid = await bcrypt.compare(credentials.password as string, user.passwordHash)
 
         if (!isValid || !user.isActive) return null
 
@@ -99,6 +96,41 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google" || !user?.email) return true
+
+      const existingUser = await prisma.user.findUnique({
+        where: { email: user.email },
+      })
+
+      if (!existingUser) return true
+
+      await prisma.account.upsert({
+        where: {
+          provider_providerAccountId: {
+            provider: "google",
+            providerAccountId: account.providerAccountId,
+          },
+        },
+        update: {},
+        create: {
+          userId: existingUser.id,
+          type: account.type,
+          provider: "google",
+          providerAccountId: account.providerAccountId,
+          refresh_token: account.refresh_token,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          scope: account.scope,
+          id_token: account.id_token,
+          session_state: account.session_state as string | null,
+        },
+      })
+
+      user.id = existingUser.id
+      return true
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = (user as any).role
