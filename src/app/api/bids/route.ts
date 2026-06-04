@@ -26,6 +26,9 @@ export async function GET(req: Request) {
     const bids = await prisma.bid.findMany({
       where,
       include: {
+        tasker: {
+          select: { id: true, name: true, image: true, rating: true },
+        },
         request: {
           include: {
             user: {
