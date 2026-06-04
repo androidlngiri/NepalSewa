@@ -6,9 +6,26 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import {
-  Wrench, Zap, PaintBucket, Home, Truck, Code, Sparkles,
-  Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Star, Clock,
-  Phone, Smartphone, MapPin, Gavel,
+  Wrench,
+  Zap,
+  PaintBucket,
+  Home,
+  Truck,
+  Code,
+  Sparkles,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowRight,
+  Shield,
+  Star,
+  Clock,
+  Phone,
+  Smartphone,
+  MapPin,
+  Gavel,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,7 +41,15 @@ const floatingIcons = [
   { Icon: Code, delay: 1.5, x: "20%", y: "85%", size: 22 },
 ]
 
-function OtpInput({ length, value, onChange }: { length: number; value: string[]; onChange: (v: string[]) => void }) {
+function OtpInput({
+  length,
+  value,
+  onChange,
+}: {
+  length: number
+  value: string[]
+  onChange: (v: string[]) => void
+}) {
   const refs = useRef<(HTMLInputElement | null)[]>([])
 
   function handleChange(idx: number, char: string) {
@@ -61,17 +86,19 @@ function OtpInput({ length, value, onChange }: { length: number; value: string[]
   }, [])
 
   return (
-    <div className="flex gap-2 justify-center">
+    <div className="flex justify-center gap-2">
       {Array.from({ length }).map((_, i) => (
         <input
           key={i}
-          ref={(el) => { refs.current[i] = el }}
+          ref={(el) => {
+            refs.current[i] = el
+          }}
           type="text"
           inputMode="numeric"
           autoComplete={i === 0 ? "one-time-code" : "off"}
           maxLength={1}
           name={i === 0 ? "otp-code" : `otp-code${i + 1}`}
-          className="w-11 h-12 text-center text-lg font-bold bg-white/5 border border-white/10 text-white rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20 outline-none"
+          className="h-12 w-11 rounded-xl border border-white/10 bg-white/5 text-center text-lg font-bold text-white outline-none focus:border-emerald-400/50 focus:ring-emerald-400/20"
           value={value[i] || ""}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
@@ -130,7 +157,6 @@ function SignInForm() {
       toast.success("Welcome back!")
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard/user"
       router.push(callbackUrl.startsWith("/") ? callbackUrl : "/dashboard/user")
-      router.refresh()
     } catch {
       toast.error("Something went wrong")
     } finally {
@@ -189,7 +215,6 @@ function SignInForm() {
       toast.success("Welcome back!")
       const callbackUrl = searchParams.get("callbackUrl") || "/dashboard/user"
       router.push(callbackUrl.startsWith("/") ? callbackUrl : "/dashboard/user")
-      router.refresh()
     } catch {
       toast.error("Something went wrong")
     } finally {
@@ -205,7 +230,7 @@ function SignInForm() {
   }
 
   return (
-    <div className="relative h-dvh lg:h-screen flex lg:grid lg:grid-cols-2 items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
+    <div className="relative flex h-dvh items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900 lg:grid lg:h-screen lg:grid-cols-2">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(20,184,166,0.1),transparent_50%)]" />
@@ -223,14 +248,14 @@ function SignInForm() {
       </div>
 
       {/* LEFT COLUMN — desktop only */}
-      <div className="hidden lg:flex flex-col items-center justify-center relative z-10 px-12">
+      <div className="relative z-10 hidden flex-col items-center justify-center px-12 lg:flex">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-6"
+          className="mb-6 text-center"
         >
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm">
               <Wrench className="h-7 w-7 text-white" />
             </div>
             <span className="text-3xl font-bold text-white">
@@ -243,11 +268,17 @@ function SignInForm() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="flex justify-center gap-4 mb-6 text-xs text-emerald-200/80"
+          className="mb-6 flex justify-center gap-4 text-xs text-emerald-200/80"
         >
-          <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Verified taskers</span>
-          <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> Local to Butwal</span>
-          <span className="flex items-center gap-1"><Gavel className="h-3 w-3" /> You pick the price</span>
+          <span className="flex items-center gap-1">
+            <Shield className="h-3 w-3" /> Verified taskers
+          </span>
+          <span className="flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> Local to Butwal
+          </span>
+          <span className="flex items-center gap-1">
+            <Gavel className="h-3 w-3" /> You pick the price
+          </span>
         </motion.div>
 
         <motion.div
@@ -256,25 +287,25 @@ function SignInForm() {
           transition={{ delay: 0.15 }}
           className="text-center"
         >
-          <p className="text-emerald-200/30 text-sm max-w-xs mx-auto leading-relaxed">
-            Post a task, get quotes from local taskers, pick the best one. Pay only when you&apos;re satisfied.
+          <p className="mx-auto max-w-xs text-sm leading-relaxed text-emerald-200/30">
+            Post a task, get quotes from local taskers, pick the best one. Pay only when you&apos;re
+            satisfied.
           </p>
         </motion.div>
       </div>
 
       {/* RIGHT COLUMN — always visible */}
-      <div className="relative z-10 w-full max-w-md lg:max-w-none px-4 lg:px-8 flex items-center justify-center h-full py-4">
+      <div className="relative z-10 flex h-full w-full max-w-md items-center justify-center px-4 py-4 lg:max-w-none lg:px-8">
         <div className="w-full max-w-md">
-
           {/* MOBILE branding — only below lg */}
           <div className="lg:hidden">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center mb-4"
+              className="mb-4 text-center"
             >
               <Link href="/" className="inline-flex items-center gap-2.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm">
                   <Wrench className="h-6 w-6 text-white" />
                 </div>
                 <span className="text-2xl font-bold text-white">
@@ -287,30 +318,38 @@ function SignInForm() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-center mb-4 text-xs text-emerald-200/70"
+              className="mb-4 text-center text-xs text-emerald-200/70"
             >
               Post a task, get quotes from local taskers, pick the best one.
             </motion.div>
           </div>
 
           {/* CARD — shared between mobile & desktop */}
-          <Card className="border-0 bg-white/10 backdrop-blur-xl shadow-2xl shadow-black/20 overflow-hidden">
+          <Card className="overflow-hidden border-0 bg-white/10 shadow-2xl shadow-black/20 backdrop-blur-xl">
             <div className="p-6 sm:p-8">
               {/* Method tabs */}
-              <div className="flex mb-6 rounded-xl bg-white/5 border border-white/10 p-1">
+              <div className="mb-6 flex rounded-xl border border-white/10 bg-white/5 p-1">
                 <button
                   type="button"
-                  onClick={() => { setLoginMethod("email"); setStep("email") }}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === "email" ? "bg-emerald-500 text-white shadow" : "text-white/60 hover:text-white/80"}`}
+                  onClick={() => {
+                    setLoginMethod("email")
+                    setStep("email")
+                  }}
+                  className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${loginMethod === "email" ? "bg-emerald-500 text-white shadow" : "text-white/60 hover:text-white/80"}`}
                 >
-                  <Mail className="inline h-4 w-4 mr-1.5" />Email
+                  <Mail className="mr-1.5 inline h-4 w-4" />
+                  Email
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setLoginMethod("phone"); setPhoneStep("phone") }}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === "phone" ? "bg-emerald-500 text-white shadow" : "text-white/60 hover:text-white/80"}`}
+                  onClick={() => {
+                    setLoginMethod("phone")
+                    setPhoneStep("phone")
+                  }}
+                  className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${loginMethod === "phone" ? "bg-emerald-500 text-white shadow" : "text-white/60 hover:text-white/80"}`}
                 >
-                  <Smartphone className="inline h-4 w-4 mr-1.5" />Phone
+                  <Smartphone className="mr-1.5 inline h-4 w-4" />
+                  Phone
                 </button>
               </div>
 
@@ -327,19 +366,31 @@ function SignInForm() {
                     >
                       <div className="text-center">
                         <h2 className="text-xl font-bold text-white">Welcome back</h2>
-                        <p className="text-sm text-emerald-200/70 mt-1">Sign in to continue</p>
+                        <p className="mt-1 text-sm text-emerald-200/70">Sign in to continue</p>
                       </div>
 
                       <Button
                         type="button"
                         onClick={() => signIn("google", { callbackUrl: "/dashboard/user" })}
-                        className="w-full h-12 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-base font-medium flex items-center justify-center gap-3"
+                        className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/10 text-base font-medium text-white hover:bg-white/20"
                       >
                         <svg className="h-5 w-5" viewBox="0 0 24 24">
-                          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                          <path
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                            fill="#4285F4"
+                          />
+                          <path
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                            fill="#34A853"
+                          />
+                          <path
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                            fill="#FBBC05"
+                          />
+                          <path
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                            fill="#EA4335"
+                          />
                         </svg>
                         Continue with Google
                       </Button>
@@ -356,11 +407,11 @@ function SignInForm() {
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-white/80">Email</label>
                         <div className="relative">
-                          <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                          <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-white/40" />
                           <Input
                             type="email"
                             placeholder="you@example.com"
-                            className="h-12 pl-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20"
+                            className="h-12 rounded-xl border-white/10 bg-white/5 pl-10 text-white placeholder:text-white/30 focus:border-emerald-400/50 focus:ring-emerald-400/20"
                             value={form.email}
                             onChange={(e) => setForm({ ...form, email: e.target.value })}
                           />
@@ -369,7 +420,7 @@ function SignInForm() {
 
                       <Button
                         type="submit"
-                        className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/25 text-base font-semibold"
+                        className="h-12 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-400 hover:to-emerald-500"
                       >
                         Continue
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -377,17 +428,24 @@ function SignInForm() {
 
                       <p className="text-center text-sm text-emerald-200/60">
                         New here?{" "}
-                        <Link href="/auth/signup" className="text-emerald-400 font-medium hover:text-emerald-300 transition-colors">
+                        <Link
+                          href="/auth/signup"
+                          className="font-medium text-emerald-400 transition-colors hover:text-emerald-300"
+                        >
                           Create an account
                         </Link>
                       </p>
 
-                      <div className="pt-2 border-t border-white/10">
-                        <p className="text-[11px] text-center text-white/30">
+                      <div className="border-t border-white/10 pt-2">
+                        <p className="text-center text-[11px] text-white/30">
                           By continuing, you agree to our{" "}
-                          <Link href="/terms" className="underline hover:text-white/50">Terms</Link>
-                          {" "}&{" "}
-                          <Link href="/privacy" className="underline hover:text-white/50">Privacy</Link>
+                          <Link href="/terms" className="underline hover:text-white/50">
+                            Terms
+                          </Link>{" "}
+                          &{" "}
+                          <Link href="/privacy" className="underline hover:text-white/50">
+                            Privacy
+                          </Link>
                         </p>
                       </div>
                     </motion.form>
@@ -402,11 +460,11 @@ function SignInForm() {
                     >
                       <div className="text-center">
                         <h2 className="text-xl font-bold text-white">Enter password</h2>
-                        <p className="text-sm text-emerald-200/70 mt-1">{form.email}</p>
+                        <p className="mt-1 text-sm text-emerald-200/70">{form.email}</p>
                         <button
                           type="button"
                           onClick={() => setStep("email")}
-                          className="text-xs text-emerald-400 hover:text-emerald-300 mt-1 transition-colors"
+                          className="mt-1 text-xs text-emerald-400 transition-colors hover:text-emerald-300"
                         >
                           Not you? Change email
                         </button>
@@ -415,11 +473,11 @@ function SignInForm() {
                       <div className="space-y-1.5">
                         <label className="text-sm font-medium text-white/80">Password</label>
                         <div className="relative">
-                          <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                          <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-white/40" />
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="••••••••"
-                            className="h-12 pl-10 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20"
+                            className="h-12 rounded-xl border-white/10 bg-white/5 pr-10 pl-10 text-white placeholder:text-white/30 focus:border-emerald-400/50 focus:ring-emerald-400/20"
                             value={form.password}
                             onChange={(e) => setForm({ ...form, password: e.target.value })}
                           />
@@ -427,15 +485,22 @@ function SignInForm() {
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
                             aria-label={showPassword ? "Hide" : "Show"}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/60"
+                            className="absolute top-1/2 right-3.5 -translate-y-1/2 text-white/40 hover:text-white/60"
                           >
-                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
                           </button>
                         </div>
                       </div>
 
                       <div className="flex justify-end">
-                        <Link href="/auth/forgot" className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors">
+                        <Link
+                          href="/auth/forgot"
+                          className="text-xs text-emerald-400 transition-colors hover:text-emerald-300"
+                        >
                           Forgot password?
                         </Link>
                       </div>
@@ -443,103 +508,122 @@ function SignInForm() {
                       <Button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/25 text-base font-semibold"
+                        className="h-12 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-400 hover:to-emerald-500"
                       >
-                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Sign In<Sparkles className="ml-2 h-4 w-4" /></>}
+                        {isLoading ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <>
+                            Sign In
+                            <Sparkles className="ml-2 h-4 w-4" />
+                          </>
+                        )}
                       </Button>
                     </motion.form>
                   )
-                ) : (
-                  phoneStep === "phone" ? (
-                    <motion.div
-                      key="phone-input"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      className="space-y-5"
-                    >
-                      <div className="text-center">
-                        <h2 className="text-xl font-bold text-white">Sign in with phone</h2>
-                        <p className="text-sm text-emerald-200/70 mt-1">Get a one-time code on your phone</p>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-sm font-medium text-white/80">Phone number</label>
-                        <div className="relative">
-                          <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/60 text-sm font-mono">+977</span>
-                          <Input
-                            type="tel"
-                            placeholder="98XXXXXXXX"
-                            className="h-12 pl-14 bg-white/5 border-white/10 text-white placeholder:text-white/30 rounded-xl focus:border-emerald-400/50 focus:ring-emerald-400/20 font-mono tracking-wider"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                            onKeyDown={(e) => { if (e.key === "Enter") handleSendOtp() }}
-                          />
-                        </div>
-                      </div>
-
-                      <Button
-                        type="button"
-                        disabled={isLoading}
-                        onClick={handleSendOtp}
-                        className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-500/25 text-base font-semibold"
-                      >
-                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <>Send OTP<Smartphone className="ml-2 h-4 w-4" /></>}
-                      </Button>
-
-                      <p className="text-center text-sm text-emerald-200/60">
-                        New here?{" "}
-                        <Link href="/auth/signup" className="text-emerald-400 font-medium hover:text-emerald-300 transition-colors">
-                          Create an account
-                        </Link>
+                ) : phoneStep === "phone" ? (
+                  <motion.div
+                    key="phone-input"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-5"
+                  >
+                    <div className="text-center">
+                      <h2 className="text-xl font-bold text-white">Sign in with phone</h2>
+                      <p className="mt-1 text-sm text-emerald-200/70">
+                        Get a one-time code on your phone
                       </p>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="otp-input"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-5"
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-white/80">Phone number</label>
+                      <div className="relative">
+                        <span className="absolute top-1/2 left-3.5 -translate-y-1/2 font-mono text-sm text-white/60">
+                          +977
+                        </span>
+                        <Input
+                          type="tel"
+                          placeholder="98XXXXXXXX"
+                          className="h-12 rounded-xl border-white/10 bg-white/5 pl-14 font-mono tracking-wider text-white placeholder:text-white/30 focus:border-emerald-400/50 focus:ring-emerald-400/20"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSendOtp()
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      disabled={isLoading}
+                      onClick={handleSendOtp}
+                      className="h-12 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 text-base font-semibold text-white shadow-lg shadow-emerald-500/25 hover:from-emerald-400 hover:to-emerald-500"
                     >
-                      <div className="text-center">
-                        <h2 className="text-xl font-bold text-white">Enter the code</h2>
-                        <p className="text-sm text-emerald-200/70 mt-1">
-                          Sent to +977 {phone}
-                        </p>
+                      {isLoading ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <>
+                          Send OTP
+                          <Smartphone className="ml-2 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+
+                    <p className="text-center text-sm text-emerald-200/60">
+                      New here?{" "}
+                      <Link
+                        href="/auth/signup"
+                        className="font-medium text-emerald-400 transition-colors hover:text-emerald-300"
+                      >
+                        Create an account
+                      </Link>
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="otp-input"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-5"
+                  >
+                    <div className="text-center">
+                      <h2 className="text-xl font-bold text-white">Enter the code</h2>
+                      <p className="mt-1 text-sm text-emerald-200/70">Sent to +977 {phone}</p>
+                      <button
+                        type="button"
+                        onClick={() => setPhoneStep("phone")}
+                        className="mt-1 text-xs text-emerald-400 transition-colors hover:text-emerald-300"
+                      >
+                        Wrong number? Change
+                      </button>
+                    </div>
+
+                    <OtpInput length={6} value={otp} onChange={handleOtpChange} />
+
+                    {isLoading && (
+                      <div className="flex justify-center">
+                        <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
+                      </div>
+                    )}
+
+                    <div className="text-center">
+                      {cooldown > 0 ? (
+                        <p className="text-xs text-white/40">Resend in {cooldown}s</p>
+                      ) : (
                         <button
                           type="button"
-                          onClick={() => setPhoneStep("phone")}
-                          className="text-xs text-emerald-400 hover:text-emerald-300 mt-1 transition-colors"
+                          onClick={handleSendOtp}
+                          disabled={isLoading}
+                          className="text-xs text-emerald-400 transition-colors hover:text-emerald-300"
                         >
-                          Wrong number? Change
+                          Resend code
                         </button>
-                      </div>
-
-                      <OtpInput length={6} value={otp} onChange={handleOtpChange} />
-
-                      {isLoading && (
-                        <div className="flex justify-center">
-                          <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
-                        </div>
                       )}
-
-                      <div className="text-center">
-                        {cooldown > 0 ? (
-                          <p className="text-xs text-white/40">Resend in {cooldown}s</p>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleSendOtp}
-                            disabled={isLoading}
-                            className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
-                          >
-                            Resend code
-                          </button>
-                        )}
-                      </div>
-                    </motion.div>
-                  )
+                    </div>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>
@@ -552,11 +636,13 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
-        <div className="text-white/50 text-sm">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-900 via-teal-800 to-slate-900">
+          <div className="text-sm text-white/50">Loading...</div>
+        </div>
+      }
+    >
       <SignInForm />
     </Suspense>
   )
