@@ -24,14 +24,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           orderBy: { amount: "asc" },
           include: {
             tasker: {
-              select: { id: true, name: true, image: true, rating: true },
+              select: { id: true, name: true, image: true, rating: true, email: true, phone: true },
             },
           },
         },
         taskerAssignments: {
           include: {
             tasker: {
-              select: { id: true, name: true, image: true },
+              select: { id: true, name: true, image: true, email: true, phone: true },
             },
           },
         },
