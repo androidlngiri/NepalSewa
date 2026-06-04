@@ -14,7 +14,15 @@ export async function GET(req: NextRequest) {
         include: {
           services: {
             where: { isActive: true },
-            select: { id: true, name: true, slug: true, description: true, price: true, priceUnit: true, image: true },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+              price: true,
+              priceUnit: true,
+              image: true,
+            },
           },
         },
         orderBy: { sortOrder: "asc" },
@@ -49,7 +57,7 @@ export async function GET(req: NextRequest) {
         embeddingStr,
         q,
         categorySlug || null,
-        limit
+        limit,
       )
 
       const grouped = new Map<string, any>()
@@ -71,7 +79,8 @@ export async function GET(req: NextRequest) {
           price: r.price,
           priceUnit: r.priceUnit,
           image: r.image,
-          score: Math.round(((r.vector_similarity || 0) * 0.7 + (r.text_rank || 0) * 0.3) * 100) / 100,
+          score:
+            Math.round(((r.vector_similarity || 0) * 0.7 + (r.text_rank || 0) * 0.3) * 100) / 100,
         })
       }
 
@@ -88,15 +97,22 @@ export async function GET(req: NextRequest) {
                 { description: { contains: q, mode: "insensitive" } },
               ],
             },
-            select: { id: true, name: true, slug: true, description: true, price: true, priceUnit: true, image: true },
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              description: true,
+              price: true,
+              priceUnit: true,
+              image: true,
+            },
           },
         },
         orderBy: { sortOrder: "asc" },
       })
       return NextResponse.json(categories)
     }
-  } catch (error) {
-    console.error("Search error:", error)
+  } catch {
     return NextResponse.json({ error: "Search failed" }, { status: 500 })
   }
 }

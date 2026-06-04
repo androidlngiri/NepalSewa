@@ -28,6 +28,7 @@ export async function GET(req: Request) {
         skip: (page - 1) * limit,
         include: {
           user: { select: { id: true, name: true, email: true } },
+          request: { select: { id: true } },
         },
       }),
       prisma.transaction.count({ where }),

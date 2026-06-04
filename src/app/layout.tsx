@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code",
+    google: "",
   },
   alternates: {
     canonical: "https://nepalsewa.com.np",
@@ -105,7 +105,7 @@ export default function RootLayout({
               description:
                 "Butwal's premier service marketplace connecting customers with trusted local professionals.",
               url: "https://nepalsewa.com.np",
-              telephone: "+977-98XXXXXXXX",
+              telephone: "+977-9800000000",
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "Butwal",

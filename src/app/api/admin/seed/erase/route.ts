@@ -9,7 +9,12 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const seedEmails = ["ram@example.com", "sita@example.com", "hari@example.com", "gita@example.com"]
+    const seedEmails = [
+      "ram@example.com",
+      "sita@example.com",
+      "hari@example.com",
+      "gita@example.com",
+    ]
 
     const seedUsers = await prisma.user.findMany({
       where: { email: { in: seedEmails } },
@@ -50,8 +55,7 @@ export async function POST() {
     await prisma.testimonial.deleteMany()
 
     return NextResponse.json({ success: true, message: "Seed data erased successfully." })
-  } catch (error) {
-    console.error("Erase API error:", error)
+  } catch {
     return NextResponse.json({ error: "Failed to erase seed data" }, { status: 500 })
   }
 }

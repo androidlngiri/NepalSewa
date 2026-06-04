@@ -63,7 +63,7 @@ export async function GET() {
         requestId: c.requestId,
         requestTitle: c.requestTitle,
         requestStatus: c.requestStatus,
-        otherUser: otherId && otherId !== userId ? (userMap.get(otherId) || null) : null,
+        otherUser: otherId && otherId !== userId ? userMap.get(otherId) || null : null,
         lastMessage: {
           content: c.lastContent,
           createdAt: c.lastCreatedAt,
@@ -74,8 +74,7 @@ export async function GET() {
     })
 
     return NextResponse.json(result)
-  } catch (error) {
-    console.error("Failed to fetch conversations:", error)
+  } catch {
     return NextResponse.json({ error: "Failed to fetch conversations" }, { status: 500 })
   }
 }

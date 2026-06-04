@@ -2,7 +2,17 @@
 
 import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
-import { Loader2, ArrowLeft, DollarSign, TrendingUp, AlertCircle, RefreshCw, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react"
+import {
+  Loader2,
+  ArrowLeft,
+  DollarSign,
+  TrendingUp,
+  AlertCircle,
+  RefreshCw,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +29,7 @@ interface Transaction {
   description: string
   createdAt: string
   user: { id: string; name: string | null; email: string | null }
+  request?: { id: string } | null
 }
 
 const statusColors: Record<string, string> = {
@@ -53,7 +64,9 @@ export default function AdminTransactionsPage() {
     }
   }, [page])
 
-  useEffect(() => { fetchTransactions() }, [fetchTransactions])
+  useEffect(() => {
+    fetchTransactions()
+  }, [fetchTransactions])
 
   return (
     <DashboardLayout role="admin">
@@ -62,7 +75,7 @@ export default function AdminTransactionsPage() {
           <div>
             <Link
               href="/dashboard/admin"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-2"
+              className="text-muted-foreground hover:text-foreground mb-2 inline-flex items-center gap-2 text-sm"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -70,7 +83,12 @@ export default function AdminTransactionsPage() {
             <h1 className="text-2xl font-bold tracking-tight">Transactions</h1>
             <p className="text-muted-foreground">All platform transactions.</p>
           </div>
-          <Button variant="outline" className="h-11 w-11" onClick={fetchTransactions} aria-label="Refresh">
+          <Button
+            variant="outline"
+            className="h-11 w-11"
+            onClick={fetchTransactions}
+            aria-label="Refresh"
+          >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -78,9 +96,9 @@ export default function AdminTransactionsPage() {
         {error ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <AlertCircle className="h-12 w-12 text-red-400 mb-4" />
-              <h3 className="text-lg font-medium mb-1">Failed to load transactions</h3>
-              <p className="text-sm text-muted-foreground mb-4">{error}</p>
+              <AlertCircle className="mb-4 h-12 w-12 text-red-400" />
+              <h3 className="mb-1 text-lg font-medium">Failed to load transactions</h3>
+              <p className="text-muted-foreground mb-4 text-sm">{error}</p>
               <Button variant="outline" onClick={fetchTransactions} className="gap-2">
                 <RefreshCw className="h-4 w-4" />
                 Retry
@@ -96,9 +114,9 @@ export default function AdminTransactionsPage() {
         ) : transactions.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-              <TrendingUp className="h-12 w-12 text-muted-foreground/40 mb-4" />
-              <h3 className="text-lg font-medium mb-1">No transactions yet</h3>
-              <p className="text-sm text-muted-foreground">
+              <TrendingUp className="text-muted-foreground/40 mb-4 h-12 w-12" />
+              <h3 className="mb-1 text-lg font-medium">No transactions yet</h3>
+              <p className="text-muted-foreground text-sm">
                 Transactions will appear once users start completing jobs.
               </p>
             </CardContent>
@@ -111,25 +129,23 @@ export default function AdminTransactionsPage() {
                   {transactions.map((tx) => (
                     <Link
                       key={tx.id}
-                      href={`/dashboard/admin/requests/${tx.id}`}
-                      className="flex items-center justify-between p-4 sm:px-6 transition-colors hover:bg-muted/50 group"
+                      href={tx.request?.id ? `/dashboard/admin/requests/${tx.request.id}` : "#"}
+                      className={`flex items-center justify-between p-4 transition-colors sm:px-6 group${tx.request?.id ? "hover:bg-muted/50" : ""}`}
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm truncate">
+                          <p className="truncate text-sm font-medium">
                             {tx.user?.name || "Unknown"}
                           </p>
-                          <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                          <ExternalLink className="text-muted-foreground h-3 w-3 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="text-muted-foreground truncate text-xs">
                           {tx.description || tx.type} • {formatDate(tx.createdAt)}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                      <div className="ml-4 flex flex-shrink-0 items-center gap-3">
                         <div className="text-right">
-                          <p className="font-medium text-emerald-600">
-                            +{formatPrice(tx.amount)}
-                          </p>
+                          <p className="font-medium text-emerald-600">+{formatPrice(tx.amount)}</p>
                         </div>
                         <Badge variant="outline" className={statusColors[tx.status] || ""}>
                           {tx.status?.toLowerCase()}
@@ -142,8 +158,8 @@ export default function AdminTransactionsPage() {
             </Card>
 
             {totalPages > 1 && (
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-                <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+                <p className="text-muted-foreground text-sm">
                   Page {page} of {totalPages} ({total} total)
                 </p>
                 <div className="flex items-center gap-2">

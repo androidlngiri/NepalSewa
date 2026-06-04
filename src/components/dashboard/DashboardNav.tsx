@@ -63,7 +63,7 @@ const adminNav = [
   { href: "/dashboard/admin/requests", label: "Requests", icon: ClipboardList },
   { href: "/dashboard/admin/services", label: "Services", icon: Wrench },
   { href: "/dashboard/chat", label: "Messages", icon: Mail },
-  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/dashboard/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
   { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },
   { href: "/dashboard/admin/payouts", label: "Payouts", icon: IndianRupee },

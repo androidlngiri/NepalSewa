@@ -27,6 +27,11 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       return
     }
 
+    if (role === "admin" && session.user.role !== "ADMIN") {
+      router.push("/dashboard/user")
+      return
+    }
+
     if (role !== "admin" && session.user.role !== role.toUpperCase()) {
       if (role === "tasker" && session.user.isTasker) {
         setAuthorized(true)

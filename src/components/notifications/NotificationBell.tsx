@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { Bell, CheckCheck, Loader2, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn, formatDate } from "@/lib/utils"
@@ -17,11 +18,15 @@ interface NotificationItem {
 }
 
 export function NotificationBell() {
+  const { data: session } = useSession()
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const notificationsHref =
+    session?.user?.role === "ADMIN" ? "/dashboard/admin/notifications" : "/dashboard/notifications"
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -60,9 +65,7 @@ export function NotificationBell() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     })
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    )
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
     setUnreadCount((prev) => Math.max(0, prev - 1))
   }
 
@@ -77,7 +80,7 @@ export function NotificationBell() {
       <Button
         variant="ghost"
         size="icon"
-        className="relative h-9 w-9 text-muted-foreground hover:text-foreground"
+        className="text-muted-foreground hover:text-foreground relative h-9 w-9"
         onClick={() => setOpen(!open)}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
       >
@@ -90,7 +93,7 @@ export function NotificationBell() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 z-50 w-80 sm:w-96 rounded-xl border bg-card shadow-xl">
+        <div className="bg-card absolute top-full right-0 z-50 mt-2 w-80 rounded-xl border shadow-xl sm:w-96">
           <div className="flex items-center justify-between border-b px-4 py-3">
             <h3 className="text-sm font-semibold">Notifications</h3>
             {unreadCount > 0 && (
@@ -107,12 +110,12 @@ export function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <Loader2 className="text-muted-foreground h-5 w-5 animate-spin" />
               </div>
             ) : notifications.length === 0 ? (
               <div className="flex flex-col items-center py-8 text-center">
-                <Bell className="h-8 w-8 text-muted-foreground/40 mb-2" />
-                <p className="text-sm text-muted-foreground">No notifications yet</p>
+                <Bell className="text-muted-foreground/40 mb-2 h-8 w-8" />
+                <p className="text-muted-foreground text-sm">No notifications yet</p>
               </div>
             ) : (
               notifications.map((n) => (
@@ -120,28 +123,26 @@ export function NotificationBell() {
                   key={n.id}
                   className={cn(
                     "flex items-start gap-3 border-b px-4 py-3 transition-colors last:border-0",
-                    !n.read ? "bg-emerald-50/50" : "hover:bg-muted/30"
+                    !n.read ? "bg-emerald-50/50" : "hover:bg-muted/30",
                   )}
                 >
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className={cn("text-sm", !n.read && "font-medium")}>
-                        {n.title}
-                      </p>
+                      <p className={cn("text-sm", !n.read && "font-medium")}>{n.title}</p>
                       {!n.read && (
                         <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
                       )}
                     </div>
                     {n.message && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                      <p className="text-muted-foreground mt-0.5 line-clamp-2 text-xs">
                         {n.message}
                       </p>
                     )}
-                    <p className="text-[11px] text-muted-foreground mt-1">
+                    <p className="text-muted-foreground mt-1 text-[11px]">
                       {formatDate(n.createdAt)}
                     </p>
                   </div>
-                  <div className="flex flex-col items-center gap-1 shrink-0">
+                  <div className="flex shrink-0 flex-col items-center gap-1">
                     {n.link && (
                       <Link
                         href={n.link}
@@ -149,7 +150,7 @@ export function NotificationBell() {
                           if (!n.read) handleMarkRead(n.id)
                           setOpen(false)
                         }}
-                        className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+                        className="text-muted-foreground hover:text-foreground hover:bg-muted flex h-7 w-7 items-center justify-center rounded-md"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Link>
@@ -162,7 +163,7 @@ export function NotificationBell() {
 
           <div className="border-t px-4 py-2.5">
             <Link
-              href="/dashboard/notifications"
+              href={notificationsHref}
               onClick={() => setOpen(false)}
               className="block text-center text-xs font-medium text-emerald-600 hover:text-emerald-700"
             >

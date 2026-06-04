@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials"
 import Google from "next-auth/providers/google"
 import bcrypt from "bcryptjs"
 import { prisma } from "./prisma"
+import { rateLimit } from "./rate-limit"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -26,6 +27,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         otp: { label: "OTP", type: "text" },
       },
       async authorize(credentials) {
+        const identifier = (credentials?.email || credentials?.phone) as string
+        if (identifier && !rateLimit(`login:${identifier}`, 5, 60000)) {
+          throw new Error("Too many login attempts. Please try again in 1 minute.")
+        }
+
         const phone = credentials?.phone as string | undefined
         const otp = credentials?.otp as string | undefined
 

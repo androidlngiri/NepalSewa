@@ -13,7 +13,7 @@ import { toast } from "sonner"
 
 const contactInfo = [
   { icon: MapPin, title: "Address", detail: "Butwal, Lumbini Province, Nepal" },
-  { icon: Phone, title: "Phone", detail: "+977-98XXXXXXXX" },
+  { icon: Phone, title: "Phone", detail: "hello@nepalsewa.com.np" },
   { icon: Mail, title: "Email", detail: "hello@nepalsewa.com.np" },
   { icon: MessageSquare, title: "Support Hours", detail: "Sun-Fri, 9AM-6PM" },
 ]
@@ -71,9 +71,9 @@ export default function ContactPage() {
       <main className="flex-1">
         <section className="bg-gradient-to-b from-emerald-50 to-white py-16 lg:py-24">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-            <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Contact Us</h1>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <div className="mb-12 text-center">
+              <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">Contact Us</h1>
+              <p className="text-muted-foreground mx-auto max-w-2xl text-lg">
                 Have a question, suggestion, or need help? We'd love to hear from you.
               </p>
             </div>
@@ -88,7 +88,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium">{item.title}</p>
-                        <p className="text-sm text-muted-foreground">{item.detail}</p>
+                        <p className="text-muted-foreground text-sm">{item.detail}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -105,7 +105,13 @@ export default function ContactPage() {
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="ram@example.com" required className="h-11" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="ram@example.com"
+                          required
+                          className="h-11"
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
