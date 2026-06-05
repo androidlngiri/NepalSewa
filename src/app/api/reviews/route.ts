@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const { revieweeId, requestId, rating, comment } = body
+    const { revieweeId, requestId, rating, comment, photos } = body
 
     if (!revieweeId || !rating) {
       return NextResponse.json(
@@ -91,6 +91,7 @@ export async function POST(req: Request) {
         requestId: requestId || null,
         rating,
         comment: comment || null,
+        photos: Array.isArray(photos) ? photos.slice(0, 3) : [],
       },
     })
 

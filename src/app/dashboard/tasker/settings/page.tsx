@@ -1,9 +1,19 @@
 "use client"
 
-import { useState, useEffect, FormEvent } from "react"
+import { useState, useEffect, FormEvent, useRef } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
-import { Loader2, ArrowLeft, Save, Crown, Sparkles } from "lucide-react"
+import {
+  Loader2,
+  ArrowLeft,
+  Save,
+  Crown,
+  Sparkles,
+  ShieldCheck,
+  Upload,
+  Camera,
+  X,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -29,6 +39,23 @@ export default function TaskerSettingsPage() {
     address: "",
     bio: "",
   })
+  const [skills, setSkills] = useState<string[]>([])
+  const [isVerified, setIsVerified] = useState(false)
+  const [verificationPending, setVerificationPending] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [submittingVerification, setSubmittingVerification] = useState(false)
+  const photoInputRef = useRef<HTMLInputElement>(null)
+
+  const ALL_SKILLS = [
+    "Plumbing",
+    "Electrical",
+    "Painting",
+    "Cleaning",
+    "Moving/Delivery",
+    "Tech Support",
+    "Tutoring",
+    "Salon/Spa",
+  ]
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -61,8 +88,16 @@ export default function TaskerSettingsPage() {
             address: user.address || "",
             bio: user.bio || "",
           })
+          setSkills(user.skills || [])
+          setIsVerified(user.isVerified || false)
           setTier(user.tier || "STANDARD")
           setProExpiresAt(user.proExpiresAt || null)
+
+          const verRes = await fetch("/api/verification")
+          if (verRes.ok) {
+            const verData = await verRes.json()
+            setVerificationPending(verData.some((v: any) => v.status === "PENDING"))
+          }
         }
       } catch {
         toast.error("Failed to load profile")
@@ -80,7 +115,7 @@ export default function TaskerSettingsPage() {
       const res = await fetch("/api/users", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, skills }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -135,6 +170,51 @@ export default function TaskerSettingsPage() {
     }
   }
 
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only images are allowed")
+      return
+    }
+    setUploadingPhoto(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData })
+      if (!uploadRes.ok) throw new Error("Upload failed")
+      const { url } = await uploadRes.json()
+      await fetch("/api/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: url }),
+      })
+      toast.success("Profile photo updated!")
+      await update()
+      router.refresh()
+    } catch {
+      toast.error("Failed to upload photo")
+    } finally {
+      setUploadingPhoto(false)
+      if (photoInputRef.current) photoInputRef.current.value = ""
+    }
+  }
+
+  async function handleRequestVerification() {
+    setSubmittingVerification(true)
+    try {
+      toast.info(
+        "Please upload your ID document in the portfolio section first, then submit verification.",
+      )
+    } finally {
+      setSubmittingVerification(false)
+    }
+  }
+
+  function toggleSkill(skill: string) {
+    setSkills((prev) => (prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]))
+  }
+
   if (fetching) {
     return (
       <DashboardLayout role="tasker">
@@ -166,6 +246,46 @@ export default function TaskerSettingsPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-5">
+              <div className="flex items-center gap-4">
+                <div className="bg-muted relative h-20 w-20 shrink-0 overflow-hidden rounded-full">
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                  {uploadingPhoto ? (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex h-full w-full items-center justify-center bg-emerald-100 text-2xl font-bold text-emerald-700">
+                        {form.name?.charAt(0)?.toUpperCase() || "T"}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => photoInputRef.current?.click()}
+                        className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity hover:opacity-100"
+                      >
+                        <Camera className="h-5 w-5 text-white" />
+                      </button>
+                    </>
+                  )}
+                </div>
+                <div>
+                  <p className="font-medium">{form.name || "Tasker"}</p>
+                  <button
+                    type="button"
+                    onClick={() => photoInputRef.current?.click()}
+                    className="text-xs text-emerald-600 hover:text-emerald-700"
+                    disabled={uploadingPhoto}
+                  >
+                    {uploadingPhoto ? "Uploading..." : "Change photo"}
+                  </button>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -219,6 +339,90 @@ export default function TaskerSettingsPage() {
                 Save Changes
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Skills</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-muted-foreground text-sm">Select the services you offer.</p>
+            <div className="flex flex-wrap gap-2">
+              {ALL_SKILLS.map((skill) => (
+                <button
+                  key={skill}
+                  type="button"
+                  onClick={() => toggleSkill(skill)}
+                  className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
+                    skills.includes(skill)
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      : "text-muted-foreground border-gray-200 bg-white hover:bg-gray-50"
+                  }`}
+                >
+                  {skill}
+                </button>
+              ))}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11"
+              onClick={onSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save Skills
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-emerald-600" />
+              Verification
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {isVerified ? (
+              <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <ShieldCheck className="h-5 w-5 text-emerald-600" />
+                <div>
+                  <p className="text-sm font-medium text-emerald-700">Verified Tasker</p>
+                  <p className="text-xs text-emerald-600">
+                    Your identity has been verified by NepalSewa.
+                  </p>
+                </div>
+              </div>
+            ) : verificationPending ? (
+              <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                <Loader2 className="h-5 w-5 animate-spin text-amber-600" />
+                <div>
+                  <p className="text-sm font-medium text-amber-700">Verification Pending</p>
+                  <p className="text-xs text-amber-600">
+                    Your verification request is being reviewed.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-muted-foreground text-sm">
+                  Get verified to build trust with customers. Upload your ID document
+                  (citizenship/passport) and we&apos;ll review it.
+                </p>
+                <Link href="/dashboard/tasker/portfolio">
+                  <Button variant="outline" className="gap-1.5">
+                    <Upload className="h-4 w-4" />
+                    Upload ID Document in Portfolio
+                  </Button>
+                </Link>
+              </>
+            )}
           </CardContent>
         </Card>
 

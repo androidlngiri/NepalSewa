@@ -47,7 +47,8 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json()
-    const { name, email, phone, wardNo, address, bio, isTasker } = body
+    const { name, email, phone, wardNo, address, bio, isTasker, skills, portfolioImages, image } =
+      body
 
     function sanitize(str: string | undefined): string | undefined {
       return str ? str.replace(/[<>&"']/g, "").trim() : undefined
@@ -63,6 +64,11 @@ export async function PATCH(req: Request) {
         ...(address !== undefined && { address }),
         ...(bio !== undefined && { bio: sanitize(bio) }),
         ...(isTasker !== undefined && { isTasker }),
+        ...(skills !== undefined && { skills: Array.isArray(skills) ? skills : [] }),
+        ...(portfolioImages !== undefined && {
+          portfolioImages: Array.isArray(portfolioImages) ? portfolioImages : [],
+        }),
+        ...(image !== undefined && { image: image || null }),
       },
       select: {
         id: true,
@@ -74,6 +80,11 @@ export async function PATCH(req: Request) {
         wardNo: true,
         address: true,
         bio: true,
+        skills: true,
+        isVerified: true,
+        verifiedAt: true,
+        portfolioImages: true,
+        image: true,
       },
     })
 

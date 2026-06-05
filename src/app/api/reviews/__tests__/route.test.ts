@@ -144,6 +144,7 @@ describe("POST /api/reviews", () => {
         requestId: null,
         rating: 5,
         comment: "Excellent work",
+        photos: [],
       },
     })
     expect(mockUpdateUser).toHaveBeenCalledWith({
@@ -186,6 +187,7 @@ describe("POST /api/reviews", () => {
         requestId: "req-1",
         rating: 4,
         comment: null,
+        photos: [],
       },
     })
   })

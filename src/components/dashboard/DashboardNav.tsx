@@ -21,6 +21,7 @@ import {
   Bell,
   Mail,
   ChevronDown,
+  ShieldCheck,
 } from "lucide-react"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -54,6 +55,7 @@ const taskerNav = [
   { href: "/dashboard/tasker/earnings", label: "Earnings", icon: IndianRupee },
   { href: "/dashboard/tasker/payouts", label: "Withdraw", icon: IndianRupee },
   { href: "/dashboard/tasker/reviews", label: "Reviews", icon: Star },
+  { href: "/dashboard/tasker/portfolio", label: "Portfolio", icon: Star },
   { href: "/dashboard/tasker/settings", label: "Settings", icon: Settings },
 ]
 
@@ -67,6 +69,7 @@ const adminNav = [
   { href: "/dashboard/admin/transactions", label: "Transactions", icon: Star },
   { href: "/dashboard/admin/commissions", label: "Commissions", icon: Percent },
   { href: "/dashboard/admin/payouts", label: "Payouts", icon: IndianRupee },
+  { href: "/dashboard/admin/verifications", label: "Verifications", icon: ShieldCheck },
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ]
 

@@ -63,6 +63,11 @@ model User {
   wardNo         Int?
   address        String?
   bio            String?
+  skills         String[]
+  isVerified     Boolean   @default(false)
+  verifiedAt     DateTime?
+  verificationDocUrl String?
+  portfolioImages String[]
   rating         Float?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -80,6 +85,7 @@ model User {
   taskerPayouts  Transaction[]  @relation("TaskerPayouts")
   payoutRequests PayoutRequest[]
   notifications  Notification[]
+  verificationRequests VerificationRequest[]
 
   @@map("users")
 }
@@ -236,6 +242,7 @@ model Review {
   requestId   String?
   rating      Int
   comment     String?  @db.Text
+  photos      String[]
   createdAt   DateTime @default(now())
 
   reviewer    User     @relation("Reviewer", fields: [reviewerId], references: [id])
@@ -355,4 +362,20 @@ model PayoutRequest {
   @@index([taskerId])
   @@index([status])
   @@map("payout_requests")
+}
+
+model VerificationRequest {
+  id          String    @id @default(cuid())
+  taskerId    String
+  docUrl      String
+  status      String    @default("PENDING")
+  adminNotes  String?
+  createdAt   DateTime  @default(now())
+  reviewedAt  DateTime?
+
+  tasker      User      @relation(fields: [taskerId], references: [id], onDelete: Cascade)
+
+  @@index([taskerId])
+  @@index([status])
+  @@map("verification_requests")
 }
