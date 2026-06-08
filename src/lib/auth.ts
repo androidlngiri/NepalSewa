@@ -107,37 +107,66 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account }) {
       if (account?.provider !== "google" || !user?.email) return true
 
-      const existingUser = await prisma.user.findUnique({
-        where: { email: user.email },
-      })
+      try {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        })
 
-      if (!existingUser) return true
+        if (existingUser) {
+          await prisma.account.upsert({
+            where: {
+              provider_providerAccountId: {
+                provider: "google",
+                providerAccountId: account.providerAccountId,
+              },
+            },
+            update: {},
+            create: {
+              userId: existingUser.id,
+              type: account.type,
+              provider: "google",
+              providerAccountId: account.providerAccountId,
+              refresh_token: account.refresh_token,
+              access_token: account.access_token,
+              expires_at: account.expires_at,
+              token_type: account.token_type,
+              scope: account.scope,
+              id_token: account.id_token,
+              session_state: account.session_state as string | null,
+            },
+          })
+          user.id = existingUser.id
+          return true
+        }
 
-      await prisma.account.upsert({
-        where: {
-          provider_providerAccountId: {
-            provider: "google",
-            providerAccountId: account.providerAccountId,
+        const newUser = await prisma.user.create({
+          data: {
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            role: "USER",
+            emailVerified: new Date(),
+            accounts: {
+              create: {
+                type: account.type,
+                provider: "google",
+                providerAccountId: account.providerAccountId,
+                refresh_token: account.refresh_token,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state as string | null,
+              },
+            },
           },
-        },
-        update: {},
-        create: {
-          userId: existingUser.id,
-          type: account.type,
-          provider: "google",
-          providerAccountId: account.providerAccountId,
-          refresh_token: account.refresh_token,
-          access_token: account.access_token,
-          expires_at: account.expires_at,
-          token_type: account.token_type,
-          scope: account.scope,
-          id_token: account.id_token,
-          session_state: account.session_state as string | null,
-        },
-      })
-
-      user.id = existingUser.id
-      return true
+        })
+        user.id = newUser.id
+        return true
+      } catch {
+        return true
+      }
     },
     async jwt({ token, user }) {
       if (user) {
