@@ -136,6 +136,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
           })
           user.id = existingUser.id
+          ;(user as any).role = existingUser.role
           return true
         }
 
@@ -163,6 +164,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         })
         user.id = newUser.id
+        ;(user as any).role = "USER"
         return true
       } catch {
         return true

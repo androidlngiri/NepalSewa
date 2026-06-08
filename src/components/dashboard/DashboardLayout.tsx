@@ -27,18 +27,20 @@ export function DashboardLayout({ children, role }: DashboardLayoutProps) {
       return
     }
 
-    if (role === "admin" && session.user.role !== "ADMIN") {
+    const userRole = (session.user.role as string)?.toUpperCase() || "USER"
+
+    if (role === "admin" && userRole !== "ADMIN") {
       router.push("/dashboard/user")
       return
     }
 
-    if (role !== "admin" && session.user.role !== role.toUpperCase()) {
+    if (role !== "admin" && userRole !== role.toUpperCase()) {
       if (role === "tasker" && session.user.isTasker) {
         setAuthorized(true)
       } else if (role === "user" && session.user.isTasker) {
         setAuthorized(true)
       } else {
-        router.push(`/dashboard/${(session.user.role as string)?.toLowerCase() || "user"}`)
+        router.push(`/dashboard/${userRole.toLowerCase() || "user"}`)
         return
       }
     } else {
